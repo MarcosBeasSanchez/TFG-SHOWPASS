@@ -24,13 +24,9 @@ public class Ticket {
 	@EqualsAndHashCode.Include
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
 	private Long usuarioId; // Fk
-	
 	private Long eventoId; // Fk
-	
 	private String codigoQR; //generar un codigo QR al comprar
-	
 	private LocalDateTime fechaCompra;
 
 }

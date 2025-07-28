@@ -8,12 +8,8 @@ import tfg.proyecto.TFG.dtos.DTOeventoSubida;
 public interface IServicioEvento {
 	
 	DTOeventoBajada insert(DTOeventoSubida dto);
-	
 	List<DTOeventoBajada> obtenerTodosLosEventos();
-
 	DTOeventoBajada actualizarEvento(Long id,  DTOeventoSubida eventodto);
-	
 	boolean eliminarEvento(Long id);
-	
 	DTOeventoBajada obtnerPorElNombre(String nombre);
 }
