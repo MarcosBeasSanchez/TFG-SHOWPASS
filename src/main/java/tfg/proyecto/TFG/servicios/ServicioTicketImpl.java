@@ -76,7 +76,7 @@ public class ServicioTicketImpl implements IServicioTicket{
 	@Override
 	public boolean validarCodigoQR(String codigoQR) {
 		// TODO Auto-generated method stub
-		return ticketDAO.existsByCodigoQR(codigoQR);
+		return ticketDAO.existsByCodigoQR(codigoQR); //devuelve si exsiste o no el codigo
 	}
 
 	

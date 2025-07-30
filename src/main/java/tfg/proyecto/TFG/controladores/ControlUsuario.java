@@ -28,12 +28,12 @@ import tfg.proyecto.TFG.servicios.IServicioUsuario;
 public class ControlUsuario {
 
 	@Autowired
-	IServicioUsuario daousuario;
+	IServicioUsuario daoUsuario;
 
 	@PostMapping("insert")
 	public ResponseEntity<DTOusuarioBajada> insertarUsuario(@RequestBody DTOusuarioSubida usu) {
 		DTOusuarioBajada dtoBajada;
-		dtoBajada = daousuario.insert(usu);
+		dtoBajada = daoUsuario.insert(usu);
 		return new ResponseEntity<DTOusuarioBajada>(dtoBajada, HttpStatus.OK);
 
 	}
@@ -42,7 +42,7 @@ public class ControlUsuario {
 	@Modifying
 	public ResponseEntity<DTOusuarioBajada> updateUsuario(@RequestBody DTOusuarioModificarSubida usu) {
 		DTOusuarioBajada dtoBajada;
-		dtoBajada = daousuario.update(usu);
+		dtoBajada = daoUsuario.update(usu);
 		if (dtoBajada != null) {
 			return new ResponseEntity<DTOusuarioBajada>(dtoBajada, HttpStatus.OK);
 		} else {
@@ -55,7 +55,7 @@ public class ControlUsuario {
 	@Transactional
 	public ResponseEntity<Integer> deleteUsuario(@PathVariable Long id) {
 
-		Integer n = daousuario.deleteById(id);
+		Integer n = daoUsuario.deleteById(id);
 
 		if (n != null) {
 			return new ResponseEntity<Integer>(n, HttpStatus.OK);
@@ -67,7 +67,7 @@ public class ControlUsuario {
 	
 	@GetMapping("findById/{id}")
     public ResponseEntity<DTOusuarioBajada> findUsuarioById(@PathVariable Long id) {
-        DTOusuarioBajada dto = daousuario.findById(id);
+        DTOusuarioBajada dto = daoUsuario.findById(id);
         if (dto != null) {
             return new ResponseEntity<>(dto, HttpStatus.OK);
         } else {
@@ -77,7 +77,7 @@ public class ControlUsuario {
 
     @GetMapping("findAll")
     public ResponseEntity<List<DTOusuarioBajada>> findAllUsuarios() {
-        List<DTOusuarioBajada> lista = daousuario.findAllUsuarios();
+        List<DTOusuarioBajada> lista = daoUsuario.findAllUsuarios();
         return new ResponseEntity<>(lista, HttpStatus.OK);
     }
 }
