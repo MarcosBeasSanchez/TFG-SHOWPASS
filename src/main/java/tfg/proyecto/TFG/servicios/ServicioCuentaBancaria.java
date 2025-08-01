@@ -3,6 +3,7 @@ package tfg.proyecto.TFG.servicios;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import tfg.proyecto.TFG.config.DtoConverter;
 import tfg.proyecto.TFG.dtos.DTOcuentaBancariaBajada;
@@ -13,7 +14,7 @@ import tfg.proyecto.TFG.repositorio.RepositorioCuentaBancaria;
 import tfg.proyecto.TFG.repositorio.RepositorioEvento;
 import tfg.proyecto.TFG.repositorio.RepositorioTicket;
 import tfg.proyecto.TFG.repositorio.RepositorioUsuario;
-
+@Service
 public class ServicioCuentaBancaria implements IServicioCuentaBancaria{
 	
 	@Autowired

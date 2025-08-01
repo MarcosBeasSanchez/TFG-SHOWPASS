@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 import tfg.proyecto.TFG.config.DtoConverter;
 import tfg.proyecto.TFG.dtos.DTOticketBajada;
 import tfg.proyecto.TFG.dtos.DTOticketSubida;
+import tfg.proyecto.TFG.modelo.Evento;
 import tfg.proyecto.TFG.modelo.Ticket;
+import tfg.proyecto.TFG.modelo.Usuario;
 import tfg.proyecto.TFG.repositorio.RepositorioTicket;
 
 @Service
@@ -24,12 +26,12 @@ public class ServicioTicketImpl implements IServicioTicket{
 	
 	@Override
 	public DTOticketBajada insert(DTOticketSubida dtoTicket) {
-		// TODO Auto-generated method stub
-		
-		Ticket ticket = dtoConverter.map(dtoTicket, Ticket.class);
-		
-		ticket.setFechaCompra(LocalDateTime.now());
-		ticket.setCodigoQR(UUID.randomUUID().toString()); //genera un QR aleatorio
+		Ticket ticket = Ticket.builder()
+		        .usuarioId(dtoTicket.getUsuarioId())
+		        .eventoId(dtoTicket.getEventoId())
+		        .codigoQR(UUID.randomUUID().toString()) // Genera o asigna como quieras
+		        .fechaCompra(LocalDateTime.now())
+		        .build();
 		
 		Ticket guardado = ticketDAO.save(ticket);
 		

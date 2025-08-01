@@ -1,7 +1,9 @@
 package tfg.proyecto.TFG.modelo;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,8 +27,10 @@ public class CuentaBancaria {
     private Long id;
     private String nombrePropietario;
     private String nombreBanco;
-    private String IBAN;
+    @Column(length = 24) //maximo de 24
+    private String IBAN; 
+    @Column(length = 12) //max de 12
     private String BIC; // codigo identificador banco 
-    private Float saldo;
+    private BigDecimal saldo;
 
 }

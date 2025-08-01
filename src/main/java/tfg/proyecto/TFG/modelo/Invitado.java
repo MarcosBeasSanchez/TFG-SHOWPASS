@@ -15,6 +15,8 @@ import lombok.NoArgsConstructor;
 @Embeddable
 @Builder
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Invitado {
 	
 	private String nombre;
