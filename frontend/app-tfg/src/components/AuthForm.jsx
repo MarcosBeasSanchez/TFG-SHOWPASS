@@ -1,0 +1,85 @@
+import { useState } from "react";
+
+export default function AuthForm({ type, onSubmit }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (type === "register") {
+      onSubmit({ name, email, password });
+    } else {
+      onSubmit({ email, password });
+    }
+  };
+
+  return (
+    <div className="flex items-center justify-center min-h-screen min-w-full">
+      <form
+        onSubmit={handleSubmit}
+        className="max-w-md w-full bg-white p-8 rounded-xl shadow space-y-4"
+      >
+        {/* TITULO */}
+        <h2 className="text-2xl font-bold text-center text-gray-500">
+          {type === "register" ? "CREAR CUENTA" : "INICIAR SESIÓN"}
+        </h2>
+
+        {/* Nombre */}
+        {type === "register" && (
+          <input
+            type="text"
+            placeholder="Nombre"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 placeholder-gray-400"
+            required
+          />
+          
+        )}
+        {/* email */}
+        <input
+          type="email"
+          placeholder="Correo electrónico"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 placeholder-gray-400"
+          required
+        />
+        {/* contraseña */}
+        <input
+          type="password"
+          placeholder="Contraseña"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 placeholder-gray-400"
+          required
+        />
+        {/* Fecha de nacimiento */}
+        {type === "register" && (
+          <input
+            type="date"
+           
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-gray-400"
+            required
+          />
+          
+        )}
+
+        {/*Falta por añadir la cuenta bancaria, mejor pedirla dentro una vez ya registrados,por defecto tambien tiene
+        que añadir un ROL(admin o user) y activo:true siempre por defecto */}
+        
+
+    
+        <button
+          type="submit"
+          className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition"
+        >
+          {type === "register" ? "Registrarse" : "Entrar"}
+        </button>
+      </form>
+    </div>
+  );
+}
