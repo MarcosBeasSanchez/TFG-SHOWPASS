@@ -17,9 +17,14 @@ export default function Login() {
         alert(result.message || "Error en login");
         return;
       }
-
+      
+      // Guardar token y nombre del usuario en localStorage
       localStorage.setItem("token", result.token);
+      localStorage.setItem("user", JSON.stringify(result.user));
+
       alert("Login exitoso ✅");
+      window.location.href = "/"; //redirigir a la ventana principal
+
     } catch (err) {
       console.error(err);
       alert("Error en el servidor");

@@ -4,11 +4,12 @@ export default function AuthForm({ type, onSubmit }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [birthDate, setBirthDate] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (type === "register") {
-      onSubmit({ name, email, password });
+      onSubmit({ name, email, password, birthDate });
     } else {
       onSubmit({ email, password });
     }
@@ -32,7 +33,7 @@ export default function AuthForm({ type, onSubmit }) {
             placeholder="Nombre"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 placeholder-gray-400"
+            className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 placeholder-gray-400 text-black"
             required
           />
           
@@ -43,7 +44,7 @@ export default function AuthForm({ type, onSubmit }) {
           placeholder="Correo electrónico"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 placeholder-gray-400"
+          className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 placeholder-gray-400 text-black"
           required
         />
         {/* contraseña */}
@@ -52,7 +53,7 @@ export default function AuthForm({ type, onSubmit }) {
           placeholder="Contraseña"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 placeholder-gray-400"
+          className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 placeholder-gray-400 text-black"
           required
         />
         {/* Fecha de nacimiento */}
@@ -60,9 +61,9 @@ export default function AuthForm({ type, onSubmit }) {
           <input
             type="date"
            
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-gray-400"
+            value={birthDate}
+            onChange={(e) => setBirthDate(e.target.value)}
+            className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black"
             required
           />
           
