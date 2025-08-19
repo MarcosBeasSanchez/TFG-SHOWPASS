@@ -29,7 +29,7 @@ export default function VentanaPrincipal() {
         >
           <img src={entrada.imagen} alt={entrada.nombre} className="w-full h-48 object-cover" />
           <div className="p-4">
-            <h3 className="text-xl font-bold">{entrada.nombre}</h3>
+            <h3 className="text-xl font-bold text-gray-500">{entrada.nombre}</h3>
             <p className="text-gray-600">{entrada.descripcion}</p>
             <button className="mt-3 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
               Comprar

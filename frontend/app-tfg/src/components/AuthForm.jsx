@@ -17,6 +17,8 @@ export default function AuthForm({ type, onSubmit }) {
 
   return (
     <div className="flex items-center justify-center min-h-screen min-w-full">
+
+    
       <form
         onSubmit={handleSubmit}
         className="max-w-md w-full bg-white p-8 rounded-xl shadow space-y-4"
@@ -36,7 +38,7 @@ export default function AuthForm({ type, onSubmit }) {
             className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 placeholder-gray-400 text-black"
             required
           />
-          
+
         )}
         {/* email */}
         <input
@@ -60,20 +62,15 @@ export default function AuthForm({ type, onSubmit }) {
         {type === "register" && (
           <input
             type="date"
-           
+
             value={birthDate}
             onChange={(e) => setBirthDate(e.target.value)}
             className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black"
             required
           />
-          
+
         )}
-
-        {/*Falta por añadir la cuenta bancaria, mejor pedirla dentro una vez ya registrados,por defecto tambien tiene
-        que añadir un ROL(admin o user) y activo:true siempre por defecto */}
         
-
-    
         <button
           type="submit"
           className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition"

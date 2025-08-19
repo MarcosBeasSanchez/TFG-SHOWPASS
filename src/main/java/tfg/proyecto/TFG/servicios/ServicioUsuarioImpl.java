@@ -3,12 +3,18 @@ package tfg.proyecto.TFG.servicios;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import tfg.proyecto.TFG.config.DtoConverter;
 import tfg.proyecto.TFG.dtos.DTOusuarioBajada;
+import tfg.proyecto.TFG.dtos.DTOusuarioBajadaMinimo;
+import tfg.proyecto.TFG.dtos.DTOusuarioLogin;
+import tfg.proyecto.TFG.dtos.DTOusuarioLoginBajada;
 import tfg.proyecto.TFG.dtos.DTOusuarioModificarSubida;
 import tfg.proyecto.TFG.dtos.DTOusuarioSubida;
+import tfg.proyecto.TFG.dtos.DTOusuarioSubidaMinimo;
+import tfg.proyecto.TFG.modelo.Rol;
 import tfg.proyecto.TFG.modelo.Usuario;
 import tfg.proyecto.TFG.repositorio.RepositorioCuentaBancaria;
 import tfg.proyecto.TFG.repositorio.RepositorioEvento;
@@ -28,6 +34,8 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 	RepositorioTicket repoTicket;
 	@Autowired
 	DtoConverter dtoConverter;
+
+	private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
 	@Override
 	public DTOusuarioBajada insert(DTOusuarioSubida usuarioDto) {
@@ -67,10 +75,10 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 		}
 		return nfilas;
 	}
-	
-	//devuelve nulo si no lo encuentra
+
+	// devuelve nulo si no lo encuentra
 	@Override
-	public DTOusuarioBajada findById(Long id) { 
+	public DTOusuarioBajada findById(Long id) {
 		DTOusuarioBajada dtobajada;
 		Usuario usuario;
 
@@ -85,8 +93,52 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 
 	@Override
 	public List<DTOusuarioBajada> findAllUsuarios() {
-	    return dtoConverter.mapAll((List<Usuario>) repoUsuario.findAll(), DTOusuarioBajada.class);
+		return dtoConverter.mapAll((List<Usuario>) repoUsuario.findAll(), DTOusuarioBajada.class);
 
+	}
+
+	@Override
+	public DTOusuarioBajada register(DTOusuarioSubidaMinimo usuarioDto) {
+		Usuario usuario;
+		DTOusuarioBajada dtoBajada;
+
+		usuario = dtoConverter.map(usuarioDto, Usuario.class);
+
+		usuario.setPassword(passwordEncoder.encode(usuario.getPassword())); // hashear contraseña
+		usuario.setActivo(true); // activo por defecto
+		usuario.setRol(Rol.CLIENTE); // Cliente por defecto
+		repoUsuario.save(usuario);
+
+		dtoBajada = dtoConverter.map(usuario, DTOusuarioBajada.class);
+
+		return dtoBajada;
+	}
+
+	@Override //login que compara los hashes de las contraseñas y tmb los emails
+	public DTOusuarioLoginBajada login(DTOusuarioLogin dtologin) {
+		Usuario usuario;
+		DTOusuarioBajada dtoUsuario;
+		DTOusuarioLoginBajada dtoLoginBajada = new DTOusuarioLoginBajada();
+
+		usuario = repoUsuario.findByEmail(dtologin.getEmail());
+
+		if (usuario != null && passwordEncoder.matches(dtologin.getPassword(), usuario.getPassword())) {
+
+			dtoUsuario = dtoConverter.map(usuario, DTOusuarioBajada.class);
+			
+			dtoLoginBajada.setDtousuarioBajada(dtoUsuario);
+			dtoLoginBajada.setExito(true);
+			dtoLoginBajada.setMensaje("Login " + dtoUsuario.getEmail() +" realizado correctamente" );
+			
+		}else {
+			dtoLoginBajada.setDtousuarioBajada(null);
+			dtoLoginBajada.setExito(false);
+			dtoLoginBajada.setMensaje("Error Login " );
+			
+		}
+		return dtoLoginBajada;
+
+		
 	}
 
 }

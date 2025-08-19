@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,23 +14,43 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.transaction.Transactional;
 import tfg.proyecto.TFG.dtos.DTOusuarioBajada;
+import tfg.proyecto.TFG.dtos.DTOusuarioBajadaMinimo;
+import tfg.proyecto.TFG.dtos.DTOusuarioLogin;
+import tfg.proyecto.TFG.dtos.DTOusuarioLoginBajada;
 import tfg.proyecto.TFG.dtos.DTOusuarioModificarSubida;
 import tfg.proyecto.TFG.dtos.DTOusuarioSubida;
-import tfg.proyecto.TFG.modelo.Usuario;
+import tfg.proyecto.TFG.dtos.DTOusuarioSubidaMinimo;
 import tfg.proyecto.TFG.servicios.IServicioUsuario;
 
 @RestController
 @RequestMapping("/tfg/usuario/")
+@CrossOrigin(origins = "http://localhost:5173")
 public class ControlUsuario {
 
 	@Autowired
 	IServicioUsuario daoUsuario;
+	
+	
+	@PostMapping("register")
+	public ResponseEntity<DTOusuarioBajada> registrarUsuario(@RequestBody DTOusuarioSubidaMinimo usu) {
+		DTOusuarioBajada dtoBajada;
+		dtoBajada = daoUsuario.register(usu);
+		return new ResponseEntity<DTOusuarioBajada>(dtoBajada, HttpStatus.OK);
 
+	}
+	
+	@PostMapping("login") //post porque http solo admite post y get
+	public ResponseEntity<DTOusuarioLoginBajada> loginUsuario(@RequestBody DTOusuarioLogin dtologin){
+		DTOusuarioLoginBajada dtoBajada;
+		dtoBajada = daoUsuario.login(dtologin);
+		return ResponseEntity.ok(dtoBajada);
+		
+	}
+	
 	@PostMapping("insert")
 	public ResponseEntity<DTOusuarioBajada> insertarUsuario(@RequestBody DTOusuarioSubida usu) {
 		DTOusuarioBajada dtoBajada;

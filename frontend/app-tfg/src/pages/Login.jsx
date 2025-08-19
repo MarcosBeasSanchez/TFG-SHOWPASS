@@ -1,11 +1,9 @@
 import AuthForm from "../components/AuthForm";
-import { colors } from "../styles/colors";
-
 
 export default function Login() {
   const handleLogin = async (data) => {
     try {
-      const res = await fetch("http://localhost:4000/api/login", {
+      const res = await fetch("http://localhost:8080/tfg/usuario/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -17,13 +15,19 @@ export default function Login() {
         alert(result.message || "Error en login");
         return;
       }
-      
-      // Guardar token y nombre del usuario en localStorage
-      localStorage.setItem("token", result.token);
-      localStorage.setItem("user", JSON.stringify(result.user));
 
-      alert("Login exitoso ✅");
-      window.location.href = "/"; //redirigir a la ventana principal
+
+      // Guardar datos del usuario en localStorage
+      localStorage.setItem("user", JSON.stringify(result.dtousuarioBajada));
+
+      // Guardar token solo si existe
+      if (result.token) {
+        localStorage.setItem("token", result.token);
+      }
+
+      // Mostrar el mensaje recibido del backend
+      alert(result.mensaje || "Login exitoso ✅");
+      window.location.href = "/"; //redirigir a la ventana principal 
 
     } catch (err) {
       console.error(err);

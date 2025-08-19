@@ -3,13 +3,15 @@ import AuthForm from "../components/AuthForm";
 export default function Register() {
   const handleRegister = async (data) => {
     try {
-      const res = await fetch("http://localhost:4000/api/register", {
+      const res = await fetch("http://localhost:8080/tfg/usuario/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
 
       const result = await res.json();
+
+      console.log(result);
 
       if (!res.ok) {
         alert(result.message || "Error en registro");

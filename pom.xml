@@ -1,36 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.5.3</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>tfg.proyecto</groupId>
 	<artifactId>5-TFG</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>5-TFG</name>
-	<description>El presente Trabajo de Fin de Grado consiste en el desarrollo de un sistema multiplataforma compuesto por una aplicación web y una aplicación móvil. Ambas permitirán a los usuarios consultar eventos musicales (conciertos y festivales), comprar entradas y gestionar su acceso mediante códigos QR.
+	<description>El presente Trabajo de Fin de Grado consiste en el desarrollo
+		de un sistema multiplataforma compuesto por una aplicación web y una
+		aplicación móvil. Ambas permitirán a los usuarios consultar eventos
+		musicales (conciertos y festivales), comprar entradas y gestionar su
+		acceso mediante códigos QR.
 
-Para ello se ha diseñado y construido un backend RESTful con Java y Spring Boot que actúa como núcleo del sistema, sirviendo datos y lógica de negocio a ambos clientes (web y móvil).
+		Para ello se ha diseñado y construido un backend RESTful con Java y
+		Spring Boot que actúa como núcleo del sistema, sirviendo datos y lógica
+		de negocio a ambos clientes (web y móvil).
 
-El sistema contempla funcionalidades como la autenticación de usuarios, roles diferenciados (usuarios y administradores), catálogo de eventos, pasarela de pago simulada, generación de entradas digitales y un panel de gestión para administradores.
+		El sistema contempla funcionalidades como la autenticación de usuarios,
+		roles diferenciados (usuarios y administradores), catálogo de eventos,
+		pasarela de pago simulada, generación de entradas digitales y un panel
+		de gestión para administradores.
 
-Con esta solución se busca aplicar conocimientos de desarrollo web, desarrollo móvil nativo en Kotlin, diseño de bases de datos relacionales y principios de arquitectura limpia y escalable.</description>
-	<url/>
+		Con esta solución se busca aplicar conocimientos de desarrollo web,
+		desarrollo móvil nativo en Kotlin, diseño de bases de datos relacionales
+		y principios de arquitectura limpia y escalable.</description>
+	<url />
 	<licenses>
-		<license/>
+		<license />
 	</licenses>
 	<developers>
-		<developer/>
+		<developer />
 	</developers>
 	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
+		<connection />
+		<developerConnection />
+		<tag />
+		<url />
 	</scm>
 	<properties>
 		<java.version>17</java.version>
@@ -51,26 +63,32 @@ Con esta solución se busca aplicar conocimientos de desarrollo web, desarrollo 
 			<scope>runtime</scope>
 			<optional>true</optional>
 		</dependency>
-		<dependency>
+		<dependency> <!-- BBDD -->
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<scope>runtime</scope>
 		</dependency>
-		<dependency>
+		<dependency> <!-- Lombok para constructores hash etc -->
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
-		<dependency>
+		<dependency>  <!-- SpringBoot -->
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-            <groupId>org.modelmapper</groupId>
-            <artifactId>modelmapper</artifactId>
-            <version>3.2.0</version>
-        </dependency>
+
+		<dependency> <!-- Seguridad Hash contraseñas -->
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		
+		<dependency> <!-- mapear los DTO -->
+			<groupId>org.modelmapper</groupId>
+			<artifactId>modelmapper</artifactId>
+			<version>3.2.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>
