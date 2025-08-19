@@ -18,6 +18,7 @@ public class DTOeventoSubida {
 	private String nombre;
 	private String localizacion;
 	private List<DTOInvitado> invitados;
+	private String imagen;
 	private LocalDateTime inicioEvento;
 	private LocalDateTime finEvento;
 

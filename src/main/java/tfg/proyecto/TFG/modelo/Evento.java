@@ -37,12 +37,13 @@ public class Evento {
 	private String nombre;
 	private String localizacion;
 	
+	
 	@Singular
 	@ElementCollection
 	@CollectionTable(name = "evento_invitados", 
 	joinColumns = @JoinColumn(name = "evento_id"))
 	private List<Invitado> invitados;
-	
+	private String imagen;
 	private LocalDateTime inicioEvento;
 	private LocalDateTime finEvento;
 

@@ -3,13 +3,13 @@ import { useState } from "react";
 export default function AuthForm({ type, onSubmit }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
-  const [birthDate, setBirthDate] = useState("");
+  const [nombre, setName] = useState("");
+  const [fechaNacimiento, setBirthDate] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (type === "register") {
-      onSubmit({ name, email, password, birthDate });
+      onSubmit({ nombre, email, password, fechaNacimiento });
     } else {
       onSubmit({ email, password });
     }
@@ -33,7 +33,7 @@ export default function AuthForm({ type, onSubmit }) {
           <input
             type="text"
             placeholder="Nombre"
-            value={name}
+            value={nombre}
             onChange={(e) => setName(e.target.value)}
             className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 placeholder-gray-400 text-black"
             required
@@ -63,7 +63,7 @@ export default function AuthForm({ type, onSubmit }) {
           <input
             type="date"
 
-            value={birthDate}
+            value={fechaNacimiento}
             onChange={(e) => setBirthDate(e.target.value)}
             className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black"
             required

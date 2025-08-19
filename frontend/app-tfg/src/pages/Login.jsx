@@ -11,6 +11,8 @@ export default function Login() {
 
       const result = await res.json();
 
+      console.log("respuesta del backend:", result);
+
       if (!res.ok) {
         alert(result.message || "Error en login");
         return;
@@ -34,6 +36,8 @@ export default function Login() {
       alert("Error en el servidor");
     }
   };
+
+
 
   return <AuthForm type="login" onSubmit={handleLogin} />;
 }

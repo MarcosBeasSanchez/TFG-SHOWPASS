@@ -14,9 +14,9 @@ public class DtoConverter {
 	
 	public DtoConverter ()
 	{
-		modelMapper = new ModelMapper();
-		        
-        System.out.println("dtoconverter creado...");
+		  modelMapper = new ModelMapper();
+		    modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.LOOSE); // estrategia flexible
+		    System.out.println("dtoconverter creado e inicializado...");
 		
 	}
 	

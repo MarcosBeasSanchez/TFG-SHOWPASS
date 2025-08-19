@@ -21,5 +21,7 @@ public class DTOeventoBajada {
 	private LocalDateTime inicioEvento;
 	private LocalDateTime finEvento;
 	private List<DTOInvitado> invitados;
+	private String imagen;
+
 
 }
