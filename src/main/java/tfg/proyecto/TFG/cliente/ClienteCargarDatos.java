@@ -74,7 +74,7 @@ public class ClienteCargarDatos implements CommandLineRunner {
 				    .localizacion("Madrid, España")
 				    .inicioEvento(LocalDateTime.of(2025, 7, 15, 18, 0))
 				    .finEvento(LocalDateTime.of(2025, 7, 15, 23, 59))
-				    .imagen("https://images.unsplash.com/photo-1506748686217-1a2a9b1b8e2b?auto=format&fit=crop&w=800&q=80")
+				    .imagen("https://plus.unsplash.com/premium_photo-1723914048561-12a00dd83ec6?q=80&w=1492&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 				    .invitados(List.of(
 				        DTOInvitado.builder().nombre("Carlos").apellidos("Gómez").fotoURL("https://randomuser.me/api/portraits/men/1.jpg").descripcion("DJ residente en Madrid").build(),
 				        DTOInvitado.builder().nombre("Laura").apellidos("Martínez").fotoURL("https://randomuser.me/api/portraits/women/2.jpg").descripcion("Productora musical y cantante").build()
@@ -87,7 +87,7 @@ public class ClienteCargarDatos implements CommandLineRunner {
 				    .localizacion("Barcelona, España")
 				    .inicioEvento(LocalDateTime.of(2025, 8, 10, 20, 0))
 				    .finEvento(LocalDateTime.of(2025, 8, 10, 23, 0))
-				    .imagen("https://images.unsplash.com/photo-1518972559570-3e2b8a6ed4e4?auto=format&fit=crop&w=800&q=80")
+				    .imagen("https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 				    .invitados(List.of(
 				        DTOInvitado.builder().nombre("Miguel").apellidos("López").fotoURL("https://randomuser.me/api/portraits/men/3.jpg").descripcion("Guitarrista principal").build(),
 				        DTOInvitado.builder().nombre("Sofía").apellidos("Ramírez").fotoURL("https://randomuser.me/api/portraits/women/4.jpg").descripcion("Baterista").build()
@@ -100,7 +100,7 @@ public class ClienteCargarDatos implements CommandLineRunner {
 				    .localizacion("Valencia, España")
 				    .inicioEvento(LocalDateTime.of(2025, 9, 5, 10, 0))
 				    .finEvento(LocalDateTime.of(2025, 9, 5, 18, 0))
-				    .imagen("https://images.unsplash.com/photo-1549887534-9a1fdd5c5b0b?auto=format&fit=crop&w=800&q=80")
+				    .imagen("https://plus.unsplash.com/premium_photo-1706548911781-dd3ad17a8fa6?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 				    .invitados(List.of(
 				        DTOInvitado.builder().nombre("Ana").apellidos("García").fotoURL("https://randomuser.me/api/portraits/women/5.jpg").descripcion("Curadora de la exposición").build(),
 				        DTOInvitado.builder().nombre("Javier").apellidos("Hernández").fotoURL("https://randomuser.me/api/portraits/men/6.jpg").descripcion("Artista invitado").build()
@@ -113,7 +113,7 @@ public class ClienteCargarDatos implements CommandLineRunner {
 				    .localizacion("Sevilla, España")
 				    .inicioEvento(LocalDateTime.of(2025, 10, 20, 14, 0))
 				    .finEvento(LocalDateTime.of(2025, 10, 20, 22, 0))
-				    .imagen("https://images.unsplash.com/photo-1615047497486-1bbf6b1b61b0?auto=format&fit=crop&w=800&q=80")
+				    .imagen("https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 				    .invitados(List.of(
 				        DTOInvitado.builder().nombre("Lucas").apellidos("Moreno").fotoURL("https://randomuser.me/api/portraits/men/7.jpg").descripcion("Jugador profesional de League of Legends").build(),
 				        DTOInvitado.builder().nombre("Marta").apellidos("Sánchez").fotoURL("https://randomuser.me/api/portraits/women/8.jpg").descripcion("Streamer invitada").build()
@@ -126,7 +126,7 @@ public class ClienteCargarDatos implements CommandLineRunner {
 				    .localizacion("Bilbao, España")
 				    .inicioEvento(LocalDateTime.of(2025, 11, 2, 9, 0))
 				    .finEvento(LocalDateTime.of(2025, 11, 2, 15, 0))
-				    .imagen("https://images.unsplash.com/photo-1571019613910-4f3a5fcd4640?auto=format&fit=crop&w=800&q=80")
+				    .imagen("https://images.unsplash.com/photo-1452626038306-9aae5e071dd3?q=80&w=1474&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 				    .invitados(List.of(
 				        DTOInvitado.builder().nombre("Elena").apellidos("Torres").fotoURL("https://randomuser.me/api/portraits/women/9.jpg").descripcion("Organizadora del evento").build(),
 				        DTOInvitado.builder().nombre("Pedro").apellidos("Alonso").fotoURL("https://randomuser.me/api/portraits/men/10.jpg").descripcion("Atleta invitado").build()

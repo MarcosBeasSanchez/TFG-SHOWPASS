@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.transaction.Transactional;
 import tfg.proyecto.TFG.dtos.DTOusuarioBajada;
-import tfg.proyecto.TFG.dtos.DTOusuarioBajadaMinimo;
 import tfg.proyecto.TFG.dtos.DTOusuarioLogin;
 import tfg.proyecto.TFG.dtos.DTOusuarioLoginBajada;
 import tfg.proyecto.TFG.dtos.DTOusuarioModificarSubida;
@@ -28,7 +27,7 @@ import tfg.proyecto.TFG.servicios.IServicioUsuario;
 
 @RestController
 @RequestMapping("/tfg/usuario/")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "http://localhost:5173") // acepta la conexion con http con vite puerto 5173
 public class ControlUsuario {
 
 	@Autowired

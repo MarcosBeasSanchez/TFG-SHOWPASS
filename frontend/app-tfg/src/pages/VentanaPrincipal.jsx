@@ -28,20 +28,20 @@ export default function VentanaPrincipal() {
   const mostrarBuscador = !["/login", "/register"].includes(location.pathname);
 
   return (
-    <div className="p-8">
+    <div className="">
       {mostrarBuscador && (
-        <div className="flex justify-center mb-6">
+        <div className="flex justify-center mb-6 bg-gray-800 p-4 ">
           <input
             type="text"
             placeholder="Buscar evento..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
-            className="w-full max-w-md p-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300"
+            className="w-full max-w-md p-1.5 border rounded-lg border-gray-500"
           />
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 p-10">
         {entradasFiltradas.map((entrada) => (
           <div
             key={entrada.id}
@@ -50,13 +50,15 @@ export default function VentanaPrincipal() {
             <img
               src={entrada.imagen}
               alt={entrada.nombre}
-              className="w-full h-48 object-cover"
+              className="w-full h-80 object-cover hover:opacity-70  hover:scale-105 transition duration-500"
             />
             <div className="p-4 flex flex-col justify-between h-56">
               <div>
                 <h3 className="text-xl font-bold text-gray-700">{entrada.nombre}</h3>
                 <p className="text-gray-600 mt-2">
-                  {entrada.localizacion} |{" "}
+                  {entrada.localizacion}
+                </p>
+                <p className="text-gray-500 mt-2">
                   {entrada.inicioEvento
                     ? new Date(entrada.inicioEvento).toLocaleString()
                     : "Fecha por definir"}
