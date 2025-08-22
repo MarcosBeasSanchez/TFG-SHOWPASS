@@ -1,6 +1,7 @@
 package tfg.proyecto.TFG.dtos;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,13 +12,13 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DTOcuentaBancariaSubidaUpdate {
+public class DTOtarjetaBancariaSubidaUpdate {
 	
 	private Long id;
-	private String nombrePropietario;
-	private String nombreBanco;
-	private String IBAN;
-	private String BIC;
+    private String nombreTitular;
+    private String nTarjeta;
+    private LocalDate fechaCaducidad;
+    private String cvv;  
 	private BigDecimal saldo; // saldo disponible
 
 }

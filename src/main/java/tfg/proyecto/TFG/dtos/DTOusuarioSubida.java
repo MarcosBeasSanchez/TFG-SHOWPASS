@@ -1,6 +1,5 @@
 package tfg.proyecto.TFG.dtos;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import lombok.AllArgsConstructor;
@@ -18,7 +17,8 @@ public class DTOusuarioSubida {
 	private String email;
 	private String password;
 	private LocalDate fechaNacimiento;
+	private String foto;
 	private Rol rol;
-	private DTOcuentaBancariaSubida cuenta;
+	private DTOtarjetaBancariaSubida cuenta;
 	private Boolean activo;
 }

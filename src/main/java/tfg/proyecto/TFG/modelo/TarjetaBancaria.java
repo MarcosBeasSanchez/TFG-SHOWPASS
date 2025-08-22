@@ -20,17 +20,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
-public class CuentaBancaria {
+public class TarjetaBancaria {
 	
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String nombrePropietario;
-    private String nombreBanco;
-    @Column(length = 24) //maximo de 24
-    private String IBAN; 
-    @Column(length = 12) //max de 12
-    private String BIC; // codigo identificador banco 
+    private String nombreTitular;
+    @Column(length = 16)
+    private String nTarjeta;
+    private LocalDate fechaCaducidad;
+    @Column(length = 4)
+    private String cvv;  
     private BigDecimal saldo;
 
 }

@@ -16,6 +16,7 @@ public class DTOusuarioLoginBajada {
 	
 	boolean exito;
 	String mensaje;
+	String token; //token JWT falta por implementarlo,
 	DTOusuarioBajada dtousuarioBajada;
 
 }

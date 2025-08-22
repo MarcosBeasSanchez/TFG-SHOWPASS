@@ -58,9 +58,9 @@ public class ControlUsuario {
 
 	}
 
-	@PutMapping("update")
+	@PostMapping("update/{id}")
 	@Modifying
-	public ResponseEntity<DTOusuarioBajada> updateUsuario(@RequestBody DTOusuarioModificarSubida usu) {
+	public ResponseEntity<DTOusuarioBajada> updateUsuario(@RequestBody DTOusuarioModificarSubida usu,@PathVariable Long id) {
 		DTOusuarioBajada dtoBajada;
 		dtoBajada = daoUsuario.update(usu);
 		if (dtoBajada != null) {

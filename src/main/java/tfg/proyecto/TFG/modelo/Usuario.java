@@ -31,20 +31,21 @@ public class Usuario {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id; 
 	
-	@Column(unique = true)
 	private String nombre; //valores unicos e irrepetibles
 	@Column(unique = true)
 	private String email; //valores unicos e irrepetibles
 	
 	private String password; //dto lo devuelve sin la contraseña
-	
+
 	private LocalDate fechaNacimiento;
+	
+	private String foto;
 	
 	@Enumerated(EnumType.STRING)
 	private Rol rol; //admin o cliente
 	
 	@OneToOne(optional = true,cascade = CascadeType.ALL,fetch = FetchType.EAGER)
-	private CuentaBancaria cuenta;
+	private TarjetaBancaria tarjeta;
 	
 	private Boolean activo;
 	

@@ -10,8 +10,8 @@ export default function VentanaPrincipal() {
     const fetchEventos = async () => {
       try {
         const res = await fetch("http://localhost:8080/tfg/evento/findAll");
-        const data = await res.json();
-        setEntradas(data);
+        const data = await res.json(); //respueta de json
+        setEntradas(data); //setear Eentradas
       } catch (err) {
         console.error("Error cargando eventos:", err);
       }
@@ -19,7 +19,7 @@ export default function VentanaPrincipal() {
 
     fetchEventos();
   }, []);
-
+  //FILTRAR ENTRADAS Barra de busqueda
   const entradasFiltradas = entradas.filter((e) =>
     e.nombre.toLowerCase().includes(busqueda.toLowerCase())
   );
@@ -30,16 +30,18 @@ export default function VentanaPrincipal() {
   return (
     <div className="">
       {mostrarBuscador && (
-        <div className="flex justify-center mb-6 bg-gray-800 p-4 ">
+        <div className="flex justify-center items-center mb-6 bg-gray-800 p-4 ">
+          <h4 className="text-gray-300 text-center">Buscar evento :</h4>
           <input
             type="text"
-            placeholder="Buscar evento..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
-            className="w-full max-w-md p-1.5 border rounded-lg border-gray-500"
+            className="w-full max-w-md p-1.5 border rounded-lg border-gray-500 ml-2"
           />
         </div>
       )}
+
+     
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10 p-10">
         {entradasFiltradas.map((entrada) => (

@@ -1,9 +1,11 @@
+// ...existing code...
 import AuthForm from "../components/AuthForm";
+import config from "../config/config";
 
 export default function Login() {
   const handleLogin = async (data) => {
     try {
-      const res = await fetch("http://localhost:8080/tfg/usuario/login", {
+      const res = await fetch(`${config.apiBaseUrl}/tfg/usuario/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -11,33 +13,28 @@ export default function Login() {
 
       const result = await res.json();
 
-      console.log("respuesta del backend:", result);
+      // Considera éxito solo si el backend indica exito o devuelve el usuario
+      const isSuccess = res.ok && (result.exito === true || !!result.dtousuarioBajada);
 
-      if (!res.ok) {
-        alert(result.message || "Error en login");
-        return;
+      if (!isSuccess) {
+        alert(result.mensaje || "Error en login");
+        return; // No redirige si hay error
       }
 
-
-      // Guardar datos del usuario en localStorage
       localStorage.setItem("user", JSON.stringify(result.dtousuarioBajada));
-
-      // Guardar token solo si existe
       if (result.token) {
         localStorage.setItem("token", result.token);
       }
 
-      // Mostrar el mensaje recibido del backend
       alert(result.mensaje || "Login exitoso ✅");
-      window.location.href = "/"; //redirigir a la ventana principal 
-
+      // Redirige solo cuando realmente hubo éxito
+      window.location.href = "/";
     } catch (err) {
       console.error(err);
       alert("Error en el servidor");
+      // No redirige si hay error
     }
   };
-
-
 
   return <AuthForm type="login" onSubmit={handleLogin} />;
 }

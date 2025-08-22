@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 body {
-  @apply bg-gray-900 text-white;
+  @apply bg-blue-100 text-white;
 }
 
 
@@ -12,8 +12,10 @@ body::before {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-image: repeating-linear-gradient(135deg, #2d3748 0px, #2d3748 2px, transparent 2px, transparent 40px);
-  opacity: 0.20;
+  background-image: repeating-linear-gradient(90deg, #6d7d8d 0px, #2b6cb0 2px, transparent 2px, transparent 40px);
+  background-size: 40px 40px;
+  background-image: repeating-linear-gradient(0deg, #6d7d8d 0px, #2b6cb0 2px, transparent 2px, transparent 40px), repeating-linear-gradient(90deg, #6d7d8d 0px, #2b6cb0 2px, transparent 2px, transparent 40px);
+  opacity: 0.05;
   z-index: -1;
   pointer-events: none;
 }

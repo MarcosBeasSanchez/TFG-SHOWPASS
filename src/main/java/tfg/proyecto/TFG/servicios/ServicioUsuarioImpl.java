@@ -15,6 +15,7 @@ import tfg.proyecto.TFG.dtos.DTOusuarioModificarSubida;
 import tfg.proyecto.TFG.dtos.DTOusuarioSubida;
 import tfg.proyecto.TFG.dtos.DTOusuarioSubidaMinimo;
 import tfg.proyecto.TFG.modelo.Rol;
+import tfg.proyecto.TFG.modelo.TarjetaBancaria;
 import tfg.proyecto.TFG.modelo.Usuario;
 import tfg.proyecto.TFG.repositorio.RepositorioCuentaBancaria;
 import tfg.proyecto.TFG.repositorio.RepositorioEvento;
@@ -105,8 +106,10 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 		usuario = dtoConverter.map(usuarioDto, Usuario.class);
 
 		usuario.setPassword(passwordEncoder.encode(usuario.getPassword())); // hashear contraseña
+		usuario.setFoto("https://i.pinimg.com/736x/d9/d8/8e/d9d88e3d1f74e2b8ced3df051cecb81d.jpg");
 		usuario.setActivo(true); // activo por defecto
 		usuario.setRol(Rol.CLIENTE); // Cliente por defecto
+		usuario.setTarjeta(new TarjetaBancaria());
 		repoUsuario.save(usuario);
 
 		dtoBajada = dtoConverter.map(usuario, DTOusuarioBajada.class);
@@ -129,6 +132,7 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 			dtoLoginBajada.setDtousuarioBajada(dtoUsuario);
 			dtoLoginBajada.setExito(true);
 			dtoLoginBajada.setMensaje("Login " + dtoUsuario.getEmail() +" realizado correctamente" );
+			//FALTA POR HACER EL TOKEN
 			
 		}else {
 			dtoLoginBajada.setDtousuarioBajada(null);

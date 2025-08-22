@@ -6,16 +6,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import tfg.proyecto.TFG.config.DtoConverter;
-import tfg.proyecto.TFG.dtos.DTOcuentaBancariaBajada;
-import tfg.proyecto.TFG.dtos.DTOcuentaBancariaSubida;
-import tfg.proyecto.TFG.dtos.DTOcuentaBancariaSubidaUpdate;
-import tfg.proyecto.TFG.modelo.CuentaBancaria;
+import tfg.proyecto.TFG.dtos.DTOtarjetaBancariaBajada;
+import tfg.proyecto.TFG.dtos.DTOtarjetaBancariaSubida;
+import tfg.proyecto.TFG.dtos.DTOtarjetaBancariaSubidaUpdate;
+import tfg.proyecto.TFG.modelo.TarjetaBancaria;
 import tfg.proyecto.TFG.repositorio.RepositorioCuentaBancaria;
 import tfg.proyecto.TFG.repositorio.RepositorioEvento;
 import tfg.proyecto.TFG.repositorio.RepositorioTicket;
 import tfg.proyecto.TFG.repositorio.RepositorioUsuario;
 @Service
-public class ServicioCuentaBancaria implements IServicioCuentaBancaria{
+public class ServicioTarjetaBancaria implements IServicioTarjetaBancaria{
 	
 	@Autowired
 	RepositorioUsuario repoUsuario;
@@ -29,24 +29,24 @@ public class ServicioCuentaBancaria implements IServicioCuentaBancaria{
 	DtoConverter dtoConverter;
 	
 	@Override
-	public DTOcuentaBancariaBajada insert(DTOcuentaBancariaSubida dto) {
-		DTOcuentaBancariaBajada dtoBajada;
-		CuentaBancaria cuenta;
+	public DTOtarjetaBancariaBajada insert(DTOtarjetaBancariaSubida dto) {
+		DTOtarjetaBancariaBajada dtoBajada;
+		TarjetaBancaria cuenta;
 		
-		cuenta = dtoConverter.map(dto,CuentaBancaria.class);
+		cuenta = dtoConverter.map(dto,TarjetaBancaria.class);
 		repoCuentaBancaria.save(cuenta);
-		dtoBajada = dtoConverter.map(cuenta,DTOcuentaBancariaBajada.class);
+		dtoBajada = dtoConverter.map(cuenta,DTOtarjetaBancariaBajada.class);
 		
 		return dtoBajada;
 	}
 	@Override
-	public DTOcuentaBancariaBajada update(DTOcuentaBancariaSubidaUpdate dto) {
-		DTOcuentaBancariaBajada dtoBajada;
-		CuentaBancaria cuenta;
+	public DTOtarjetaBancariaBajada update(DTOtarjetaBancariaSubidaUpdate dto) {
+		DTOtarjetaBancariaBajada dtoBajada;
+		TarjetaBancaria cuenta;
 		if (repoCuentaBancaria.existsById(dto.getId())) {
-			cuenta = dtoConverter.map(dto, CuentaBancaria.class);
+			cuenta = dtoConverter.map(dto, TarjetaBancaria.class);
 			repoCuentaBancaria.save(cuenta);
-			dtoBajada = dtoConverter.map(cuenta, DTOcuentaBancariaBajada.class);
+			dtoBajada = dtoConverter.map(cuenta, DTOtarjetaBancariaBajada.class);
 		} else {
 			dtoBajada = null;
 		}
@@ -64,13 +64,13 @@ public class ServicioCuentaBancaria implements IServicioCuentaBancaria{
 		return exito;
 	}
 	@Override
-	public DTOcuentaBancariaBajada findById(Long id) {
-		DTOcuentaBancariaBajada dtobajada;
-		CuentaBancaria cuenta;
+	public DTOtarjetaBancariaBajada findById(Long id) {
+		DTOtarjetaBancariaBajada dtobajada;
+		TarjetaBancaria cuenta;
 		
 		if (repoCuentaBancaria.existsById(id)) {
 			cuenta = repoCuentaBancaria.findById(id).get();
-			dtobajada = dtoConverter.map(cuenta, DTOcuentaBancariaBajada.class);
+			dtobajada = dtoConverter.map(cuenta, DTOtarjetaBancariaBajada.class);
 		} else {
 			dtobajada = null;
 		}
@@ -78,8 +78,8 @@ public class ServicioCuentaBancaria implements IServicioCuentaBancaria{
 		return dtobajada;
 	}
 	@Override
-	public List<DTOcuentaBancariaBajada> listAllCuentasBancarias() {
-		return dtoConverter.mapAll((List<CuentaBancaria>) repoCuentaBancaria.findAll(), DTOcuentaBancariaBajada.class);
+	public List<DTOtarjetaBancariaBajada> listAllCuentasBancarias() {
+		return dtoConverter.mapAll((List<TarjetaBancaria>) repoCuentaBancaria.findAll(), DTOtarjetaBancariaBajada.class);
 	}
 
 

@@ -14,27 +14,27 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import tfg.proyecto.TFG.dtos.DTOcuentaBancariaBajada;
-import tfg.proyecto.TFG.dtos.DTOcuentaBancariaSubida;
-import tfg.proyecto.TFG.dtos.DTOcuentaBancariaSubidaUpdate;
-import tfg.proyecto.TFG.servicios.IServicioCuentaBancaria;
+import tfg.proyecto.TFG.dtos.DTOtarjetaBancariaBajada;
+import tfg.proyecto.TFG.dtos.DTOtarjetaBancariaSubida;
+import tfg.proyecto.TFG.dtos.DTOtarjetaBancariaSubidaUpdate;
+import tfg.proyecto.TFG.servicios.IServicioTarjetaBancaria;
 
 @RestController
 @RequestMapping("/tfg/cuentaBancaria/")
 public class ControlCuentaBancaria {
 
 	@Autowired
-	IServicioCuentaBancaria daoCuentaBancaria;
+	IServicioTarjetaBancaria daoCuentaBancaria;
 
 	@PostMapping("insert")
-	public ResponseEntity<DTOcuentaBancariaBajada> insertarCuenta(@RequestBody DTOcuentaBancariaSubida dto) {
-		DTOcuentaBancariaBajada cuenta = daoCuentaBancaria.insert(dto);
+	public ResponseEntity<DTOtarjetaBancariaBajada> insertarCuenta(@RequestBody DTOtarjetaBancariaSubida dto) {
+		DTOtarjetaBancariaBajada cuenta = daoCuentaBancaria.insert(dto);
 		return new ResponseEntity<>(cuenta, HttpStatus.OK);
 	}
 	
 	@PutMapping("update")
-    public ResponseEntity<DTOcuentaBancariaBajada> actualizarCuenta(@RequestBody DTOcuentaBancariaSubidaUpdate dto) {
-        DTOcuentaBancariaBajada cuenta = daoCuentaBancaria.update(dto);
+    public ResponseEntity<DTOtarjetaBancariaBajada> actualizarCuenta(@RequestBody DTOtarjetaBancariaSubidaUpdate dto) {
+        DTOtarjetaBancariaBajada cuenta = daoCuentaBancaria.update(dto);
         if (cuenta != null) {
             return new ResponseEntity<>(cuenta, HttpStatus.OK);
         } else {
@@ -53,8 +53,8 @@ public class ControlCuentaBancaria {
     }
 
     @GetMapping("findById/{id}")
-    public ResponseEntity<DTOcuentaBancariaBajada> obtenerCuentaPorId(@PathVariable Long id) {
-        DTOcuentaBancariaBajada cuenta = daoCuentaBancaria.findById(id);
+    public ResponseEntity<DTOtarjetaBancariaBajada> obtenerCuentaPorId(@PathVariable Long id) {
+        DTOtarjetaBancariaBajada cuenta = daoCuentaBancaria.findById(id);
         if (cuenta != null) {
             return new ResponseEntity<>(cuenta, HttpStatus.OK);
         } else {
@@ -63,8 +63,8 @@ public class ControlCuentaBancaria {
     }
 
     @GetMapping("findAll")
-    public ResponseEntity<List<DTOcuentaBancariaBajada>> listarTodasCuentas() {
-        List<DTOcuentaBancariaBajada> cuentas = daoCuentaBancaria.listAllCuentasBancarias();
+    public ResponseEntity<List<DTOtarjetaBancariaBajada>> listarTodasCuentas() {
+        List<DTOtarjetaBancariaBajada> cuentas = daoCuentaBancaria.listAllCuentasBancarias();
         return new ResponseEntity<>(cuentas, HttpStatus.OK);
     }
 

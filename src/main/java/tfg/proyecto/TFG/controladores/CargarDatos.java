@@ -13,14 +13,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import tfg.proyecto.TFG.dtos.DTOInvitado;
-import tfg.proyecto.TFG.dtos.DTOcuentaBancariaSubida;
+import tfg.proyecto.TFG.dtos.DTOtarjetaBancariaSubida;
 import tfg.proyecto.TFG.dtos.DTOeventoBajada;
 import tfg.proyecto.TFG.dtos.DTOeventoSubida;
 import tfg.proyecto.TFG.dtos.DTOticketSubida;
 import tfg.proyecto.TFG.dtos.DTOusuarioBajada;
 import tfg.proyecto.TFG.dtos.DTOusuarioSubida;
 import tfg.proyecto.TFG.modelo.Rol;
-import tfg.proyecto.TFG.servicios.IServicioCuentaBancaria;
+import tfg.proyecto.TFG.servicios.IServicioTarjetaBancaria;
 import tfg.proyecto.TFG.servicios.IServicioEvento;
 import tfg.proyecto.TFG.servicios.IServicioTicket;
 import tfg.proyecto.TFG.servicios.IServicioUsuario;
@@ -34,7 +34,7 @@ public class CargarDatos {
 
 	
 	@Autowired
-	IServicioCuentaBancaria daoCuentaBancaria;
+	IServicioTarjetaBancaria daoCuentaBancaria;
 	@Autowired
 	IServicioEvento daoEvento;
 	@Autowired 
@@ -51,16 +51,16 @@ public class CargarDatos {
 			
 			
 			DTOusuarioSubida u1;
-			DTOcuentaBancariaSubida c1;
+			DTOtarjetaBancariaSubida c1;
 
 			DTOticketSubida t1;
 			
-			c1 = DTOcuentaBancariaSubida.builder()
-					.nombrePropietario("n")
-					.nombreBanco("Caixa")
-					.IBAN("ES6112343456420456323532")
-					.BIC("BBVAESMMooo")
-					.saldo(BigDecimal.valueOf(200.50))
+			c1 = DTOtarjetaBancariaSubida.builder()
+					.nombreTitular("nombreTitular")
+					.nTarjeta("1234567891011121")
+					.fechaCaducidad(LocalDate.of(2027, 10, 10))
+					.cvv("123")
+					.saldo(BigDecimal.valueOf(2000.50))
 					.build();
 			
 			
@@ -69,6 +69,7 @@ public class CargarDatos {
 					.email("email@mail.com")
 					.password("1234")
 					.fechaNacimiento(LocalDate.now().minusYears(25))
+					.foto("https://i.pinimg.com/736x/d9/d8/8e/d9d88e3d1f74e2b8ced3df051cecb81d.jpg")
 					.rol(Rol.ADMIN)
 					.cuenta(c1)
 					.activo(true)

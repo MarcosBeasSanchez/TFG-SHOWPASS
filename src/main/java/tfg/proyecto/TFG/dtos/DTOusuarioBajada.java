@@ -17,8 +17,9 @@ public class DTOusuarioBajada {
 	private String nombre; 
 	private String email;
 	private LocalDate fechaNacimiento;
+	private String foto;
 	private Rol rol;
-	private DTOcuentaBancariaBajada cuenta;
+	private DTOtarjetaBancariaBajada cuenta;
 	private Boolean activo;
 
 }
