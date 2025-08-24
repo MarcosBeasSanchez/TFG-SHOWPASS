@@ -3,6 +3,8 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import VentanaPrincipal from "./pages/VentanaPrincipal";
 import Profile from "./pages/Profile";
+import EventDetail from "./pages/EventDetail";
+
 import { useEffect, useState } from "react";
 
 export default function App() {
@@ -28,9 +30,9 @@ export default function App() {
 
   // Función para cerrar sesión: elimina datos y redirige
   const handleLogout = () => {
-    localStorage.removeItem("token"); // Elimina el token
-    localStorage.removeItem("user"); // Elimina el usuario
-    setUser(null);
+    // localStorage.removeItem("token"); // Elimina el token
+    // localStorage.removeItem("user"); // Elimina el usuario
+    // setUser(null);
     window.location.href = "/";
   };
 
@@ -91,7 +93,8 @@ export default function App() {
         <Route path="/" element={<VentanaPrincipal />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route path="/profile" element={<Profile setUser={setUser}/>} />
+        <Route path="/evento/:nombre" element={<EventDetail/>}/>
       </Routes>
     </BrowserRouter>
   );
@@ -115,10 +118,17 @@ export default function App() {
           onClick={() => setOpen((o) => !o)}
           className=" flex items-center justify-center"
         >
-          <span
+          {user?.foto ?(
+            <img src={user.foto} 
+            alt="Foto perfil" 
+            className="w-10 h-10 rounded-full object-cover border border-gray-300"
+            />
+          ):(
+            <span
             className="material-symbols-outlined"
             style={{ fontSize: "30px", lineHeight: "1" }}
           >person</span>
+          )}
         </button>
         {open && (
           <div className="absolute right-0 mt-2 w-40 bg-gray-800 rounded shadow-lg z-10">

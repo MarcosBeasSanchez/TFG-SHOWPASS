@@ -42,8 +42,16 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 	public DTOusuarioBajada insert(DTOusuarioSubida usuarioDto) {
 		Usuario usuario;
 		DTOusuarioBajada dtoBajada;
+		
+		
+		if (usuarioDto.getRol() == null || usuarioDto.getRol().toString().isEmpty()) {
+		    usuarioDto.setRol(Rol.CLIENTE);
+		}
+
 
 		usuario = dtoConverter.map(usuarioDto, Usuario.class);
+		
+		
 		repoUsuario.save(usuario);
 
 		dtoBajada = dtoConverter.map(usuario, DTOusuarioBajada.class);

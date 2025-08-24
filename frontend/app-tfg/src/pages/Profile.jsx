@@ -59,13 +59,27 @@ const Profile = () => {
         if (!userString) return;
         const userObj = JSON.parse(userString);
         const userId = userObj.id;
-        await fetch(`${config.apiBaseUrl}/tfg/usuario/update/${userId}`, {
+        
+          try {
+        const response = await fetch(`${config.apiBaseUrl}/tfg/usuario/update/${userId}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(user)
         });
+
+        if (response.ok) {
+            const updatedUser = await response.json(); // Obtener usuario actualizado del backend
+            localStorage.setItem("user", JSON.stringify(updatedUser)); // Guardar en localStorage
+            setUser(updatedUser); // Actualizar estado
+            alert("Usuario actualizado correctamente");
+        } else {
+            console.error("Error actualizando usuario");
+        }
+    } catch (error) {
+        console.error("Error en fetch:", error);
+    }
     };
 
     return (

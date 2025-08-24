@@ -62,6 +62,8 @@ public class ControlUsuario {
 	@Modifying
 	public ResponseEntity<DTOusuarioBajada> updateUsuario(@RequestBody DTOusuarioModificarSubida usu,@PathVariable Long id) {
 		DTOusuarioBajada dtoBajada;
+		
+		usu.setId(id);
 		dtoBajada = daoUsuario.update(usu);
 		if (dtoBajada != null) {
 			return new ResponseEntity<DTOusuarioBajada>(dtoBajada, HttpStatus.OK);

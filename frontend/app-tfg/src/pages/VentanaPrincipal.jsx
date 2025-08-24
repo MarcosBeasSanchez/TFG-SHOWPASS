@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 export default function VentanaPrincipal() {
   const [entradas, setEntradas] = useState([]);
@@ -71,12 +72,12 @@ export default function VentanaPrincipal() {
                     : "Sin invitados por ahora"}
                 </p>
               </div>
-              <button
-                className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
-                onClick={() => alert(`Aquí iría la compra de: ${entrada.nombre}`)}
+              <Link
+                to={`/evento/${entrada.nombre}`}
+                className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 text-center"
               >
-                Comprar
-              </button>
+                Ver detalles
+              </Link>
             </div>
           </div>
         ))}
