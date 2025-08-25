@@ -1,4 +1,3 @@
-// ...existing code...
 import AuthForm from "../components/AuthForm";
 import config from "../config/config";
 
@@ -22,11 +21,15 @@ export default function Login() {
       }
 
       localStorage.setItem("user", JSON.stringify(result.dtousuarioBajada));
+      // Guardar el token si existe
       if (result.token) {
         localStorage.setItem("token", result.token);
       }
-
+      //Mensaje
       alert(result.mensaje || "Login exitoso ✅");
+      
+      console.log("Datos obtenidos del endpoint de login:", result);
+
       // Redirige solo cuando realmente hubo éxito
       window.location.href = "/";
     } catch (err) {

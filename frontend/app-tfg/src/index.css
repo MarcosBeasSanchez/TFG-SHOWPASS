@@ -4,7 +4,7 @@ body {
   @apply bg-blue-100 text-white;
 }
 
-
+/* Fondo de patrón */
 body::before {
   content: "";
   position: fixed;

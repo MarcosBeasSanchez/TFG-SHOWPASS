@@ -4,6 +4,9 @@ import Register from "./pages/Register";
 import VentanaPrincipal from "./pages/VentanaPrincipal";
 import Profile from "./pages/Profile";
 import EventDetail from "./pages/EventDetail";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+
 
 import { useEffect, useState } from "react";
 
@@ -30,72 +33,105 @@ export default function App() {
 
   // Función para cerrar sesión: elimina datos y redirige
   const handleLogout = () => {
-    // localStorage.removeItem("token"); // Elimina el token
-    // localStorage.removeItem("user"); // Elimina el usuario
-    // setUser(null);
+    localStorage.removeItem("token"); // Elimina el token
+    localStorage.removeItem("user"); // Elimina el usuario
+    setUser(null);
     window.location.href = "/";
   };
 
   // Renderizado principal con rutas y navegación
   return (
     <BrowserRouter>
-      <nav className="pl-8 pr-8 pt-4 pb-4 bg-blue-950 text-white flex items-center justify-between">
-        {/* Bloque Izquierda: Home + Titulo */}
-        <div className="flex items-center gap-4">
-          <Link to="/">
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-extrabold"
-                style={{ fontSize: "30px", lineHeight: "1", fontFamily: "Roboto, sans-serif" }}>
-                SHOWPASS
-              </h1>
-              <span className="material-symbols-outlined"
-                style={{ fontSize: "30px", lineHeight: "1" }}>
-                local_activity
-              </span>
+      <div className="flex flex-col min-h-screen">
+        <nav className="pl-8 pr-8 pt-4 pb-4 bg-blue-950 text-white flex items-center justify-between">
+          {/* Bloque Izquierda: Home + Titulo */}
+          <div className="flex items-center gap-4">
+            <Link to="/">
+              <div className="flex items-center gap-2">
+                <h1 className="text-2xl font-extrabold hover:scale-105 transition-transform duration-200"
+                  style={{ fontSize: "30px", lineHeight: "1", fontFamily: "Roboto, sans-serif" }}>
+                  SHOWPASS
+                </h1>
+                <span className="material-symbols-outlined"
+                  style={{ fontSize: "30px", lineHeight: "1" }}>
+                  local_activity
+                </span>
+              </div>
+            </Link>
+          </div>
+
+          {/* Bloque Centro: (puedes poner aquí contenido centrado si lo necesitas) */}
+          <div className="flex-1 flex justify-center">
+            {/* Ejemplo: <span>Contenido centrado</span> */}
+          </div>
+
+          {/* Bloque Derecha: Login/Register/Profile */}
+          <div className="flex gap-4 items-center relative">
+            {!user ? (
+              <>
+                <Link to="/login" className="p-1 hover:bg-gray-900">Login</Link>
+                <Link to="/register" className="p-1 hover:bg-gray-900">Registro</Link>
+              </>
+            ) : (
+              <ProfileDropdown>
+                <span className="flex w-full text-left items-center justify-items-center-safe px-2 py-2 text-white">👋 Hola, {user?.nombre}</span>
+                <Link
+                  to="/profile"
+                  className="flex w-full text-left items-center justify-items-center-safe px-2 py-2 hover:bg-gray-700"
+                >
+                   <span className="material-symbols-outlined pr-2 ">
+                    manage_accounts
+                  </span>
+                  Editar perfil
+                </Link>
+                <Link
+                  to="/shoppingCart"
+                  className="flex w-full text-left items-center justify-items-center-safe px-2 py-2 hover:bg-gray-700"
+                >
+                  <span className="material-symbols-outlined pr-2 ">
+                    shopping_cart
+                  </span>
+                  Ver carrito
+                </Link>
+                <Link
+                  onClick={handleLogout}
+                  className="flex w-full text-left items-center justify-items-center-safe px-2 py-2 bg-red-500 hover:bg-red-600"
+                >
+                  <span className="material-symbols-outlined pr-2 ">
+                    logout
+                  </span>
+                  Logout
+                </Link>
+              </ProfileDropdown>
+            )}
+          </div>
+        </nav>
+
+        {/* Definición de rutas */}
+        <div className="flex-1">
+          <Routes>
+            <Route path="/" element={<VentanaPrincipal />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/profile" element={<Profile setUser={setUser} />} />
+            <Route path="/evento/:nombre" element={<EventDetail />} />
+          </Routes>
+        </div>
+
+        {/* Footer */}
+        <footer className="bg-black text-white text-center py-4 ">
+          <div className="container mx-auto flex flex-col md:flex-row items-center justify-between px-4">
+            <span className="text-sm">&copy; {new Date().getFullYear()} SHOWPASS Todos los derechos reservados.</span>
+            <div className="flex gap-4 mt-2 md:mt-0">
+              <a href="https://github.com/MarcosBeasSanchez/TFG" target="_blank" rel="noopener noreferrer" className="hover:underline">GitHub Repositorio</a>
+              <a href="/about" className="hover:underline">Sobre nosotros</a>
+              <a href="/contact" className="hover:underline">Contacto</a>
             </div>
-          </Link>
-        </div>
-
-        {/* Bloque Centro: (puedes poner aquí contenido centrado si lo necesitas) */}
-        <div className="flex-1 flex justify-center">
-          {/* Ejemplo: <span>Contenido centrado</span> */}
-        </div>
-
-        {/* Bloque Derecha: Login/Register/Profile */}
-        <div className="flex gap-4 items-center relative">
-          {!user ? (
-            <>
-              <Link to="/login" className="p-1 hover:bg-gray-900">Login</Link>
-              <Link to="/register" className="p-1 hover:bg-gray-900">Registro</Link>
-            </>
-          ) : (
-            <ProfileDropdown>
-              <span className="block px-4 py-2 text-white">👋 Hola, {user?.nombre}</span>
-              <Link
-                to="/profile"
-                className="block w-full text-left px-4 py-2 hover:bg-gray-700"
-              >
-                Editar perfil
-              </Link>
-              <Link
-                onClick={handleLogout}
-                className="block w-full text-left px-4 py-2 bg-red-500 hover:bg-red-600"
-              >
-                Logout
-              </Link>
-            </ProfileDropdown>
-          )}
-        </div>
-      </nav>
-
-      {/* Definición de rutas */}
-      <Routes>
-        <Route path="/" element={<VentanaPrincipal />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/profile" element={<Profile setUser={setUser}/>} />
-        <Route path="/evento/:nombre" element={<EventDetail/>}/>
-      </Routes>
+          </div>
+        </footer>
+      </div>
     </BrowserRouter>
   );
 
@@ -118,16 +154,16 @@ export default function App() {
           onClick={() => setOpen((o) => !o)}
           className=" flex items-center justify-center"
         >
-          {user?.foto ?(
-            <img src={user.foto} 
-            alt="Foto perfil" 
-            className="w-10 h-10 rounded-full object-cover border border-gray-300"
+          {user?.foto ? (
+            <img src={user.foto}
+              alt="Foto perfil"
+              className="w-10 h-10 rounded-full object-cover border border-gray-300"
             />
-          ):(
+          ) : (
             <span
-            className="material-symbols-outlined"
-            style={{ fontSize: "30px", lineHeight: "1" }}
-          >person</span>
+              className="material-symbols-outlined"
+              style={{ fontSize: "30px", lineHeight: "1" }}
+            >person</span>
           )}
         </button>
         {open && (
