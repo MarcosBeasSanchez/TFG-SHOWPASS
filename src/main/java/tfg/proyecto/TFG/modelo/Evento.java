@@ -46,6 +46,10 @@ public class Evento {
 	private String imagen;
 	private LocalDateTime inicioEvento;
 	private LocalDateTime finEvento;
+	private String descripcion;
+	@Singular
+	private List<String> carrusels;
+	private double precio;
 
 	
 }

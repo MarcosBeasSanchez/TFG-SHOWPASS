@@ -48,6 +48,9 @@ public class ServicioEventoImpl implements IServicioEvento{
 	        existente.setLocalizacion(eventodto.getLocalizacion());
 	        existente.setInicioEvento(eventodto.getInicioEvento());
 	        existente.setFinEvento(eventodto.getFinEvento());
+	        existente.setDescripcion(eventodto.getDescripcion());
+	        existente.setPrecio(eventodto.getPrecio());
+	        existente.setCarrusels(dtoConverter.mapAll(eventodto.getCarrusels(), String.class));
 	        existente.setInvitados(dtoConverter.mapAll(eventodto.getInvitados(), Invitado.class));
 
 	        Evento actualizado = eventoDAO.save(existente);

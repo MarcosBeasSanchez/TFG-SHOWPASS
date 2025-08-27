@@ -96,7 +96,7 @@ const Profile = () => {
 
 
     return (
-        <div className="flex items-center justify-end min-h-screen min-w-full">
+        <div className="flex items-center justify-center min-h-screen min-w-full">
             <form className="max-w-3xl w-full bg-white p-8 rounded-xl shadow space-y-4">
                 <h2 className="text-2xl font-bold text-center text-gray-500 mb-6">
                     PERFIL DE USUARIO

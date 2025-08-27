@@ -6,7 +6,7 @@ import Profile from "./pages/Profile";
 import EventDetail from "./pages/EventDetail";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
-
+import ShoppingCart from "./pages/ShoppingCart";
 
 import { useEffect, useState } from "react";
 
@@ -116,7 +116,8 @@ export default function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/profile" element={<Profile setUser={setUser} />} />
-            <Route path="/evento/:nombre" element={<EventDetail />} />
+            <Route path="/evento/:nombre" element={<EventDetai />} />
+            <Route path="/shoppingCart" element={<ShoppingCart />} />
           </Routes>
         </div>
 

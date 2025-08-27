@@ -73,6 +73,30 @@ export default function EventDetail() {
             <div><strong>Fin:</strong> {formatDate(evento.finEvento)}</div>
           </div>
 
+          <div className="mb-6">
+            <h2 className="text-2xl font-semibold mb-3 text-gray-800">Descripción</h2>
+            <p className="text-gray-700 text-base leading-relaxed">
+              {evento.descripcion || "Este evento aún no tiene descripción."}
+            </p>
+          </div>
+
+          {evento.carrusels && evento.carrusels.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-2xl font-semibold mb-3 text-gray-800">Galería</h2>
+            <div className="flex space-x-4 overflow-x-auto p-2">
+              {evento.carrusels.map((foto, index) => (
+                <img
+                  key={index}
+                  src={foto}
+                  alt={`Foto ${index + 1}`}
+                  className="h-48 rounded-lg shadow-md object-cover flex-shrink-0"
+                />
+              ))}
+            </div>
+          </div>
+          )}
+
+        
           <h2 className="text-2xl font-semibold mb-3 text-gray-800">Invitados</h2>
           {evento.invitados && evento.invitados.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
@@ -107,7 +131,7 @@ export default function EventDetail() {
               className="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition"
               style={{ marginRight: 0 }}
             >
-              Comprar entrada
+              Agregar al carrito
             </button>
           </div>
         </div>

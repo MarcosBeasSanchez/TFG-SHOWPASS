@@ -78,6 +78,10 @@ export default function VentanaPrincipal() {
                     ? `Invitados: ${primerEvento.invitados.map(i => i.nombre).join(", ")}`
                     : "Sin invitados por ahora"}
                 </p>
+
+                <p className="text-gray-700 mt-2 line-clamp-2">
+                  {primerEvento.descripcion || "Sin descripción disponible"}
+                </p>
               </div>
               <Link
                 to={`/evento/${primerEvento.nombre}`}
@@ -119,6 +123,10 @@ export default function VentanaPrincipal() {
                     ? `Invitados: ${entrada.invitados.map(i => i.nombre).join(", ")}`
                     : "Sin invitados por ahora"}
                 </p>
+                <p className="text-gray-500 mt-2">
+                  {entrada.descripcion || "Sin descripcion del evento"}
+                </p>
+
               </div>
               <Link
                 to={`/evento/${entrada.nombre}`}

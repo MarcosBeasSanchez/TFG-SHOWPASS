@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Singular;
 
 @Builder
 @Data
@@ -21,5 +22,9 @@ public class DTOeventoSubida {
 	private String imagen;
 	private LocalDateTime inicioEvento;
 	private LocalDateTime finEvento;
+	private String descripcion;
+	@Singular
+	private List<String> carrusels; 
+	private double precio;
 
 }
