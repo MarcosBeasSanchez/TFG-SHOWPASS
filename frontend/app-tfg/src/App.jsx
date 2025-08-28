@@ -60,12 +60,8 @@ export default function App() {
             </Link>
           </div>
 
-          {/* Bloque Centro: (puedes poner aquí contenido centrado si lo necesitas) */}
           <div className="flex-1 flex justify-center">
-            {/* Ejemplo: <span>Contenido centrado</span> */}
           </div>
-
-          {/* Bloque Derecha: Login/Register/Profile */}
           <div className="flex gap-4 items-center relative">
             {!user ? (
               <>
@@ -79,7 +75,7 @@ export default function App() {
                   to="/profile"
                   className="flex w-full text-left items-center justify-items-center-safe px-2 py-2 hover:bg-gray-700"
                 >
-                   <span className="material-symbols-outlined pr-2 ">
+                  <span className="material-symbols-outlined pr-2 ">
                     manage_accounts
                   </span>
                   Editar perfil
@@ -116,7 +112,7 @@ export default function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/profile" element={<Profile setUser={setUser} />} />
-            <Route path="/evento/:nombre" element={<EventDetai />} />
+            <Route path="/evento/:nombre" element={<EventDetail />} />
             <Route path="/shoppingCart" element={<ShoppingCart />} />
           </Routes>
         </div>
@@ -158,7 +154,7 @@ export default function App() {
           {user?.foto ? (
             <img src={user.foto}
               alt="Foto perfil"
-              className="w-10 h-10 rounded-full object-cover border border-gray-300"
+              className="w-10 h-10 rounded-full object-cover border hover:scale-105 transition-transform duration-200 border-none"
             />
           ) : (
             <span

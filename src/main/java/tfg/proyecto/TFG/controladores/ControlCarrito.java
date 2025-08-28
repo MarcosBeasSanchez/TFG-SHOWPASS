@@ -18,79 +18,77 @@ import tfg.proyecto.TFG.servicios.IServicioCarrito;
 
 @RestController
 @RequestMapping("/tfg/carrito")
-@CrossOrigin(origins = "http://localhost:5173") 
+@CrossOrigin(origins = "http://localhost:5173")
 
 public class ControlCarrito {
 
 	@Autowired
 	IServicioCarrito carritoService;
 
-    // Obtener carrito de un usuario
-    @GetMapping("/{usuarioId}")
-    public ResponseEntity<DTOCarritoBajada> obtenerCarrito(@PathVariable Long usuarioId) {
-        try {
-            DTOCarritoBajada carrito = carritoService.obtenerCarritoPorUsuario(usuarioId);
-            return ResponseEntity.ok(carrito);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-    }
+	// Obtener carrito de un usuario
+	@GetMapping("/{usuarioId}")
+	public ResponseEntity<DTOCarritoBajada> obtenerCarrito(@PathVariable Long usuarioId) {
+		try {
+			DTOCarritoBajada carrito = carritoService.obtenerCarritoPorUsuario(usuarioId);
+			return ResponseEntity.ok(carrito);
+		} catch (RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+		}
+	}
 
-    // Agregar un evento al carrito
-    @PostMapping("/agregar/{usuarioId}")
-    public ResponseEntity<DTOCarritoBajada> agregarEvento(@PathVariable Long usuarioId, @RequestBody DTOCarritoSubida request) {
-        try {
-            DTOCarritoBajada carrito = carritoService.agregarEvento(usuarioId, request);
-            return ResponseEntity.ok(carrito);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
-    }
+	// Agregar un evento al carrito
+	@PostMapping("/agregar/{usuarioId}/{eventoId}")
+	public ResponseEntity<DTOCarritoBajada> agregarEvento(@PathVariable Long usuarioId, @PathVariable Long eventoId) {
+		try {
+			DTOCarritoBajada carrito = carritoService.agregarEvento(usuarioId, eventoId);
+			return ResponseEntity.ok(carrito);
+		} catch (RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+		}
+	}
 
-    // Eliminar un evento del carrito
-    @DeleteMapping("/eliminar/{usuarioId}/{eventoId}")
-    public ResponseEntity<DTOCarritoBajada> eliminarEvento(
-            @PathVariable Long usuarioId,
-            @PathVariable Long eventoId) {
-        try {
-            DTOCarritoBajada carrito = carritoService.eliminarEvento(usuarioId, eventoId);
-            return ResponseEntity.ok(carrito);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
-    }
+	// Eliminar un evento del carrito
+	@DeleteMapping("/eliminar/{usuarioId}/{eventoId}")
+	public ResponseEntity<DTOCarritoBajada> eliminarEvento(@PathVariable Long usuarioId, @PathVariable Long eventoId) {
+		try {
+			DTOCarritoBajada carrito = carritoService.eliminarEvento(usuarioId, eventoId);
+			return ResponseEntity.ok(carrito);
+		} catch (RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+		}
+	}
 
-    // Vaciar el carrito de un usuario
-    @DeleteMapping("/vaciar/{usuarioId}")
-    public ResponseEntity<DTOCarritoBajada> vaciarCarrito(@PathVariable Long usuarioId) {
-        try {
-            DTOCarritoBajada carrito = carritoService.vaciarCarrito(usuarioId);
-            return ResponseEntity.ok(carrito);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
-    }
+	// Vaciar el carrito de un usuario
+	@DeleteMapping("/vaciar/{usuarioId}")
+	public ResponseEntity<DTOCarritoBajada> vaciarCarrito(@PathVariable Long usuarioId) {
+		try {
+			DTOCarritoBajada carrito = carritoService.vaciarCarrito(usuarioId);
+			return ResponseEntity.ok(carrito);
+		} catch (RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+		}
+	}
 
-    // Calcular total del carrito
-    @GetMapping("/total/{usuarioId}")
-    public ResponseEntity<Double> calcularTotal(@PathVariable Long usuarioId) {
-        try {
-            double total = carritoService.calcularTotal(usuarioId);
-            return ResponseEntity.ok(total);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
-    }
+	// Calcular total del carrito
+	@GetMapping("/total/{usuarioId}")
+	public ResponseEntity<Double> calcularTotal(@PathVariable Long usuarioId) {
+		try {
+			double total = carritoService.calcularTotal(usuarioId);
+			return ResponseEntity.ok(total);
+		} catch (RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+		}
+	}
 
-    // Finalizar la compra
-    @PostMapping("/finalizar/{usuarioId}")
-    public ResponseEntity<DTOCarritoBajada> finalizarCompra(@PathVariable Long usuarioId) {
-        try {
-            DTOCarritoBajada carrito = carritoService.finalizarCompra(usuarioId);
-            return ResponseEntity.ok(carrito);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
-    }
-	
+	// Finalizar la compra
+	@PostMapping("/finalizar/{usuarioId}")
+	public ResponseEntity<DTOCarritoBajada> finalizarCompra(@PathVariable Long usuarioId) {
+		try {
+			DTOCarritoBajada carrito = carritoService.finalizarCompra(usuarioId);
+			return ResponseEntity.ok(carrito);
+		} catch (RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+		}
+	}
+
 }

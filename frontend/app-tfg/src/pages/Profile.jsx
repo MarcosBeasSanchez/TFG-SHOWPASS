@@ -41,41 +41,41 @@ const Profile = () => {
         }
     };
     const handleSave = async () => {
-    setEditing(false);
-    const userString = localStorage.getItem("user");
-    if (!userString) return;
-    const userObj = JSON.parse(userString);
-    const userId = userObj.id;
+        setEditing(false);
+        const userString = localStorage.getItem("user");
+        if (!userString) return;
+        const userObj = JSON.parse(userString);
+        const userId = userObj.id;
 
-    // 👇 Copia el usuario actual
-    const userToSend = { ...user };
+        // 👇 Copia el usuario actual
+        const userToSend = { ...user };
 
-    // 👇 Si la contraseña está vacía, no la mandes
-    if (!userToSend.password || userToSend.password.trim() === "") {
-        delete userToSend.password;
-    }
-
-    try {
-        const response = await fetch(`${config.apiBaseUrl}/tfg/usuario/update/${userId}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(userToSend)
-        });
-
-        if (response.ok) {
-            const updatedUser = await response.json();
-            localStorage.setItem("user", JSON.stringify(updatedUser));
-            setUser(updatedUser);
-            alert("Usuario actualizado correctamente");
-        } else {
-            console.error("Error actualizando usuario");
+        // 👇 Si la contraseña está vacía, no la mandes
+        if (!userToSend.password || userToSend.password.trim() === "") {
+            delete userToSend.password;
         }
-    } catch (error) {
-        console.error("Error en fetch:", error);
-    }
-};
+
+        try {
+            const response = await fetch(`${config.apiBaseUrl}/tfg/usuario/update/${userId}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(userToSend)
+            });
+
+            if (response.ok) {
+                const updatedUser = await response.json();
+                localStorage.setItem("user", JSON.stringify(updatedUser));
+                setUser(updatedUser);
+                alert("Usuario actualizado correctamente");
+            } else {
+                console.error("Error actualizando usuario");
+            }
+        } catch (error) {
+            console.error("Error en fetch:", error);
+        }
+    };
 
     useEffect(() => { // Cargar datos del usuario
         const fetchUser = async () => {
@@ -93,11 +93,9 @@ const Profile = () => {
 
 
 
-
-
     return (
         <div className="flex items-center justify-center min-h-screen min-w-full">
-            <form className="max-w-3xl w-full bg-white p-8 rounded-xl shadow space-y-4">
+            <form className="max-w-3xl w-full bg-white p-8  shadow space-y-4">
                 <h2 className="text-2xl font-bold text-center text-gray-500 mb-6">
                     PERFIL DE USUARIO
                 </h2>

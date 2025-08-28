@@ -5,13 +5,13 @@ const datosDesarrolladores = {
     marcos: {
         nombre: "Marcos Beas Sánchez",
         descripcion: "Desarrollador Frontend, Backend y UX/UI",
-        photo: "https://ui-avatars.com/api/?name=Marcos+Beas+Sanchez&background=0D8ABC&color=fff",
+        photo: "https://avatars.githubusercontent.com/u/153531722?s=400&u=2d5304573c9bc68eddfc083b2afcf07efa8ebbc4&v=4",
         github: "https://github.com/MarcosBeasSanchez"
     },
     dylan: {
         nombre: "Dylan Molina Amariles",
         descripcion: "Desarrollador Frontend, Backend y Arquitectura",
-        photo: "https://ui-avatars.com/api/?name=Dylan+Molina+Amariles&background=0D8ABC&color=fff",
+        photo: "https://avatars.githubusercontent.com/u/153531988?v=4",
         github: "https://github.com/DylanMolinaAmariles"
     }
 };

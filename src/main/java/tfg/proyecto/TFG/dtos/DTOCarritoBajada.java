@@ -14,5 +14,5 @@ import lombok.NoArgsConstructor;
 public class DTOCarritoBajada {
 	private Long id;
     private Long usuarioId;
-    private List<DTOeventoBajada> eventos; 
+    private List<DTOeventoBajadaCarrito> eventos; 
 }

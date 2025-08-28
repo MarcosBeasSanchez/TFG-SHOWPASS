@@ -39,6 +39,9 @@ export default function Contact() {
                                 rel="noopener noreferrer"
                                 className="text-blue-600 hover:underline text-sm mt-2 text-center"
                             >
+                                <span className="material-symbols-outlined" style={{ fontSize: "16px", verticalAlign: "middle" }}>
+                                    link
+                                </span>
                                 GitHub
                             </a>
                         </li>

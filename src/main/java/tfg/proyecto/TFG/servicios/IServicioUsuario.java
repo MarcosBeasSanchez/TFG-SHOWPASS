@@ -20,7 +20,8 @@ public interface IServicioUsuario {
 	DTOusuarioBajada findById(Long id);
 	List<DTOusuarioBajada>findAllUsuarios();
 	
-	DTOusuarioBajada register(DTOusuarioSubidaMinimo usuarioDto);
-	DTOusuarioLoginBajada login(DTOusuarioLogin dtologin);
+	DTOusuarioBajada registerConDatos(DTOusuarioSubida usuarioDto); //crear usuario con todos los datos
+	DTOusuarioBajada register(DTOusuarioSubidaMinimo usuarioDto); //crear usuario con datos minimos
+	DTOusuarioLoginBajada login(DTOusuarioLogin dtologin); //login usuario
 
 }

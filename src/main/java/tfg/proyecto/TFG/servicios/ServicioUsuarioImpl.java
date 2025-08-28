@@ -153,6 +153,20 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 
 		return dtoBajada;
 	}
+	@Override
+	public DTOusuarioBajada registerConDatos(DTOusuarioSubida usuarioDto) {
+		Usuario usuario;
+		DTOusuarioBajada dtoBajada;
+
+		usuario = dtoConverter.map(usuarioDto, Usuario.class);
+
+		usuario.setPassword(passwordEncoder.encode(usuario.getPassword())); // hashear contraseña
+		repoUsuario.save(usuario);
+
+		dtoBajada = dtoConverter.map(usuario, DTOusuarioBajada.class);
+
+		return dtoBajada;
+	}
 
 	@Override //login que compara los hashes de las contraseñas y tmb los emails
 	public DTOusuarioLoginBajada login(DTOusuarioLogin dtologin) {

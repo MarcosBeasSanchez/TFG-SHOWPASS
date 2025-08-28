@@ -14,6 +14,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -46,6 +47,7 @@ public class Evento {
 	private String imagen;
 	private LocalDateTime inicioEvento;
 	private LocalDateTime finEvento;
+	@Lob // Para textos largos
 	private String descripcion;
 	@Singular
 	private List<String> carrusels;

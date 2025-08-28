@@ -41,9 +41,9 @@ public class ServicioCarritoImpl implements IServicioCarrito{
 	    }
 
 	    @Override
-	    public DTOCarritoBajada agregarEvento(Long usuarioId, DTOCarritoSubida request) {
+	    public DTOCarritoBajada agregarEvento(Long usuarioId, Long eventoId) {
 	        Carrito carrito = obtenerEntidadCarrito(usuarioId);
-	        Evento evento = eventoRepository.findById(request.getEventoId())
+	        Evento evento = eventoRepository.findById(eventoId)
 	                .orElseThrow(() -> new RuntimeException("Evento no encontrado"));
 
 	        carrito.getEventos().add(evento);
