@@ -1,8 +1,13 @@
 package tfg.proyecto.TFG.servicios;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
+
+import javax.imageio.ImageIO;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,7 +18,13 @@ import tfg.proyecto.TFG.dtos.DTOticketSubida;
 import tfg.proyecto.TFG.modelo.Evento;
 import tfg.proyecto.TFG.modelo.Ticket;
 import tfg.proyecto.TFG.modelo.Usuario;
+import tfg.proyecto.TFG.repositorio.RepositorioEvento;
 import tfg.proyecto.TFG.repositorio.RepositorioTicket;
+
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.qrcode.QRCodeWriter;
 
 @Service
 public class ServicioTicketImpl implements IServicioTicket{
@@ -24,13 +35,31 @@ public class ServicioTicketImpl implements IServicioTicket{
 	@Autowired 
 	DtoConverter dtoConverter;
 	
+	   @Autowired
+	    ServicioQR servicioQR; 
+	   
+	@Autowired
+	RepositorioEvento eventoDAO;
+	
 	@Override
 	public DTOticketBajada insert(DTOticketSubida dtoTicket) {
+		
+		String qrData = dtoTicket.getUsuarioId() + "-" + dtoTicket.getEventoId() + "-" + UUID.randomUUID();
+        String qrBase64 = servicioQR.generarQRBase64(qrData);
+        
+        
+        Evento evento = eventoDAO.findById(dtoTicket.getEventoId())
+                .orElseThrow(() -> new RuntimeException("Evento no encontrado"));
+		
 		Ticket ticket = Ticket.builder()
 		        .usuarioId(dtoTicket.getUsuarioId())
 		        .eventoId(dtoTicket.getEventoId())
-		        .codigoQR(UUID.randomUUID().toString()) // Genera o asigna como quieras
+		        .precio(dtoTicket.getPrecio())
+		        .codigoQR(qrBase64) // Genera o asigna como quieras
 		        .fechaCompra(LocalDateTime.now())
+		        .eventoNombre(evento.getNombre())
+	            .eventoImagen(evento.getImagen())
+	            .eventoInicio(evento.getInicioEvento())
 		        .build();
 		
 		Ticket guardado = ticketDAO.save(ticket);

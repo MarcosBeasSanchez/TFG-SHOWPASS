@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import tfg.proyecto.TFG.dtos.DTOeventoBajada;
 import tfg.proyecto.TFG.dtos.DTOeventoSubida;
+import tfg.proyecto.TFG.modelo.Categoria;
 import tfg.proyecto.TFG.servicios.IServicioEvento;
 
 
@@ -70,6 +71,12 @@ public class ControlEvento {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+	
+	@GetMapping("findByCategoria/{categoria}")
+	public ResponseEntity<List<DTOeventoBajada>> obtenerPorCategoria(@PathVariable Categoria categoria) {
+	    List<DTOeventoBajada> eventos = daoEvento.obtenerPorCategoria(categoria);
+	    return new ResponseEntity<>(eventos, HttpStatus.OK);
+	}
 	
 
 }

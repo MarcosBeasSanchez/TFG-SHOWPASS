@@ -20,4 +20,5 @@ public class DTOticketSubida {
 	private Long eventoId; // Fk
 	//private String codigoQR;
 	//private LocalDateTime fechaCompra; //en el servicio guardar la fecha actual
+	private double precio;
 }

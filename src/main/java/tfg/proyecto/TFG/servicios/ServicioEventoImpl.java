@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import tfg.proyecto.TFG.config.DtoConverter;
 import tfg.proyecto.TFG.dtos.DTOeventoBajada;
 import tfg.proyecto.TFG.dtos.DTOeventoSubida;
+import tfg.proyecto.TFG.modelo.Categoria;
 import tfg.proyecto.TFG.modelo.Evento;
 import tfg.proyecto.TFG.modelo.Invitado;
 import tfg.proyecto.TFG.repositorio.RepositorioEvento;
@@ -77,6 +78,13 @@ public class ServicioEventoImpl implements IServicioEvento{
 		Evento evento = eventoDAO.findByNombre(nombre)
 	            .orElseThrow(() -> new RuntimeException(nombre + "no encontrado"));
 	    return dtoConverter.map(evento, DTOeventoBajada.class);
+	}
+
+	@Override
+	public List obtenerPorCategoria(Categoria categoria) {
+		// TODO Auto-generated method stub
+		
+	    return  dtoConverter.mapAll((List<Evento>) eventoDAO.findByCategoria(categoria), DTOeventoBajada.class);
 	}
 	
 	

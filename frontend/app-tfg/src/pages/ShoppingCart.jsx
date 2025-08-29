@@ -1,11 +1,16 @@
 import { useEffect, useState } from "react";
 import config from "../config/config";
+import jsPDF from "jspdf";
+
 
 export default function ShoppingCart({ user }) {
   const [carrito, setCarrito] = useState(null);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const[ticketsComprados, setTicketsComprados] = useState([]);
+  const[totalCompra, setTotalCompra] = useState([]) 
+
   //cogemos el id del usuario desde localStorage
   const usuarioId = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")).id : null;
 
@@ -71,16 +76,94 @@ export default function ShoppingCart({ user }) {
 
   const finalizarCompra = async () => {
     try {
-      const res = await fetch(`${config.apiBaseUrl}/tfg/carrito/finalizar/${usuarioId}`, { method: "POST" });
+      const res = await fetch(`${config.apiBaseUrl}/tfg/carrito/finalizar/${usuarioId}`, 
+      { 
+        method: "POST" 
+      });
+
       if (!res.ok) throw new Error("Error al finalizar la compra");
-      const data = await res.json();
-      setCarrito(data);
-      setTotal(0);
+      
+      const ticketRes = await fetch(`${config.apiBaseUrl}/tfg/ticket/findByUsuarioId/${usuarioId}`)
+      const tickts = await ticketRes.json();
+
+      setTicketsComprados(tickts)
+
+      const total = tickts.reduce((acc, ticket) => acc + ticket.precio, 0);
+      setTotalCompra(total)
+
+     
       alert("Compra realizada con éxito!");
     } catch (err) {
       console.error(err);
       alert("No se pudo finalizar la compra");
     }
+  };
+
+
+  const descargarPDF = (ticket) =>{
+      const doc = new jsPDF("portrait", "pt", "a4"); // Tamaño A4, puntos
+
+  const margin = 40;
+  const contentWidth = 520;
+
+  // --- Cabecera ---
+  doc.setFillColor(240, 240, 240); // fondo gris claro
+  doc.rect(margin, margin, contentWidth, 60, "F"); // rectángulo relleno
+
+ 
+
+  // Nombre de la página y icono
+  doc.setFontSize(22);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(0, 51, 102); // azul oscuro
+  doc.text("SHOWPASS", margin + 70, margin + 35);
+  // Puedes agregar un icono como imagen si lo tienes
+
+  // --- Sección del evento ---
+  doc.setFillColor(0, 51, 102); // azul oscuro
+  doc.rect(margin, margin + 70, contentWidth, 150, "F");
+
+  // Imagen del evento
+  if (ticket.eventoImagen) {
+    doc.addImage(ticket.eventoImagen, "JPEG", margin + 10, margin + 80, 120, 120);
+  }
+
+  // Nombre del evento
+  doc.setFontSize(18);
+  doc.setTextColor(255, 215, 0); // dorado
+  doc.text(ticket.eventoNombre, margin + 140, margin + 100);
+
+  // Fecha de inicio
+  doc.setFontSize(12);
+  doc.setTextColor(255, 255, 255);
+  doc.text(`Inicio: ${new Date(ticket.eventoInicio).toLocaleString()}`, margin + 140, margin + 120);
+
+  // Precio
+  doc.text(`Precio: ${ticket.precio.toFixed(2)} €`, margin + 140, margin + 140);
+
+  // --- QR en la esquina derecha ---
+  if (ticket.codigoQR) {
+    const qrSize = 100;
+    doc.addImage(`data:image/png;base64,${ticket.codigoQR}`, "PNG", margin + contentWidth - qrSize - 10, margin + 80, qrSize, qrSize);
+  }
+
+  // --- Información del usuario debajo de la sección ---
+  const infoStartY = margin + 250;
+  doc.setFillColor(245, 245, 245); // gris claro
+  doc.rect(margin, infoStartY, contentWidth, 100, "F");
+
+  doc.setFontSize(12);
+  doc.setTextColor(0, 0, 0);
+  doc.text(`ID Ticket: ${ticket.id}`, margin + 10, infoStartY + 20);
+  doc.text(`Usuario ID: ${ticket.usuarioId}`, margin + 10, infoStartY + 40);
+  doc.text(`Evento ID: ${ticket.eventoId}`, margin + 10, infoStartY + 60);
+
+  // Nota inferior
+  doc.setFontSize(10);
+  doc.setTextColor(120, 120, 120);
+  doc.text("Prohibida la reventa. No reembolsable. Mostrar en la entrada del evento.", margin + 10, infoStartY + 90);
+
+  doc.save(`ticket_${ticket.id}.pdf`);
   };
 
   {/*if (loading) return <p className="p-4">Cargando carrito...</p>;*/ }
@@ -143,14 +226,51 @@ export default function ShoppingCart({ user }) {
           >
             Vaciar carrito
           </button>
-          <button
-            onClick={finalizarCompra}
-            className="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600"
-          >
-            Comprar
-          </button>
+          
+            <button
+              onClick={finalizarCompra}
+              className="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600 mb-6"
+            >
+              Comprar
+            </button>
+          
         </div>
       </div>
+        
+      {/* Resumen tickets comprados */}
+      {ticketsComprados.length > 0 && (
+        <div className="mt-6 p-4 bg-white shadow rounded">
+          <h2 className="text-2xl font-bold mb-4">Resumen de tu compra</h2>
+          <ul className="space-y-2">
+            {ticketsComprados.map((ticket) => (
+              <li key={ticket.id} className="flex justify-between items-center border p-2 rounded">
+                {/* Info del ticket */}
+                <div className="flex items-center gap-4">
+                  {/* Imagen del evento */}
+                  <img 
+                    src={ticket.eventoImagen} 
+                    alt={ticket.eventoNombre} 
+                    className="w-16 h-16 object-cover rounded"
+                  />
+                  <div>
+                    <p className="font-semibold text-blue-950">{ticket.eventoNombre}</p>
+                    <p>Precio: {ticket.precio.toFixed(2)} €</p>
+                    <p>Inicio del evento: {new Date(ticket.eventoInicio).toLocaleString()}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => descargarPDF(ticket)}
+                  className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                >
+                  Descargar PDF
+                </button>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-4 font-bold text-xl">Total a pagar: {totalCompra.toFixed(2)} €</p>
+        </div>
+      )}
+
     </div>
   );
 }

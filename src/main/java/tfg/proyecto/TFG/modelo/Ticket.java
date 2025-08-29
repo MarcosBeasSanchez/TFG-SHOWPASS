@@ -3,6 +3,7 @@ package tfg.proyecto.TFG.modelo;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -26,7 +27,12 @@ public class Ticket {
 	private Long id;
 	private Long usuarioId; // Fk
 	private Long eventoId; // Fk
+	@Column(columnDefinition = "TEXT")
 	private String codigoQR; //generar un codigo QR al comprar
 	private LocalDateTime fechaCompra;
+	private double precio;
+	private String eventoNombre;
+    private String eventoImagen;
+    private LocalDateTime eventoInicio;
 
 }

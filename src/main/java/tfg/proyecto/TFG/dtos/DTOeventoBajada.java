@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Singular;
+import tfg.proyecto.TFG.modelo.Categoria;
 
 @Data
 @Builder
@@ -27,6 +28,7 @@ public class DTOeventoBajada {
 	@Singular
 	private List<String> carrusels;
 	private double precio;
+	private Categoria categoria;
 
 
 

@@ -4,6 +4,7 @@ import java.util.List;
 
 import tfg.proyecto.TFG.dtos.DTOeventoBajada;
 import tfg.proyecto.TFG.dtos.DTOeventoSubida;
+import tfg.proyecto.TFG.modelo.Categoria;
 
 public interface IServicioEvento {
 	
@@ -12,4 +13,5 @@ public interface IServicioEvento {
 	DTOeventoBajada actualizarEvento(Long id,  DTOeventoSubida eventodto);
 	boolean eliminarEvento(Long id);
 	DTOeventoBajada obtnerPorElNombre(String nombre);
+	List<DTOeventoBajada> obtenerPorCategoria(Categoria categoria);
 }
