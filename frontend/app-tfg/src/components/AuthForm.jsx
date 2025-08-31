@@ -16,7 +16,7 @@ export default function AuthForm({ type, onSubmit }) {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen min-w-full">
+    <div className="flex flex-col items-center justify-center min-h-screen min-w-full p-5">
 
       <h1 className="text-3xl font-bold text-center text-blue-950 mb-10">
         {type === "register" ? "¡BIENVENIDO!" : "¡HOLA DE NUEVO!"}

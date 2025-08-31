@@ -13,34 +13,6 @@ export default function EventDetail() {
   // Estado para la cantidad tickets, empieza siempre en 1
   const [cantidad, setCantidad] = useState(1);
 
-  /*
-  // Estado para almacenar datos de compra de ticket
-  const [ticketCompra, setTicketCompra] = useState({
-    usuarioId: localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")).id : null,
-    eventoId: evento ? evento.id : null,
-    codigoQR: null,
-    fechaCompra: null
-  });
-
-  const enviarTicketCompra = async () => {
-    try {
-      const res = await fetch(`${config.apiBaseUrl}/tfg/ticket/insert`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(ticketCompra)
-      });
-      if (!res.ok) throw new Error("Error al comprar el ticket");
-      const data = await res.json();
-      alert("Ticket comprado correctamente");
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-  
-  */
-
   {/*ENDPOINT Evento*/ }
   useEffect(() => {
     const fetchEvento = async () => {
@@ -153,7 +125,10 @@ export default function EventDetail() {
           alt={evento.nombre}
           className="w-full h-120 object-cover"
         />
-        <h1 className="absolute top-95 left-30 text-4xl font-bold text-white px-4 py-2 bg-blue-950">
+        <h1
+          className="absolute top-95 left-30 text-2xl sm:text-3xl md:text-4xl font-bold text-white px-4 py-2 bg-blue-950 max-w-full "
+
+        >
           {evento.nombre}
         </h1>
       </div>
@@ -246,7 +221,7 @@ export default function EventDetail() {
             <button
               type="button"
               onClick={() => setCantidad(Math.max(cantidad - 1, 1))}
-              className="bg-gray-500 text-white hover:bg-red-600 transition font-bold w-10 h-10 rounded-l-full "
+              className="bg-gray-500 text-white hover:bg-red-600 transition font-bold w-10 h-10 rounded-l-lg "
             >
               -
             </button>
@@ -262,7 +237,7 @@ export default function EventDetail() {
             <button
               type="button"
               onClick={() => setCantidad(cantidad + 1)}
-              className="bg-gray-500 text-white  hover:bg-blue-600 transition font-bold w-10 h-10 rounded-r-full"
+              className="bg-gray-500 text-white  hover:bg-blue-600 transition font-bold w-10 h-10 rounded-r-lg"
             >
               +
             </button>

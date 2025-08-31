@@ -19,7 +19,6 @@ import tfg.proyecto.TFG.dtos.DTOticketBajada;
 import tfg.proyecto.TFG.dtos.DTOticketSubida;
 import tfg.proyecto.TFG.servicios.IServicioTicket;
 @CrossOrigin(origins = "http://localhost:5173")
-
 @RestController
 @RequestMapping("/tfg/ticket/")
 public class ControlTicket {

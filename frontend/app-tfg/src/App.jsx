@@ -6,13 +6,16 @@ import Profile from "./pages/Profile";
 import EventDetail from "./pages/EventDetail";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
-import ShoppingCart from "./pages/ShoppingCart";
-import CategoryEvents from "./pages/CategoryEvents"; // 🔥 nueva página
+import ShoppingCart from "./pages/Carrito";
+import CategoryEvents from "./pages/CategoryEvents";
+import BusquedaEventos from "./pages/Busqueda";
+import UserTickets from "./pages/UserTickets.jsx";
 
 import { useEffect, useState } from "react";
 
 export default function App() {
   const [user, setUser] = useState(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
@@ -33,90 +36,169 @@ export default function App() {
     window.location.href = "/";
   };
 
-  
-
   return (
     <BrowserRouter>
       <div className="flex flex-col min-h-screen">
-        <nav className="pl-8 pr-8 pt-4 pb-4 bg-blue-950 text-white flex items-center justify-between">
-  {/* Bloque Izquierda: Logo */}
-  <div className="flex items-center gap-4">
-    <Link to="/">
-      <div className="flex items-center gap-2">
-        <h1
-          className="text-2xl font-extrabold hover:scale-105 transition-transform duration-200"
-          style={{ fontSize: "30px", lineHeight: "1", fontFamily: "Roboto, sans-serif" }}
-        >
-          SHOWPASS
-        </h1>
-        <span
-          className="material-symbols-outlined"
-          style={{ fontSize: "30px", lineHeight: "1" }}
-        >
-          local_activity
-        </span>
-      </div>
-    </Link>
-  </div>
+        <nav className="pl-2 pr-2 sm:pl-8  pt-4 pb-4 bg-blue-950 text-white flex items-center justify-between gap-2 sm:pr-8 sm:gap-0">
 
-  {/* Categorías en horizontal */}
-  <div className="flex-1 flex justify-center">
-    <div className="flex gap-6 overflow-x-auto scrollbar-hide">
-      {["MUSICA", "DEPORTES", "ARTE", "VIDEOJUEGOS", "OTROS"].map((cat) => (
-        <Link
-          key={cat}
-          to={`/categoria/${cat}`}
-          className="px-2 py-1 hover:bg-blue-800 rounded whitespace-nowrap"
-        >
-          {cat}
-        </Link>
-      ))}
-    </div>
-  </div>
+          {/* Logo */}
+          <div className="flex items-center gap-4">
+            <Link to="/">
+              <div className="flex items-center gap-2 ml-2 sm:mb-0">
+                <h1
+                  className="text-2xl font-extrabold hover:scale-105 transition-transform duration-200"
+                  style={{ fontSize: "30px", lineHeight: "1", fontFamily: "Roboto, sans-serif" }}
+                >
+                  SHOWPASS
+                </h1>
+                <span
+                  className="material-symbols-outlined"
+                  style={{ fontSize: "30px", lineHeight: "1" }}
+                >
+                  local_activity
+                </span>
+              </div>
+            </Link>
+          </div>
 
-  {/* Bloque derecho: login/profile */}
-  <div className="flex gap-4 items-center relative">
-    {!user ? (
-      <>
-        <Link to="/login" className="p-1 hover:bg-gray-900">Login</Link>
-        <Link to="/register" className="p-1 hover:bg-gray-900">Registro</Link>
-      </>
-    ) : (
-      <ProfileDropdown>
-        <span className="flex w-full text-left items-center justify-items-center-safe px-2 py-2 text-white">
-          👋 Hola, {user?.nombre}
-        </span>
-        <Link
-          to="/profile"
-          className="flex w-full text-left items-center justify-items-center-safe px-2 py-2 hover:bg-gray-700"
-        >
-          <span className="material-symbols-outlined pr-2 ">
-            manage_accounts
-          </span>
-          Editar perfil
-        </Link>
-        <Link
-          to="/shoppingCart"
-          className="flex w-full text-left items-center justify-items-center-safe px-2 py-2 hover:bg-gray-700"
-        >
-          <span className="material-symbols-outlined pr-2 ">
-            shopping_cart
-          </span>
-          Ver carrito
-        </Link>
-        <Link
-          onClick={handleLogout}
-          className="flex w-full text-left items-center justify-items-center-safe px-2 py-2 bg-red-500 hover:bg-red-600"
-        >
-          <span className="material-symbols-outlined pr-2 ">
-            logout
-          </span>
-          Logout
-        </Link>
-      </ProfileDropdown>
-    )}
-  </div>
+          {/* Botón menú lateral en móvil */}
+          <button
+            className="sm:hidden flex items-center px-2 py-1 rounded hover:bg-blue-800"
+            onClick={() => setDrawerOpen(true)}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: "32px" }}>menu</span>
+          </button>
+
+          {/* Categorías y opciones en horizontal solo en escritorio */}
+          <div className="hidden sm:flex w-auto justify-center flex-1">
+            <div className="flex gap-6 overflow-x-auto scrollbar-hide [@media(max-width:800px)]:hidden">
+              {["MUSICA", "DEPORTES", "ARTE", "VIDEOJUEGOS", "OTROS"].map((cat) => (
+                <Link
+                  key={cat}
+                  to={`/categoria/${cat}`}
+                  className="text-sm px-1 py-1 hover:bg-blue-800 rounded whitespace-nowrap"
+                >
+                  {cat}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Bloque derecho: login/profile */}
+          <div className="hidden sm:flex gap-4 items-center relative">
+            {!user ? (
+              <>
+                <Link to="/login" className=" text-sm font-medium p-1  hover:bg-blue-800 rounded" >LOGIN</Link>
+                <Link to="/register" className=" text-sm font-medium p-1  hover:bg-blue-800 rounded " >REGISTRO</Link>
+              </>
+            ) : (
+              <ProfileDropdown>
+                <span className="flex w-full text-left items-center justify-items-center-safe px-2 py-2 text-white">
+                  👋 Hola, {user?.nombre}
+                </span>
+                <Link
+                  to="/profile"
+                  className="flex w-full text-left items-center justify-items-center-safe px-2 py-2 hover:bg-gray-700"
+                >
+                  <span className="material-symbols-outlined pr-2 ">
+                    manage_accounts
+                  </span>
+                  Editar perfil
+                </Link>
+                <Link
+                  to="/shoppingCart"
+                  className="flex w-full text-left items-center justify-items-center-safe px-2 py-2 hover:bg-gray-700"
+                >
+                  <span className="material-symbols-outlined pr-2 ">
+                    shopping_cart
+                  </span>
+                  Ver carrito
+                </Link>
+                <Link
+                  to="/tickets"
+                  className="flex w-full text-left items-center justify-items-center-safe px-2 py-2 hover:bg-gray-700"
+                >
+                  <span className="material-symbols-outlined pr-2 ">
+                    qr_code
+                  </span>
+                  Ver tickets
+                </Link>
+
+                <Link
+                  onClick={handleLogout}
+                  className="flex w-full text-left items-center justify-items-center-safe px-2 py-2 bg-red-500 hover:bg-red-600"
+                >
+                  <span className="material-symbols-outlined pr-2 ">
+                    logout
+                  </span>
+                  Logout
+                </Link>
+              </ProfileDropdown>
+            )}
+          </div>
         </nav>
+
+        {/* Drawer lateral para móvil */}
+        {drawerOpen && (
+          <div className="fixed inset-0 z-50 flex">
+            {/* Fondo oscuro */}
+            <div
+              className="fixed inset-0 bg-black bg-opacity-40"
+              onClick={() => setDrawerOpen(false)}
+            />
+            {/* Panel lateral */}
+            <div className="relative bg-blue-950 text-white w-64 max-w-full h-full shadow-lg flex flex-col p-6">
+              <button
+                className="absolute top-4 right-4 text-white"
+                onClick={() => setDrawerOpen(false)}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: "32px" }}>close</span>
+              </button>
+              <div className="flex flex-col gap-4 mt-8">
+                {["MUSICA", "DEPORTES", "ARTE", "VIDEOJUEGOS", "OTROS"].map((cat) => (
+                  <Link
+                    key={cat}
+                    to={`/categoria/${cat}`}
+                    className="text-base px-2 py-2 hover:bg-blue-800 rounded"
+                    onClick={() => setDrawerOpen(false)}
+                  >
+                    {cat}
+                  </Link>
+                ))}
+                <hr className="my-4 border-blue-800" />
+                {!user ? (
+                  <>
+                    <Link to="/login" className="text-base px-2 py-2 hover:bg-blue-800 rounded" onClick={() => setDrawerOpen(false)}>LOGIN</Link>
+                    <Link to="/register" className="text-base px-2 py-2 hover:bg-blue-800 rounded" onClick={() => setDrawerOpen(false)}>REGISTRO</Link>
+                  </>
+                ) : (
+                  <>
+                    <Link to="/profile" className="text-base px-2 py-2 hover:bg-blue-800 rounded" onClick={() => setDrawerOpen(false)}>
+                      <span className="material-symbols-outlined pr-2">manage_accounts</span>
+                      Editar perfil
+                    </Link>
+                    <Link to="/shoppingCart" className="text-base px-2 py-2 hover:bg-blue-800 rounded" onClick={() => setDrawerOpen(false)}>
+                      <span className="material-symbols-outlined pr-2">shopping_cart</span>
+                      Ver carrito
+                    </Link>
+                    <Link to="/tickets" className="text-base px-2 py-2 hover:bg-blue-800 rounded" onClick={() => setDrawerOpen(false)}>
+                      <span className="material-symbols-outlined pr-2">qr_code</span>
+                      Ver tickets
+                    </Link>
+
+                    <button
+                      onClick={() => { handleLogout(); setDrawerOpen(false); }}
+                      className="text-base px-2 py-2 bg-red-500 hover:bg-red-600 rounded flex items-center"
+                    >
+                      <span className="material-symbols-outlined pr-2">logout</span>
+                      Logout
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Rutas */}
         <div className="flex-1">
@@ -124,12 +206,14 @@ export default function App() {
             <Route path="/" element={<VentanaPrincipal />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/busqueda" element={<BusquedaEventos />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/profile" element={<Profile setUser={setUser} />} />
             <Route path="/evento/:nombre" element={<EventDetail />} />
             <Route path="/shoppingCart" element={<ShoppingCart />} />
-            <Route path="/categoria/:nombre" element={<CategoryEvents />} /> 
+            <Route path="/tickets" element={<UserTickets />} />
+            <Route path="/categoria/:nombre" element={<CategoryEvents />} />
           </Routes>
         </div>
 

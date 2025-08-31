@@ -23,7 +23,7 @@ export default function Contact() {
                     ></iframe>
                 </div>
 
-                <ul className="flex flex-row gap-20 justify-center items-center w-full my-10">
+                <ul className="flex flex-row gap-10 md:gap-20 justify-center items-center w-full my-10">
                     {devs.map((dev, idx) => (
                         <li key={idx} className="flex flex-col items-center bg-gray-100/80 backdrop-blur-md p-4 rounded-lg flex-1 max-w-xs">
                             <img
@@ -49,7 +49,7 @@ export default function Contact() {
                 </ul>
             </div>
 
-            <div className="w-full sm:p-8 bg-blue-400/80 backdrop-blur-md text-white-900 shadow-lg rounded-lg ">
+            <div className="w-full p-8  bg-blue-400/80 backdrop-blur-md text-white-900 shadow-lg rounded-lg ">
                 <h2 className="text-2xl font-bold mb-4 text-center">¿Tienes alguna pregunta?</h2>
                 <p className="text-black text-center">
                     No dudes en ponerte en contacto con nosotros.
