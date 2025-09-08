@@ -7,7 +7,6 @@ import ticketSVG from '../assets/TICKETSVG.svg';
 
 const UserTickets = () => {
   const [tickets, setTickets] = useState([]);
-  const svgBase64 = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAtOTYwIDk2MCA5NjAiIHdpZHRoPSIyNHB4IiBmaWxsPSIjRkZGRkZGIj48cGF0aCBkPSJtMzY4LTMyMCAxMTItODQgMTEwIDg0LTQyLTEzNiAxMTItODhINTI0bC00NC0xMzYtNDQgMTM2SDMwMGwxMTAgODgtNDIgMTM2Wk0xNjAtMTYwcS0zMyAwLTU2LjUtMjMuNVQ4MC0yNDB2LTEzNXEwLTExIDctMTl0MTgtMTBxMjQtOCAzOS41LTI5dDE1LjUtNDdxMC0yNi0xNS41LTQ3VDEwNS01NTZxLTExLTItMTgtMTB0LTctMTl2LTEzNXEwLTMzIDIzLjUtNTYuNVQxNjAtODAwaDY0MHEzMyAwIDU2LjUgMjMuNVQ4ODAtNzIwdjEzNXEwIDExLTcgMTl0LTE4IDEwcS0yNCA4LTM5LjUgMjlUODAwLTQ4MHEwIDI2IDE1LjUgNDd0MzkuNSAyOXExMSAyIDE4IDEwdDcgMTl2MTM1cTAgMzMtMjMuNSA1Ni41VDgwMC0xNjBIMTYwWm0wLTgwaDY0MHYtMTAycS0zNy0yMi01OC41LTU4LjVUNzIwLTQ4MHEwLTQzIDIxLjUtNzkuNVQ4MDAtNjE4di0xMDJIMTYwdjEwMnEzNyAyMiA1OC41IDU4LjVUMjQwLTQ4MHEwIDQzLTIxLjUgNzkuNVQxNjAtMzQydjEwMlptMzIwLTI0MFoiLz48L3N2Zz4="; 
 
   const [reverseOrder, setReverseOrder] = useState(true); // NUEVA VARIABLE
   const userId = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")).id : null;
@@ -104,13 +103,14 @@ const descargarPDF = (ticket) => {
 };
 
   return (
-    <div className="mt-6 p-5 ">
-      <div className='p-10 bg-white shadow rounded'>
-        <h2 className="text-2xl font-bold mb-4 text-gray-500">Tus Tickets</h2>
+    <div className="max-w-5xl mx-auto p-6 md-6  ">
+      <div className='p-10 bg-white shadow rounded oscuro'>
+
+        <h2 className="text-2xl font-bold mb-4 text-gray-500 oscuroTextoGris">Tus Tickets</h2>
         <div className="w-full flex justify-end">
           <button
             onClick={() => setReverseOrder((prev) => !prev)}
-            className="mb-4 bg-gray-200 text-gray-700 px-3 py-1 rounded hover:bg-gray-300 text-xs text-right"
+            className="mb-4 bg-gray-200 text-gray-700 px-3 py-1 rounded hover:bg-gray-300 text-xs text-right oscuroBtn"
           >
             Cambiar orden: {reverseOrder ? "Recientes" : "Antiguos"}
           </button>
@@ -118,13 +118,13 @@ const descargarPDF = (ticket) => {
 
         <ul className={`flex ${reverseOrder ? "flex-col-reverse" : "flex-col"} gap-2`}>
           {tickets.length > 0 ? tickets.map((ticket) => (
-            <li key={ticket.id} className="flex md:justify-between border p-2 rounded flex-col md:flex-row gap-2">
+            <li key={ticket.id} className="flex md:justify-between border-none p-2 rounded flex-col md:flex-row gap-2 border- ">
               <div className="flex items-center gap-4">
-                <span className="material-symbols-outlined text-gray-400" style={{ fontSize: "60px" }}>
+                <span className="material-symbols-outlined text-gray-400 " style={{ fontSize: "60px" }}>
                   qr_code
                 </span>
                 <div>
-                  <p className="font-semibold text-blue-950">{ticket.eventoNombre}</p>
+                  <p className="font-semibold text-blue-950 oscuroTextoGris">{ticket.eventoNombre}</p>
                   <p className="text-gray-500">Precio: {ticket.precio?.toFixed(2) ?? "?"} €</p>
                   <p className="text-gray-500">Fecha Compra: {new Date(ticket.fechaCompra).toLocaleString()}</p>
                 </div>

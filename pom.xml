@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.3</version>
+		<version>3.5.5</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>tfg.proyecto</groupId>
@@ -17,20 +17,17 @@
 		de un sistema multiplataforma compuesto por una aplicación web y una
 		aplicación móvil. Ambas permitirán a los usuarios consultar eventos
 		musicales (conciertos y festivales), comprar entradas y gestionar su
-		acceso mediante códigos QR.
+		acceso mediante códigos QR. Para ello se ha diseñado y construido un
+		backend RESTful con Java y Spring Boot que actúa como núcleo del
+		sistema, sirviendo datos y lógica de negocio a ambos clientes (web y
+		móvil). El sistema contempla funcionalidades como la autenticación de
+		usuarios, roles diferenciados (usuarios y administradores), catálogo de
+		eventos, pasarela de pago simulada, generación de entradas digitales y
+		un panel de gestión para administradores. Con esta solución se busca
+		aplicar conocimientos de desarrollo web, desarrollo móvil nativo en
+		Kotlin, diseño de bases de datos relacionales y principios de
+		arquitectura limpia y escalable.</description>
 
-		Para ello se ha diseñado y construido un backend RESTful con Java y
-		Spring Boot que actúa como núcleo del sistema, sirviendo datos y lógica
-		de negocio a ambos clientes (web y móvil).
-
-		El sistema contempla funcionalidades como la autenticación de usuarios,
-		roles diferenciados (usuarios y administradores), catálogo de eventos,
-		pasarela de pago simulada, generación de entradas digitales y un panel
-		de gestión para administradores.
-
-		Con esta solución se busca aplicar conocimientos de desarrollo web,
-		desarrollo móvil nativo en Kotlin, diseño de bases de datos relacionales
-		y principios de arquitectura limpia y escalable.</description>
 	<url />
 	<licenses>
 		<license />
@@ -48,20 +45,20 @@
 		<java.version>17</java.version>
 	</properties>
 	<dependencies>
-	
-	
+
+
 		<!-- ZXing Core (lógica de generación/lectura de códigos) -->
 		<dependency>
-		    <groupId>com.google.zxing</groupId>
-		    <artifactId>core</artifactId>
-		    <version>3.5.3</version>
+			<groupId>com.google.zxing</groupId>
+			<artifactId>core</artifactId>
+			<version>3.5.3</version>
 		</dependency>
-		
+
 		<!-- ZXing JavaSE (para trabajar con imágenes BufferedImage, PNG, etc.) -->
 		<dependency>
-		    <groupId>com.google.zxing</groupId>
-		    <artifactId>javase</artifactId>
-		    <version>3.5.3</version>
+			<groupId>com.google.zxing</groupId>
+			<artifactId>javase</artifactId>
+			<version>3.5.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -104,7 +101,7 @@
 			<artifactId>modelmapper</artifactId>
 			<version>3.2.0</version>
 		</dependency>
-		
+
 		<dependency> <!--JWT -->
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-api</artifactId>
@@ -136,8 +133,12 @@
 							<artifactId>lombok</artifactId>
 						</path>
 					</annotationProcessorPaths>
+					<!-- Forzar codificación UTF-8 en compilación -->
+					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
+
+
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>

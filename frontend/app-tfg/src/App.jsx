@@ -9,13 +9,25 @@ import Contact from "./pages/Contact";
 import ShoppingCart from "./pages/Carrito";
 import CategoryEvents from "./pages/CategoryEvents";
 import BusquedaEventos from "./pages/Busqueda";
-import UserTickets from "./pages/UserTickets.jsx";
-
+import UserTickets from "./pages/Tickets.jsx";
 import { useEffect, useState } from "react";
+
 
 export default function App() {
   const [user, setUser] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  {/* Estado para el modo oscuro */ }
+  const [darkMode, setDarkMode] = useState(false);
+  {/* Aplicar o quitar la clase 'dark' al elemento raíz según el estado de darkMode */ }
+  useEffect(() => {
+    const root = document.documentElement;
+    if (darkMode) {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+  }, [darkMode]);
 
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
@@ -38,11 +50,11 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <div className="flex flex-col min-h-screen">
+      <div className="flex flex-col min-h-screen ">
         <nav className="pl-2 pr-2 sm:pl-8  pt-4 pb-4 bg-blue-950 text-white flex items-center justify-between gap-2 sm:pr-8 sm:gap-0">
 
           {/* Logo */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 ">
             <Link to="/">
               <div className="flex items-center gap-2 ml-2 sm:mb-0">
                 <h1
@@ -85,55 +97,73 @@ export default function App() {
           </div>
 
           {/* Bloque derecho: login/profile */}
-          <div className="hidden sm:flex gap-4 items-center relative">
+          <div className="hidden sm:flex gap-4 items-center relative ">
             {!user ? (
               <>
                 <Link to="/login" className=" text-sm font-medium p-1  hover:bg-blue-800 rounded" >LOGIN</Link>
                 <Link to="/register" className=" text-sm font-medium p-1  hover:bg-blue-800 rounded " >REGISTRO</Link>
+                <span
+                  className="material-symbols-outlined hover:bg-blue-800 rounded-full p-1 transition-colors cursor-pointer"
+                  title={darkMode ? "Desactivar modo oscuro" : "Activar modo oscuro"}
+                  onClick={() => setDarkMode((prev) => !prev)}
+                >
+                  dark_mode
+                </span>
+
               </>
             ) : (
-              <ProfileDropdown>
-                <span className="flex w-full text-left items-center justify-items-center-safe px-2 py-2 text-white">
-                  👋 Hola, {user?.nombre}
+              <div className="flex items-center gap-4">
+                <span
+                  className="material-symbols-outlined hover:bg-blue-800 rounded-full p-1 transition-colors cursor-pointer"
+                  title={darkMode ? "Desactivar modo oscuro" : "Activar modo oscuro"}
+                  onClick={() => setDarkMode((prev) => !prev)}
+                >
+                  dark_mode
                 </span>
-                <Link
-                  to="/profile"
-                  className="flex w-full text-left items-center justify-items-center-safe px-2 py-2 hover:bg-gray-700"
-                >
-                  <span className="material-symbols-outlined pr-2 ">
-                    manage_accounts
+                <ProfileDropdown>
+                  <span className="flex w-full text-left items-center justify-items-center-safe px-2 py-2 text-white">
+                    👋 Hola, {user?.nombre}
                   </span>
-                  Editar perfil
-                </Link>
-                <Link
-                  to="/shoppingCart"
-                  className="flex w-full text-left items-center justify-items-center-safe px-2 py-2 hover:bg-gray-700"
-                >
-                  <span className="material-symbols-outlined pr-2 ">
-                    shopping_cart
-                  </span>
-                  Ver carrito
-                </Link>
-                <Link
-                  to="/tickets"
-                  className="flex w-full text-left items-center justify-items-center-safe px-2 py-2 hover:bg-gray-700"
-                >
-                  <span className="material-symbols-outlined pr-2 ">
-                    qr_code
-                  </span>
-                  Ver tickets
-                </Link>
 
-                <Link
-                  onClick={handleLogout}
-                  className="flex w-full text-left items-center justify-items-center-safe px-2 py-2 bg-red-500 hover:bg-red-600"
-                >
-                  <span className="material-symbols-outlined pr-2 ">
-                    logout
-                  </span>
-                  Logout
-                </Link>
-              </ProfileDropdown>
+                  <Link
+                    to="/profile"
+                    className="flex w-full text-left items-center justify-items-center-safe px-2 py-2 hover:bg-gray-700"
+                  >
+                    <span className="material-symbols-outlined pr-2 ">
+                      manage_accounts
+                    </span>
+                    Editar perfil
+                  </Link>
+                  <Link
+                    to="/shoppingCart"
+                    className="flex w-full text-left items-center justify-items-center-safe px-2 py-2 hover:bg-gray-700"
+                  >
+                    <span className="material-symbols-outlined pr-2 ">
+                      shopping_cart
+                    </span>
+                    Ver carrito
+                  </Link>
+                  <Link
+                    to="/tickets"
+                    className="flex w-full text-left items-center justify-items-center-safe px-2 py-2 hover:bg-gray-700"
+                  >
+                    <span className="material-symbols-outlined pr-2 ">
+                      qr_code
+                    </span>
+                    Ver tickets
+                  </Link>
+
+                  <Link
+                    onClick={handleLogout}
+                    className="flex w-full text-left items-center justify-items-center-safe px-2 py-2 bg-red-500 hover:bg-red-600"
+                  >
+                    <span className="material-symbols-outlined pr-2 ">
+                      logout
+                    </span>
+                    Logout
+                  </Link>
+                </ProfileDropdown>
+              </div>
             )}
           </div>
         </nav>
@@ -170,6 +200,14 @@ export default function App() {
                   <>
                     <Link to="/login" className="text-base px-2 py-2 hover:bg-blue-800 rounded" onClick={() => setDrawerOpen(false)}>LOGIN</Link>
                     <Link to="/register" className="text-base px-2 py-2 hover:bg-blue-800 rounded" onClick={() => setDrawerOpen(false)}>REGISTRO</Link>
+                    <span
+                      className="material-symbols-outlined hover:bg-blue-800 rounded-full p-1 transition-colors cursor-pointer"
+                      title={darkMode ? "Desactivar modo oscuro" : "Activar modo oscuro"}
+                      onClick={() => setDarkMode((prev) => !prev)}
+                    >
+                      dark_mode
+                    </span>
+
                   </>
                 ) : (
                   <>
@@ -186,6 +224,12 @@ export default function App() {
                       Ver tickets
                     </Link>
 
+                    <button className="flex items-center  px-2 py-2 gap-2 " onClick={() => setDarkMode((prev) => !prev)}>
+                     <span className="material-symbols-outlined ">
+                        dark_mode 
+                      </span> {darkMode ? "Modo claro" : "Modo oscuro"}
+                    </button>
+
                     <button
                       onClick={() => { handleLogout(); setDrawerOpen(false); }}
                       className="text-base px-2 py-2 bg-red-500 hover:bg-red-600 rounded flex items-center"
@@ -193,6 +237,8 @@ export default function App() {
                       <span className="material-symbols-outlined pr-2">logout</span>
                       Logout
                     </button>
+                    
+
                   </>
                 )}
               </div>

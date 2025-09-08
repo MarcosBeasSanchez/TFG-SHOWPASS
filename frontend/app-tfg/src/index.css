@@ -4,6 +4,42 @@ body {
   @apply bg-blue-100 text-white;
 }
 
+.claro {
+  @apply bg-white
+}
+
+/* Estilos para el modo oscuro */
+
+.dark body {
+  @apply bg-gray-950 text-white ; 
+}
+
+.dark .oscuro {
+    @apply bg-gray-800 text-gray-400;
+}
+.dark .oscuroBox {
+    @apply bg-gray-900 text-gray-400;
+}
+.dark .oscuroTextoGris {
+    @apply text-gray-400;
+}
+.dark .oscuroBtn {
+    @apply bg-gray-700 text-gray-300 hover:bg-gray-600;
+}
+
+.dark .oscuroEvento {
+    @apply  text-gray-400;
+}
+.claroEvento {
+    @apply  text-gray-800;
+}
+.dark .fondoOscuro {
+    @apply bg-gray-900;
+}
+.fondoClaro {
+    @apply bg-white;
+}
+
 /* Fondo de patrón */
 body::before {
   content: "";
@@ -19,3 +55,11 @@ body::before {
   z-index: -1;
   pointer-events: none;
 }
+
+
+
+
+
+
+
+

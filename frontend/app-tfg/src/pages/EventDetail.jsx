@@ -133,26 +133,26 @@ export default function EventDetail() {
         </h1>
       </div>
       <div
-        className={`bg-white shadow-xl max-w w-full p-8 transform transition-all duration-700 ease-out
+        className={`claro oscuroBox shadow-xl max-w w-full p-8 transform transition-all duration-700 ease-out
         ${animate ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
         style={{ position: "relative" }}
       >
         {/* Datos del evento */}
-        <div className="max-w-4xl mx-auto text-left">
-          <h2 className="text-2xl font-semibold mb-3 text-gray-800">Datos del evento</h2>
+        <div className="max-w-4xl mx-auto text-left ">
+          <h2 className="text-2xl font-semibold mb-3 claroEvento oscuroEvento">Datos del evento</h2>
           <div className="flex flex-col md:flex-row md:justify-between mb-6 text-gray-800 text-lg py-8">
-            <div className="bg-blue-100 p-1"><strong>Localización:</strong> {evento.localizacion}</div>
-            <div className="bg-blue-100 p-1"><strong>Inicio:</strong> {formatDate(evento.inicioEvento)}</div>
-            <div className="bg-blue-100 p-1"><strong>Fin:</strong> {formatDate(evento.finEvento)}</div>
+            <div className="bg-blue-100 oscuroBox p-1"><strong>Localización:</strong> {evento.localizacion}</div>
+            <div className="bg-blue-100 p-1 oscuroBox"><strong>Inicio:</strong> {formatDate(evento.inicioEvento)}</div>
+            <div className="bg-blue-100 p-1 oscuroBox"><strong>Fin:</strong> {formatDate(evento.finEvento)}</div>
           </div>
 
           {/* Descripción */}
           <div className="mb-6">
-            <h2 className="text-2xl font-semibold mb-3 text-gray-800">Descripción</h2>
-            <p className="text-gray-700 text-base leading-relaxed">
+            <h2 className="text-2xl font-semibold mb-3 claroEvento oscuroEvento">Descripción</h2>
+            <p className="text-gray-700 text-base leading-relaxed claroEvento oscuroEvento">
               {evento.descripcion || "Este evento aún no tiene descripción."}
             </p>
-            <h2 className="text-2xl font-semibold my-3 text-gray-800">Galería</h2>
+            <h2 className="text-2xl font-semibold my-3 claroEvento oscuroEvento">Galería</h2>
           </div>
 
           {/* Carrusel de imágenes */}
@@ -178,13 +178,13 @@ export default function EventDetail() {
           </div>
 
           {/* Invitados */}
-          <h2 className="text-2xl font-semibold mb-3 text-gray-800">Invitados</h2>
+          <h2 className="text-2xl font-semibold mb-3 claroEvento oscuroEvento">Invitados</h2>
           {evento.invitados && evento.invitados.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6 ">
               {evento.invitados.map((inv, index) => (
                 <div
                   key={index}
-                  className="bg-gray-50 rounded-lg shadow p-4 flex flex-col items-center text-gray-800"
+                  className="bg-gray-50 oscuro rounded-lg shadow p-4 flex flex-col items-center text-gray-800"
                 >
                   {inv.fotoURL ? (
                     <img
@@ -194,11 +194,11 @@ export default function EventDetail() {
                     />
                   ) : (
                     <div className="w-24 h-24 rounded-full bg-gray-300 mb-2 flex items-center justify-center">
-                      <span className="text-gray-500">Sin foto</span>
+                      <span className="text-gray-500 ">Sin foto</span>
                     </div>
                   )}
-                  <h3 className="font-semibold text-center">{inv.nombre} {inv.apellidos}</h3>
-                  <div className="text-gray-700 text-base mt-1 text-center">{inv.descripcion}</div>
+                  <h3 className="font-semibold text-center oscuro">{inv.nombre} {inv.apellidos}</h3>
+                  <div className="text-gray-700 text-base mt-1 text-center oscuro">{inv.descripcion}</div>
                 </div>
               ))}
             </div>
@@ -207,8 +207,8 @@ export default function EventDetail() {
           )}
 
           {/* Precio */}
-          <h2 className="text-2xl font-semibold mb-3 text-gray-800">Precio</h2>
-          <p className="text-gray-700 font-bold md:text-left text-center">
+          <h2 className="text-2xl font-semibold mb-3 claroEvento oscuroEvento">Precio</h2>
+          <p className="text-gray-700 font-bold md:text-left text-center claroEvento oscuroEvento">
             {typeof evento.precio === "number"
               ? `PVP: ${evento.precio.toFixed(2)} €`
               : "Precio no disponible"}

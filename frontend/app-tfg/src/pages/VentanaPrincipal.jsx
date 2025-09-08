@@ -69,11 +69,11 @@ export default function VentanaPrincipal() {
       )}
 
       {primerEvento && (
-        <div className="grid place-items-center grid-cols-1 p-5 sm:p-10">
-          <h1 className="text-2xl font-bold mb-4 text-gray-600">PRÓXIMOS EVENTOS</h1>
+        <div className="grid place-items-center p-5 sm:p-10 ">
+          <h1 className="text-2xl font-bold mb-4 text-gray-600 oscuroTextoGris">PRÓXIMOS EVENTOS</h1>
           <div
             key={primerEvento.id}
-            className="bg-white shadow-lg overflow-hidden hover:scale-101 transition transform lg:w-4/6 md:w-5/6 sm:w-full group"
+            className="bg-white shadow-lg overflow-hidden hover:scale-101 transition transform lg:w-5/6 sm:w-full group"
           >
             <Link to={`/evento/${primerEvento.nombre}`}>
               <div className="relative w-full ">
@@ -85,8 +85,9 @@ export default function VentanaPrincipal() {
                 <div className="absolute inset-0 bg-blue-500 opacity-0 group-hover:opacity-20 transition duration-500"></div>
               </div>
             </Link>
-            <div className="p-4 flex flex-col justify-between ">
-              <h3 className="text-xl font-semibold text-gray-700">{primerEvento.nombre}</h3>
+
+            <div className="p-4 flex flex-col bg-white oscuro">
+              <h3 className="text-xl font-semibold text-gray-700 oscuro">{primerEvento.nombre}</h3>
               <div className="my-2">
                 <p className="text-gray-500 mt-1">
                   <strong>Localización:</strong> {primerEvento.localizacion}</p>
@@ -107,7 +108,7 @@ export default function VentanaPrincipal() {
                 </p>
               </div>
               <div className="flex justify-end gap-2 items-baseline">
-                <p className="font-medium text-sm text-gray-600 bg-blue-100 p-2 rounded-md">
+                <p className="font-medium text-sm text-gray-600 bg-blue-100 oscuroBox p-2 rounded-md">
                   {Number(primerEvento.precio).toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€
                 </p>
                 <Link
@@ -129,7 +130,7 @@ export default function VentanaPrincipal() {
           sm:text-4xl 
           md:text-5xl 
           lg:text-6xl 
-          font-extrabold text-center py-7 bg-blue-900 text-white opacity-20 gap-4"
+          font-extrabold text-center py-7 bg-blue-900 text-white opacity-40 gap-4"
           style={{ lineHeight: "1", fontFamily: "Roboto, sans-serif", minWidth: "320px" }}
         >
           SHOWPASS
@@ -142,14 +143,14 @@ export default function VentanaPrincipal() {
         </h1>
       </div>
 
-      <div className="grid  md:grid-cols-2 lg:grid-cols-3 gap-10  p-5 sm:p-10">
+      <div className="grid  md:grid-cols-2 lg:grid-cols-3 gap-10  p-5 sm:p-10 ">
         {restoEventos.map((entrada) => (
           <div
             key={entrada.id}
-            className="bg-white shadow-lg overflow-hidden hover:scale-101 transition transform group"
+            className="claro oscuro shadow-lg overflow-hidden hover:scale-101 transition transform group h-full "
           >
             <Link to={`/evento/${entrada.nombre}`}>
-              <div className="relative w-full h-80">
+              <div className="relative w-full h-80 ">
                 <img
                   src={entrada.imagen}
                   alt={entrada.nombre}
@@ -158,8 +159,8 @@ export default function VentanaPrincipal() {
                 <div className="absolute inset-0 bg-blue-500 opacity-0 group-hover:opacity-20 transition duration-500"></div>
               </div>
             </Link>
-            <div className="p-4 flex flex-col h-auto">
-              <h3 className="text-xl font-semibold text-gray-700">{entrada.nombre}</h3>
+            <div className="p-4 flex flex-col justify-between h-70">
+              <h3 className="text-xl font-semibold text-gray-700 oscuro">{entrada.nombre}</h3>
               <div className="my-2">
                 <p className="text-gray-500 mt-1"><strong>Localización:</strong> {entrada.localizacion}</p>
                 <p className="text-gray-500 mt-1">
@@ -178,7 +179,7 @@ export default function VentanaPrincipal() {
                 </p>
               </div>
               <div className="flex justify-end items-baseline mt-1 gap-2">
-                <p className=" text-sm font-medium text-gray-600 bg-blue-100 p-2 rounded-md">
+                <p className=" text-sm font-medium text-gray-600 bg-blue-100 oscuroBox p-2 rounded-md">
                   {Number(entrada.precio).toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€
                 </p>
                 <Link

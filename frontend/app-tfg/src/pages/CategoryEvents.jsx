@@ -34,16 +34,16 @@ export default function CategoriaEventos() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h2 className="text-2xl font-bold mb-6 text-center text-gray-600">
+    <div className="container mx-auto px-4 py-8 ">
+      <h2 className="text-2xl font-bold mb-6 text-center text-gray-600 oscuroTextoGris ">
         {nombre}
       </h2>
 
-      <div className="grid grid-cols-1  sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1  sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ">
         {eventos.map((evento) => (
           <div
             key={evento.id}
-            className="bg-white text-gray-700 rounded-xl shadow-md hover:shadow-lg transition"
+            className=" text-gray-700 rounded-xl shadow-md hover:shadow-lg transition "
           >
             <img
               src={evento.imagen || "/placeholder.jpg"}
@@ -51,23 +51,23 @@ export default function CategoriaEventos() {
               className="w-full h-80 object-cover"
             />
 
-            <div className="flex flex-col justify-between h-auto p-4">
+            <div className="flex flex-col justify-between h-100 º p-4 fondoClaro oscuro">
               {/* Arriba */}
-              <div>
+              <div className="">
                 <h3 className="text-xl font-semibold mb-2">{evento.nombre}</h3>
-                <p className="text-gray-600 mb-2 text-sm line-clamp-[calc(100/10)]">{evento.descripcion}</p>
+                <p className="text-gray-500 mb-2 text-sm line-clamp-10 ">{evento.descripcion}</p>
               </div>
               {/* Centro */}
               <div className="flex flex-row justify-between items-center my-2">
                 <div>
-                  <p className="text-sm text-gray-400">
+                  <p className="text-sm text-gray-600">
                     Inicio: {new Date(evento.inicioEvento).toLocaleString()}
                   </p>
-                  <p className="text-sm text-gray-400">
+                  <p className="text-sm text-gray-600">
                     Fin: {new Date(evento.finEvento).toLocaleString()}
                   </p>
                 </div>
-                <p className=" text-sm font-medium text-gray-600 bg-blue-100 p-1 rounded-md">
+                <p className=" text-sm font-medium text-gray-600 bg-blue-100 oscuroBox p-1 rounded-md">
                   {Number(evento.precio).toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€
                 </p>
               </div>

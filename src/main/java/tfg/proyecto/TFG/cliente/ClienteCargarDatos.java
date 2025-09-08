@@ -44,9 +44,9 @@ public class ClienteCargarDatos implements CommandLineRunner {
 	public void run(String... args) throws Exception {
 		if (!datosCargados) {
 
-			DTOusuarioSubida u1;
+			DTOusuarioSubida u1,u2;
 			DTOtarjetaBancariaSubida c1;
-			DTOticketSubida t1;
+			DTOticketSubida t1,t2;
 
 			c1 = DTOtarjetaBancariaSubida.builder()
 					.nombreTitular("nombreTitular")
@@ -57,19 +57,30 @@ public class ClienteCargarDatos implements CommandLineRunner {
 					.build();
 
 			u1 = DTOusuarioSubida.builder()
-					.nombre("usuarioPrueba")
-					.email("prueba@mail.com")
+					.nombre("usuarioCliente")
+					.email("cliente@mail.com")
+					.password("1234")
+					.foto("https://i.pinimg.com/736x/d9/d8/8e/d9d88e3d1f74e2b8ced3df051cecb81d.jpg")
+					.fechaNacimiento(LocalDate.now().minusYears(25))
+					.rol(Rol.CLIENTE)
+					.cuenta(c1)
+					.activo(true)
+					.build();
+			
+			u2 = DTOusuarioSubida.builder()
+					.nombre("usuarioAdmin")
+					.email("admin@mail.com")
 					.password("1234")
 					.foto("https://i.pinimg.com/736x/d9/d8/8e/d9d88e3d1f74e2b8ced3df051cecb81d.jpg")
 					.fechaNacimiento(LocalDate.now().minusYears(25))
 					.rol(Rol.ADMIN)
 					.cuenta(c1)
 					.activo(true)
-					.cuenta(c1)
 					.build();
 			
-			DTOusuarioBajada usuarioBajada = daoUsuario.registerConDatos(u1);
-			//DTOusuarioBajada usuarioBajada = daoUsuario.insert(u1);
+			DTOusuarioBajada usuarioBajada = daoUsuario.registerConDatos(u1); //registramos usuario con contraseña encriptada
+			DTOusuarioBajada adminBajada = daoUsuario.registerConDatos(u2); //registramos usuario con contraseña encriptada
+			
 
 			DTOeventoSubida e1 = DTOeventoSubida.builder().nombre("Festival de Música Electrónica")
 					.localizacion("Madrid, España").inicioEvento(LocalDateTime.of(2025, 7, 15, 18, 0))
@@ -80,7 +91,7 @@ public class ClienteCargarDatos implements CommandLineRunner {
 			        .carrusel("https://plus.unsplash.com/premium_photo-1661377118520-287ec60a32f3?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 			        .carrusel("https://plus.unsplash.com/premium_photo-1663051210654-0c8a835dad1f?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 			        .carrusel("https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1548&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
-					.imagen("https://plus.unsplash.com/premium_photo-1723914048561-12a00dd83ec6?q=80&w=1492&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
+					.imagen("https://images.unsplash.com/photo-1630395822970-acd6a691d97e?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 					.precio(45.0)
 					.categoria(Categoria.MUSICA)
 					.invitados(List.of(DTOInvitado.builder().nombre("Carlos").apellidos("Gómez")
@@ -237,7 +248,7 @@ public class ClienteCargarDatos implements CommandLineRunner {
 			        .carrusel("https://images.unsplash.com/photo-1582192730841-2a682d7375f9?q=80&w=1548&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 			        .carrusel("https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b?q=80&w=774&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 			        .precio(35.0)
-			        .categoria(Categoria.OTROS)
+			        .categoria(Categoria.VIDEOJUEGOS)
 			        .imagen("https://images.unsplash.com/photo-1519389950473-47ba0277781c")
 					.invitados(List.of(
 							DTOInvitado.builder().nombre("Ana").apellidos("García")
@@ -248,8 +259,10 @@ public class ClienteCargarDatos implements CommandLineRunner {
 									.descripcion("Experto en inteligencia artificial").build()))
 					.build();
 
-			DTOeventoSubida e10 = DTOeventoSubida.builder().nombre("Exposición de Arte Contemporáneo")
-					.localizacion("Valencia, España").inicioEvento(LocalDateTime.of(2025, 7, 3, 11, 0))
+			DTOeventoSubida e10 = DTOeventoSubida.builder()
+					.nombre("Exposición de Arte Contemporáneo")
+					.localizacion("Valencia, España")
+					.inicioEvento(LocalDateTime.of(2025, 7, 3, 11, 0))
 					.finEvento(LocalDateTime.of(2025, 7, 3, 20, 0))
 					.descripcion("Un espacio único en Valencia dedicado a explorar lo más reciente y vanguardista del arte contemporáneo, donde artistas locales e internacionales presentan sus obras más innovadoras en pintura, escultura, fotografía, instalaciones y medios digitales. Los visitantes podrán sumergirse en exposiciones interactivas, disfrutar de visitas guiadas, charlas con los propios creadores y talleres participativos que fomentan la creatividad y el diálogo artístico. El evento también contará con zonas de descanso, espacios para el networking cultural y áreas dedicadas a la experimentación tecnológica aplicada al arte. Además, se organizarán actividades especiales para jóvenes y familias, promoviendo la educación artística y la apreciación de nuevas formas de expresión. Valencia se convierte así en un punto de encuentro para amantes del arte, críticos, estudiantes y curiosos que buscan inspirarse y conectar con las tendencias más recientes del panorama contemporáneo. Una experiencia cultural enriquecedora que celebra la creatividad, la innovación y la diversidad artística.")
 			        .carrusel("https://images.unsplash.com/photo-1647814568764-3bf5ed6b3c7b?q=80&w=1469&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
@@ -267,6 +280,139 @@ public class ClienteCargarDatos implements CommandLineRunner {
 									.fotoURL("https://randomuser.me/api/portraits/men/50.jpg")
 									.descripcion("Crítico de arte invitado").build()))
 					.build();
+			
+			
+			DTOeventoSubida e11 = DTOeventoSubida.builder()
+					.nombre("Festival Gastronómico Mediterráneo")
+			        .localizacion("Alicante, España")
+			        .inicioEvento(LocalDateTime.of(2025, 9, 12, 12, 0))
+			        .finEvento(LocalDateTime.of(2025, 9, 15, 23, 0))
+			        .descripcion("El Festival Gastronómico Mediterráneo en Alicante reunirá a chefs, productores locales y amantes de la buena mesa para celebrar la riqueza culinaria de la región. Durante cuatro días, el paseo marítimo se convertirá en un gran escenario gastronómico con degustaciones, showcookings en vivo, catas de vinos, talleres de cocina para todas las edades y un mercado de productos artesanales. Habrá espacios temáticos dedicados a la dieta mediterránea, la innovación culinaria y las tradiciones ancestrales de la cocina española. El festival contará también con música en directo, áreas chill out y actividades culturales que harán de esta cita una experiencia multisensorial inolvidable.")
+			        .carrusel("https://images.unsplash.com/photo-1504674900247-0877df9cc836")
+			        .carrusel("https://images.unsplash.com/photo-1482049016688-2d3e1b311543?q=80&w=710&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
+			        .carrusel("https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445")
+			        .carrusel("https://images.unsplash.com/photo-1484723091739-30a097e8f929?q=80&w=749&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
+			        .imagen("https://plus.unsplash.com/premium_photo-1673108852141-e8c3c22a4a22?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
+			        .precio(18.0)
+			        .categoria(Categoria.OTROS)
+			        .invitados(List.of(
+			                DTOInvitado.builder().nombre("Ferran").apellidos("Adrià")
+			                        .fotoURL("https://randomuser.me/api/portraits/men/12.jpg")
+			                        .descripcion("Chef internacional invitado").build(),
+			                DTOInvitado.builder().nombre("María").apellidos("Rodríguez")
+			                        .fotoURL("https://randomuser.me/api/portraits/women/72.jpg")
+			                        .descripcion("Sommelier y experta en vinos mediterráneos").build()))
+			        .build();
+			
+			DTOeventoSubida e12 = DTOeventoSubida.builder()
+					.nombre("Festival de Cine Documental")
+			        .localizacion("Bilbao, España")
+			        .inicioEvento(LocalDateTime.of(2025, 3, 10, 16, 0))
+			        .finEvento(LocalDateTime.of(2025, 3, 15, 23, 0))
+			        .descripcion("El Festival Internacional de Cine Documental de Bilbao reunirá a cineastas, críticos y amantes del séptimo arte para explorar historias reales que inspiran, conmueven y transforman. Se proyectarán documentales de diferentes países, con secciones dedicadas a medio ambiente, derechos humanos, innovación y cultura. Habrá coloquios con directores, talleres de guion documental y mesas de debate sobre el futuro del cine independiente. Bilbao se convertirá durante una semana en la capital del cine de lo real, con proyecciones en salas emblemáticas y espacios al aire libre.")
+			        .carrusel("https://images.unsplash.com/photo-1604975701397-6365ccbd028a?q=80&w=735&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
+			        .carrusel("https://images.unsplash.com/photo-1536440136628-849c177e76a1")
+			        .carrusel("https://images.unsplash.com/photo-1574267432553-4b4628081c31?q=80&w=1631&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
+			        .carrusel("https://images.unsplash.com/photo-1608170825938-a8ea0305d46c?q=80&w=1025&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
+			        .imagen("https://plus.unsplash.com/premium_photo-1710522706751-c2f0c76cc5fd?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
+			        .precio(25.0)
+			        .categoria(Categoria.OTROS)
+			        .invitados(List.of(
+			                DTOInvitado.builder().nombre("Hideo").apellidos("Kojima")
+			                        .fotoURL("https://randomuser.me/api/portraits/men/90.jpg")
+			                        .descripcion("Director invitado especial").build(),
+			                        DTOInvitado.builder().nombre("Marquees").apellidos("Brownlee")
+			                        .fotoURL("https://randomuser.me/api/portraits/men/91.jpg")
+			                        .descripcion("Youtuber").build(),
+			                DTOInvitado.builder().nombre("Elena").apellidos("Martínez")
+			                        .fotoURL("https://randomuser.me/api/portraits/women/38.jpg")
+			                        .descripcion("Crítica de cine documental").build()))
+			        .build();
+			
+			DTOeventoSubida e13 = DTOeventoSubida.builder()
+					.nombre("Festival Internacional de Jazz")
+			        .localizacion("San Sebastián, España").inicioEvento(LocalDateTime.of(2025, 7, 21, 18, 0))
+			        .finEvento(LocalDateTime.of(2025, 7, 27, 2, 0))
+			        .descripcion("San Sebastián acogerá una nueva edición del Festival Internacional de Jazz, uno de los encuentros más prestigiosos de Europa. Grandes figuras del jazz mundial compartirán escenario con artistas emergentes en conciertos al aire libre, teatros y clubes nocturnos de la ciudad. Además de los conciertos, habrá talleres de improvisación, masterclasses, jam sessions abiertas al público y exposiciones fotográficas que rinden homenaje a la historia del jazz. El festival, con el mar Cantábrico como telón de fondo, promete noches mágicas de música y cultura.")
+			        .carrusel("https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4")
+			        .carrusel("https://images.unsplash.com/photo-1580832945253-9a8f87b606f2?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
+			        .carrusel("https://images.unsplash.com/flagged/photo-1569231290377-072234d3ee57?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
+			        .carrusel("https://images.unsplash.com/photo-1511379938547-c1f69419868d")
+			        .imagen("https://images.unsplash.com/flagged/photo-1569231290150-9c6200705c5b?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
+			        .precio(40.0)
+			        .categoria(Categoria.MUSICA)
+			        .invitados(List.of(
+			                DTOInvitado.builder().nombre("Herbie").apellidos("Hancock")
+			                        .fotoURL("https://randomuser.me/api/portraits/men/55.jpg")
+			                        .descripcion("Pianista y compositor de jazz").build(),
+			                DTOInvitado.builder().nombre("Nina").apellidos("Simone Jr.")
+			                        .fotoURL("https://randomuser.me/api/portraits/women/89.jpg")
+			                        .descripcion("Cantante de jazz contemporáneo").build()))
+			        .build();
+			
+			DTOeventoSubida e14 = DTOeventoSubida.builder()
+			        .nombre("Encuentro Internacional de Pintura Urbana")
+			        .localizacion("Madrid, España").inicioEvento(LocalDateTime.of(2025, 5, 10, 10, 0))
+			        .finEvento(LocalDateTime.of(2025, 5, 12, 20, 0))
+			        .descripcion("Madrid acogerá un encuentro único de pintura urbana que reunirá a artistas nacionales e internacionales especializados en muralismo, grafiti y arte callejero. Durante tres días, muros y espacios abiertos de la ciudad se transformarán en lienzos donde el público podrá disfrutar de la creación artística en vivo. Además, se impartirán talleres de técnicas de aerosol, charlas sobre el impacto social del arte urbano y exposiciones de obras de gran formato. Un evento que celebra la creatividad, la innovación y la fusión entre arte y espacio público.")
+			        .carrusel("https://images.unsplash.com/photo-1487452066049-a710f7296400?q=80&w=1471&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
+			        .carrusel("https://plus.unsplash.com/premium_photo-1693000474956-1a5d8a85befc?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
+			        .carrusel("https://plus.unsplash.com/premium_photo-1692311474471-4ee63c95c5e1?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
+			        .carrusel("https://images.unsplash.com/photo-1548003693-b55d51032288?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
+			        .imagen("https://images.unsplash.com/photo-1581850518616-bcb8077a2336?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
+			        .precio(12.5)
+			        .categoria(Categoria.ARTE)
+			        .invitados(List.of(
+			                DTOInvitado.builder().nombre("Bansky").apellidos("")
+			                        .fotoURL("https://randomuser.me/api/portraits/men/42.jpg")
+			                        .descripcion("Artista urbano invitado").build(),
+			                DTOInvitado.builder().nombre("María").apellidos("González")
+			                        .fotoURL("https://randomuser.me/api/portraits/women/65.jpg")
+			                        .descripcion("Pintora muralista española").build()))
+			        .build();
+			
+			DTOeventoSubida e15 = DTOeventoSubida.builder()
+			        .nombre("Copa Internacional de Baloncesto 3x3")
+			        .localizacion("Barcelona, España").inicioEvento(LocalDateTime.of(2025, 8, 18, 15, 0))
+			        .finEvento(LocalDateTime.of(2025, 8, 20, 22, 0))
+			        .descripcion("Barcelona se convertirá en la capital del baloncesto urbano con la Copa Internacional de Baloncesto 3x3. Equipos de diferentes países competirán en un formato dinámico y espectacular que combina deporte, música en directo y cultura urbana. El evento contará con concursos de mates, tiro de tres puntos y exhibiciones de freestyle. Además, habrá actividades para familias, zonas gastronómicas y espacios de ocio alrededor de las canchas. Una experiencia vibrante que celebra la pasión por el baloncesto en todas sus formas.")
+			        .carrusel("https://images.unsplash.com/photo-1577471488278-16eec37ffcc2?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
+			        .carrusel("https://images.unsplash.com/photo-1519766304817-4f37bda74a26?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
+			        .carrusel("https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=1490&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
+			        .carrusel("https://images.unsplash.com/flagged/photo-1580051579393-2e94dd6f4789?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
+			        .imagen("https://images.unsplash.com/photo-1574623452334-1e0ac2b3ccb4?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
+			        .precio(25.0)
+			        .categoria(Categoria.DEPORTES)
+			        .invitados(List.of(
+			                DTOInvitado.builder().nombre("Pau").apellidos("Gasol")
+			                        .fotoURL("https://randomuser.me/api/portraits/men/77.jpg")
+			                        .descripcion("Exjugador de la NBA y embajador del evento").build(),
+			                DTOInvitado.builder().nombre("Elena").apellidos("Rodríguez")
+			                        .fotoURL("https://randomuser.me/api/portraits/women/44.jpg")
+			                        .descripcion("Comentarista y experta en baloncesto").build()))
+			        .build();
+
+			DTOeventoSubida e16 = DTOeventoSubida.builder()
+			        .nombre("League of Legends World Qualifier")
+			        .localizacion("Valencia, España").inicioEvento(LocalDateTime.of(2025, 11, 14, 12, 0))
+			        .finEvento(LocalDateTime.of(2025, 11, 17, 23, 0))
+			        .descripcion("El Palacio de Congresos de Valencia será la sede de las clasificatorias mundiales de League of Legends. Equipos profesionales de Europa y América Latina se enfrentarán en partidas de alto nivel con un espectáculo visual sin precedentes. El evento contará con narradores en vivo, zonas de realidad aumentada, áreas interactivas para fans, concursos de cosplay y stands de merchandising oficial. Además, se organizarán talleres sobre esports, charlas con jugadores profesionales y encuentros con la comunidad gamer. Una cita ineludible para los amantes del competitivo y la cultura del videojuego.")
+			        .carrusel("https://i.blogs.es/7605fd/league-of-legends-worlds/1366_2000.jpg")
+			        .carrusel("https://i.blogs.es/abcea5/league-of-legends-worlds-04/1366_2000.jpg")
+			        .carrusel("https://i.blogs.es/fa6774/league-of-legends-worlds-05/1366_2000.jpg")
+			        .carrusel("https://i.blogs.es/2178b8/league-of-legends-worlds-03/1366_2000.jpg")
+			        .imagen("https://i.blogs.es/15f158/league-of-legends-worlds-02/1366_2000.jpg")
+			        .precio(45.0)
+			        .categoria(Categoria.VIDEOJUEGOS)
+			        .invitados(List.of(
+			                DTOInvitado.builder().nombre("Carlos").apellidos("Ocelote Rodríguez")
+			                        .fotoURL("https://randomuser.me/api/portraits/men/29.jpg")
+			                        .descripcion("Exjugador profesional y fundador de G2 Esports").build(),
+			                DTOInvitado.builder().nombre("Marta").apellidos("López")
+			                        .fotoURL("https://randomuser.me/api/portraits/women/71.jpg")
+			                        .descripcion("Streamer y creadora de contenido de LoL").build()))
+			        .build();
+
 
 			DTOeventoBajada eventoBajada = daoEvento.insert(e1);
 
@@ -279,13 +425,25 @@ public class ClienteCargarDatos implements CommandLineRunner {
 			daoEvento.insert(e8);
 			daoEvento.insert(e9);
 			daoEvento.insert(e10);
-
+			daoEvento.insert(e11);
+			daoEvento.insert(e12);
+			daoEvento.insert(e13);
+			daoEvento.insert(e14);
+			daoEvento.insert(e15);
+			daoEvento.insert(e16);
+			
 			t1 = DTOticketSubida.builder()
 					.usuarioId(usuarioBajada.getId())
 					.eventoId(eventoBajada.getId())
 					.build();
+			
+			t2 = DTOticketSubida.builder()
+					.usuarioId(adminBajada.getId())
+					.eventoId(eventoBajada.getId())
+					.build();
 
 			daoTicket.insert(t1);
+			daoTicket.insert(t2);
 
 			datosCargados = true;
 			System.out.println("Datos de ejemplo cargados correctamente.");

@@ -95,8 +95,8 @@ const Profile = () => {
 
     return (
         <div className="flex items-center justify-center min-h-screen min-w-full">
-            <form className="max-w-3xl w-full bg-white p-8  shadow space-y-4">
-                <h2 className="text-2xl font-bold text-center text-gray-500 mb-6">
+            <form className="max-w-3xl w-full bg-white oscuro p-8  shadow space-y-4">
+                <h2 className="text-2xl font-bold text-center text-gray-500 mb-6 oscuroTextoGris">
                     PERFIL DE USUARIO
                 </h2>
                 <div className="flex flex-col items-center justify-center">
@@ -128,49 +128,49 @@ const Profile = () => {
                                     reader.readAsDataURL(file);
                                 }
                             }}
-                            className="w-70 p-1 border rounded-xs text-xs text-black bg-gray-100"
+                            className="w-70 p-1 border rounded-xs text-xs text-black bg-gray-100 oscuroBox"
                         />
                     )}
                 </div>
 
-                <div className="flex flex-col md:flex-row gap-8">
+                <div className="flex flex-col md:flex-row gap-8 ">
                     {/* Columna 1: Datos personales */}
                     <div className="flex-1 space-y-4">
-                        <h3 className="text-xl font-semibold text-center text-gray-600 mb-2">Datos Personales</h3>
+                        <h3 className="text-xl font-semibold text-center text-gray-600 mb-2 oscuroTextoGris">Datos Personales</h3>
                         <div className="flex flex-col gap-2">
-                            <label className="block text-gray-700 mb-1">Nombre:</label>
+                            <label className="block text-gray-700 mb-1 oscuroTextoGris">Nombre:</label>
                             {editing ? (
                                 <input
                                     type="text"
                                     name="nombre"
                                     value={user.nombre ?? ""}
                                     onChange={handleChange}
-                                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 placeholder-gray-400 text-black"
+                                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 placeholder-gray-400 text-black oscuroBox "
                                 />
                             ) : (
-                                <span className="block p-3 bg-gray-100 rounded-lg text-black">{user.nombre || <span>&nbsp;</span>}</span>
+                                <span className="block p-3 bg-gray-100 rounded-lg text-black oscuroBox">{user.nombre || <span>&nbsp;</span>}</span>
                             )}
                         </div>
                         <div className="flex flex-col gap-2">
-                            <label className="block text-gray-700 mb-1">Email:</label>
-                            <span className="block p-3 bg-gray-100 rounded-lg text-black">{user.email || <span>&nbsp;</span>}</span>
+                            <label className="block text-gray-700 mb-1 oscuroTextoGris">Email:</label>
+                            <span className="block p-3 bg-gray-100 rounded-lg text-black oscuroBox">{user.email || <span>&nbsp;</span>}</span>
                         </div>
                         <div className="flex flex-col gap-2">
-                            <label className="block text-gray-700 mb-1">Fecha de nacimiento:</label>
+                            <label className="block text-gray-700 mb-1 oscuroTextoGris">Fecha de nacimiento:</label>
                             {editing ? (
                                 <input
                                     type="date"
                                     name="fechaNacimiento"
                                     value={user.fechaNacimiento ?? ""}
                                     onChange={handleChange}
-                                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black"
+                                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black oscuroBox"
                                 />
                             ) : (
-                                <span className="block p-3 bg-gray-100 rounded-lg text-black">{user.fechaNacimiento || <span>&nbsp;</span>}</span>
+                                <span className="block p-3 bg-gray-100 rounded-lg text-black oscuroBox" >{user.fechaNacimiento || <span>&nbsp;</span>}</span>
                             )}
                         </div>
                         <div className="flex flex-col gap-2">
-                            <label className="block text-gray-700 mb-1">Contraseña:</label>
+                            <label className="block text-gray-700 mb-1 oscuroTextoGris  ">Contraseña:</label>
                             {editing ? (
                                 editingPassword ? (
                                     <div className="flex items-center">
@@ -181,56 +181,56 @@ const Profile = () => {
                                             placeholder="Escribe tu nueva contraseña..."
                                             value={user.password ?? ""}
                                             onChange={handleChange}
-                                            className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black"
+                                            className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black oscuroBox   "
                                         />
                                         <div className='flex flex-col'>
                                             <button
                                                 type="button"
                                                 onClick={() => setUser(prev => ({ ...prev, showPassword: !prev.showPassword }))}
-                                                className="ml-2 px-2 py-1 text-xs bg-gray-400  hover:bg-gray-300"
+                                                className="ml-2 px-2 py-1 text-xs bg-gray-400  hover:bg-gray-300 text-gray-200"
                                             >
                                                 {user.showPassword ? "Ocultar" : "Ver"}
                                             </button>
                                             <button
                                                 type="button"
                                                 onClick={() => setEditingPassword(false)}
-                                                className="ml-2 px-2 py-1 text-xs bg-gray-600  hover:bg-gray-300"
+                                                className="ml-2 px-2 py-1 text-xs text-gray-200 bg-gray-600  hover:bg-gray-300 "
                                             >
                                                 X
                                             </button>
                                         </div>
                                     </div>
                                 ) : (
-                                    <span className="text-right p-3 bg-gray-100 rounded-lg text-black">
+                                    <span className="text-right p-3 bg-gray-100 rounded-lg text-black oscuroBox">
                                         <button
                                             type="button"
                                             onClick={handleEditPassword}
-                                            className="ml-2 px-2 py-1 text-xs text-white bg-gray-400 hover:bg-gray-600"
+                                            className="ml-2 px-2 py-1 text-xs text-white bg-gray-400 hover:bg-gray-600 oscuroBox"
                                         >
                                             Editar contraseña
                                         </button>
                                     </span>
                                 )
                             ) : (
-                                <span className="block p-3 bg-gray-100 rounded-lg text-black"><span>&nbsp;</span></span>
+                                <span className="block p-3 bg-gray-100 rounded-lg text-black oscuroBox"><span>&nbsp;</span></span>
                             )}
                         </div>
                         <div className="flex flex-col md:flex-row gap-4">
                             <div className="flex flex-col gap-2 flex-1">
-                                <label className="block text-gray-700 mb-1">Rol:</label>
-                                <span className="block w-full p-3 bg-gray-100 rounded-lg text-black">{user.rol || <span>&nbsp;</span>}</span>
+                                <label className="block text-gray-700 mb-1 oscuroTextoGris">Rol:</label>
+                                <span className="block w-full p-3 bg-gray-100 rounded-lg text-black oscuroBox">{user.rol || <span>&nbsp;</span>}</span>
                             </div>
                             <div className="flex flex-col gap-2 flex-1">
-                                <label className="block text-gray-700 mb-1">Cuenta Activa:</label>
-                                <span className="block p-3 bg-gray-100 rounded-lg text-black">{typeof user.activo === "boolean" ? (user.activo ? 'Sí' : 'No') : <span>&nbsp;</span>}</span>
+                                <label className="block text-gray-700 mb-1 oscuroTextoGris">Cuenta Activa:</label>
+                                <span className="block p-3 bg-gray-100 rounded-lg text-black oscuroBox">{typeof user.activo === "boolean" ? (user.activo ? 'Sí' : 'No') : <span>&nbsp;</span>}</span>
                             </div>
                         </div>
                     </div>
 
                     <div className="flex-1 space-y-4">
-                        <h3 className="text-xl font-semibold text-center text-gray-600 mb-2">Tarjeta Bancaria</h3>
+                        <h3 className="text-xl font-semibold text-center text-gray-600 oscuroTextoGris mb-2">Tarjeta Bancaria</h3>
                         <div className="flex flex-col gap-2">
-                            <label className="block text-gray-700 mb-1">Titular:</label>
+                            <label className="block text-gray-700 mb-1 oscuroTextoGris">Titular:</label>
                             {editing ? (
                                 <input
                                     type="text"
@@ -238,28 +238,28 @@ const Profile = () => {
                                     value={user.cuenta.nombreTitular ?? ""}
                                     maxLength={255}
                                     onChange={handleChange}
-                                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black"
+                                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black oscuroBox "
                                 />
                             ) : (
-                                <span className="block p-3 bg-gray-100 rounded-lg text-black">{user.cuenta.nombreTitular || <span>&nbsp;</span>}</span>
+                                <span className="block p-3 bg-gray-100 rounded-lg text-black oscuroBox ">{user.cuenta.nombreTitular || <span>&nbsp;</span>}</span>
                             )}
                         </div>
                         <div className="flex flex-col gap-2">
-                            <label className="block text-gray-700 mb-1">Fecha caducidad:</label>
+                            <label className="block text-gray-700 mb-1 oscuroTextoGris">Fecha caducidad:</label>
                             {editing ? (
                                 <input
                                     type="date"
                                     name="cuenta.fechaCaducidad"
                                     value={user.cuenta.fechaCaducidad ?? ""}
                                     onChange={handleChange}
-                                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black"
+                                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black oscuroBox"
                                 />
                             ) : (
-                                <span className="block p-3 bg-gray-100 rounded-lg text-black">{user.cuenta.fechaCaducidad || <span>&nbsp;</span>}</span>
+                                <span className="block p-3 bg-gray-100 rounded-lg text-black oscuroBox">{user.cuenta.fechaCaducidad || <span>&nbsp;</span>}</span>
                             )}
                         </div>
                         <div className="flex flex-col gap-2">
-                            <label className="block text-gray-700 mb-1">CVV:</label>
+                            <label className="block text-gray-700 mb-1 oscuroTextoGris">CVV:</label>
                             {editing ? (
                                 <input
                                     type="text"
@@ -267,28 +267,28 @@ const Profile = () => {
                                     value={user.cuenta.cvv ?? ""}
                                     maxLength={4}
                                     onChange={handleChange}
-                                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black"
+                                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black oscuroBox"
                                 />
                             ) : (
-                                <span className="block p-3 bg-gray-100 rounded-lg text-black">{user.cuenta.cvv || <span>&nbsp;</span>}</span>
+                                <span className="block p-3 bg-gray-100 rounded-lg text-black oscuroBox">{user.cuenta.cvv || <span>&nbsp;</span>}</span>
                             )}
                         </div>
                         <div className="flex flex-col gap-2">
-                            <label className="block text-gray-700 mb-1">Saldo:</label>
+                            <label className="block text-gray-700 mb-1 oscuroTextoGris">Saldo:</label>
                             {editing ? (
                                 <input
                                     type="number"
                                     name="cuenta.saldo"
                                     value={user.cuenta.saldo ?? ""}
                                     onChange={handleChange}
-                                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black"
+                                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black oscuroBox"
                                 />
                             ) : (
-                                <span className="block p-3 bg-gray-100 rounded-lg text-black">{user.cuenta.saldo || <span>&nbsp;</span>}</span>
+                                <span className="block p-3 bg-gray-100 rounded-lg text-black oscuroBox">{user.cuenta.saldo || <span>&nbsp;</span>}</span>
                             )}
                         </div>
                         <div className="flex flex-col gap-2">
-                            <label className="block text-gray-700 mb-1">Nº Tarjeta:</label>
+                            <label className="block text-gray-700 mb-1 oscuroTextoGris ">Nº Tarjeta:</label>
                             {editing ? (
                                 <input
                                     type="text"
@@ -296,10 +296,10 @@ const Profile = () => {
                                     value={user.cuenta.ntarjeta ?? ""}
                                     maxLength={16}
                                     onChange={handleChange}
-                                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black"
+                                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black oscuroBox"
                                 />
                             ) : (
-                                <span className="block p-3 bg-gray-100 rounded-lg text-black">{user.cuenta.ntarjeta || <span>&nbsp;</span>}</span>
+                                <span className="block p-3 bg-gray-100 rounded-lg text-black oscuroBox">{user.cuenta.ntarjeta || <span>&nbsp;</span>}</span>
                             )}
                         </div>
                     </div>
