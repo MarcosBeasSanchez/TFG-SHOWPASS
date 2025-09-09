@@ -7,7 +7,6 @@ import ticketSVG from '../assets/TICKETSVG.svg';
 
 const UserTickets = () => {
   const [tickets, setTickets] = useState([]);
-
   const [reverseOrder, setReverseOrder] = useState(true); // NUEVA VARIABLE
   const userId = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")).id : null;
 

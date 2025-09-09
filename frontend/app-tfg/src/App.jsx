@@ -11,6 +11,7 @@ import CategoryEvents from "./pages/CategoryEvents";
 import BusquedaEventos from "./pages/Busqueda";
 import UserTickets from "./pages/Tickets.jsx";
 import { useEffect, useState } from "react";
+import AdminPanel from "./pages/AdminPanel";
 
 
 export default function App() {
@@ -153,6 +154,18 @@ export default function App() {
                     Ver tickets
                   </Link>
 
+                  {user?.rol === "ADMIN" && (
+                    <Link
+                      to="/admin"
+                      className="flex w-full text-left items-center justify-items-center-safe px-2 py-2 hover:bg-gray-700"
+                    >
+                      <span className="material-symbols-outlined pr-2">
+                        admin_panel_settings
+                      </span>
+                      Panel Admin
+                    </Link>
+                  )}
+
                   <Link
                     onClick={handleLogout}
                     className="flex w-full text-left items-center justify-items-center-safe px-2 py-2 bg-red-500 hover:bg-red-600"
@@ -225,8 +238,8 @@ export default function App() {
                     </Link>
 
                     <button className="flex items-center  px-2 py-2 gap-2 " onClick={() => setDarkMode((prev) => !prev)}>
-                     <span className="material-symbols-outlined ">
-                        dark_mode 
+                      <span className="material-symbols-outlined ">
+                        dark_mode
                       </span> {darkMode ? "Modo claro" : "Modo oscuro"}
                     </button>
 
@@ -237,7 +250,7 @@ export default function App() {
                       <span className="material-symbols-outlined pr-2">logout</span>
                       Logout
                     </button>
-                    
+
 
                   </>
                 )}
@@ -259,6 +272,7 @@ export default function App() {
             <Route path="/evento/:nombre" element={<EventDetail />} />
             <Route path="/shoppingCart" element={<ShoppingCart />} />
             <Route path="/tickets" element={<UserTickets />} />
+            <Route path="/admin" element={<AdminPanel />} />
             <Route path="/categoria/:nombre" element={<CategoryEvents />} />
           </Routes>
         </div>
