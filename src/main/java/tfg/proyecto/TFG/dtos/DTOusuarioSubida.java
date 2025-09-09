@@ -21,4 +21,5 @@ public class DTOusuarioSubida {
 	private Rol rol;
 	private DTOtarjetaBancariaSubida cuenta;
 	private Boolean activo;
+	private Boolean reportado;
 }

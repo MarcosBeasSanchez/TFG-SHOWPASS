@@ -1,4 +1,4 @@
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import config from "../config/config";
 
@@ -8,12 +8,17 @@ export default function EventDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [animate, setAnimate] = useState(false);
-  // Estado para la imagen en pantalla completa
   const [fullscreenImg, setFullscreenImg] = useState(null);
-  // Estado para la cantidad tickets, empieza siempre en 1
   const [cantidad, setCantidad] = useState(1);
 
-  {/*ENDPOINT Evento*/ }
+ const getImageSrc = (img) => {
+    if (!img) return ""; // si no hay imagen, devolvemos vacío
+    if (img.startsWith("data:image/")) return img; // ya es Base64 con prefijo → no hacer nada
+    if (img.startsWith("http://") || img.startsWith("https://")) return img; // es URL externa → usar tal cual
+    return `data:image/png;base64,${img}`; // es Base64 crudo → agregamos el prefijo necesario
+  };
+
+  // Fetch del evento
   useEffect(() => {
     const fetchEvento = async () => {
       try {
@@ -23,7 +28,7 @@ export default function EventDetail() {
         if (!res.ok) throw new Error("Evento no encontrado");
         const data = await res.json();
         setEvento(data);
-        setAnimate(true); // disparar animación al recibir datos
+        setAnimate(true);
       } catch (err) {
         console.error(err);
         setError(err.message);
@@ -33,21 +38,19 @@ export default function EventDetail() {
     };
 
     fetchEvento();
-
   }, [nombre]);
 
-  {/*Formatear fecha */ }
   const formatDate = (fechaStr) => {
     if (!fechaStr) return "Por definir";
     const fecha = new Date(fechaStr);
-    return `${fecha.getDate().toString().padStart(2, "0")}/${(fecha.getMonth() + 1).toString().padStart(2, "0")
-      }/${fecha.getFullYear()} - ${fecha.getHours().toString().padStart(2, "0")}:${fecha
-        .getMinutes()
-        .toString()
-        .padStart(2, "0")}`;
+    return `${fecha.getDate().toString().padStart(2, "0")}/${
+      (fecha.getMonth() + 1).toString().padStart(2, "0")
+    }/${fecha.getFullYear()} - ${fecha.getHours().toString().padStart(2, "0")}:${fecha
+      .getMinutes()
+      .toString()
+      .padStart(2, "0")}`;
   };
 
-  {/*Evento al carrito */ }
   const handleEventoAlCarrito = async (cantidadSeleccionada) => {
     const usuarioId = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")).id : null;
     const eventoId = evento ? evento.id : null;
@@ -58,17 +61,12 @@ export default function EventDetail() {
           `http://localhost:8080/tfg/carrito/agregar/${usuarioId}/${eventoId}`,
           {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ cantidad: 1 })
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ cantidad: 1 }),
           }
         );
 
-        if (!res.ok) {
-          throw new Error("Error al agregar evento al carrito");
-        }
-
+        if (!res.ok) throw new Error("Error al agregar evento al carrito");
         const data = await res.json();
         console.log(`Carrito actualizado (${i + 1}/${cantidadSeleccionada}):`, data);
       }
@@ -84,28 +82,26 @@ export default function EventDetail() {
   if (error) return <p className="p-4 text-red-500">Error: {error}</p>;
   if (!evento) return null;
 
-  {/*Fullscreen  */ }
+  // Fullscreen
   if (fullscreenImg) {
     return (
       <div
         className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 transition-opacity duration-300"
         tabIndex={-1}
         onClick={() => setFullscreenImg(null)}
-        onKeyDown={e => {
-          if (e.key === "Escape") setFullscreenImg(null);
-        }}
+        onKeyDown={(e) => e.key === "Escape" && setFullscreenImg(null)}
         aria-modal="true"
         role="dialog"
       >
         <div className="relative flex flex-col items-center">
           <img
-            src={fullscreenImg}
+            src={getImageSrc(fullscreenImg)}
             alt="Imagen ampliada"
-            className="max-h-[90vh] max-w-[90vw]  shadow-2xl transition-transform duration-300 scale-100"
-            onClick={e => e.stopPropagation()}
+            className="max-h-[90vh] max-w-[90vw] shadow-2xl transition-transform duration-300 scale-100"
+            onClick={(e) => e.stopPropagation()}
           />
           <button
-            className="absolute top-2 right-2 h-10 w-10 text-white  text-2xl font-bold bg-red-500 bg-opacity-50 rounded-full    hover:bg-opacity-80 transition"
+            className="absolute top-2 right-2 h-10 w-10 text-white text-2xl font-bold bg-red-500 bg-opacity-50 rounded-full hover:bg-opacity-80 transition"
             style={{ zIndex: 60 }}
             onClick={() => setFullscreenImg(null)}
             aria-label="Cerrar"
@@ -121,32 +117,35 @@ export default function EventDetail() {
     <div className="flex flex-col items-center">
       <div className="relative w-full">
         <img
-          src={evento.imagen}
+          src={getImageSrc(evento.imagen)}
           alt={evento.nombre}
           className="w-full h-120 object-cover"
         />
-        <h1
-          className="absolute top-95 left-30 text-2xl sm:text-3xl md:text-4xl font-bold text-white px-4 py-2 bg-blue-950 max-w-full "
-
-        >
+        <h1 className="absolute top-95 left-30 text-2xl sm:text-3xl md:text-4xl font-bold text-white px-4 py-2 bg-blue-950 max-w-full">
           {evento.nombre}
         </h1>
       </div>
+
       <div
-        className={`claro oscuroBox shadow-xl max-w w-full p-8 transform transition-all duration-700 ease-out
-        ${animate ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+        className={`claro oscuroBox shadow-xl max-w w-full p-8 transform transition-all duration-700 ease-out ${
+          animate ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+        }`}
         style={{ position: "relative" }}
       >
-        {/* Datos del evento */}
         <div className="max-w-4xl mx-auto text-left ">
           <h2 className="text-2xl font-semibold mb-3 claroEvento oscuroEvento">Datos del evento</h2>
           <div className="flex flex-col md:flex-row md:justify-between mb-6 text-gray-800 text-lg py-8">
-            <div className="bg-blue-100 oscuroBox p-1"><strong>Localización:</strong> {evento.localizacion}</div>
-            <div className="bg-blue-100 p-1 oscuroBox"><strong>Inicio:</strong> {formatDate(evento.inicioEvento)}</div>
-            <div className="bg-blue-100 p-1 oscuroBox"><strong>Fin:</strong> {formatDate(evento.finEvento)}</div>
+            <div className="bg-blue-100 oscuroBox p-1">
+              <strong>Localización:</strong> {evento.localizacion}
+            </div>
+            <div className="bg-blue-100 p-1 oscuroBox">
+              <strong>Inicio:</strong> {formatDate(evento.inicioEvento)}
+            </div>
+            <div className="bg-blue-100 p-1 oscuroBox">
+              <strong>Fin:</strong> {formatDate(evento.finEvento)}
+            </div>
           </div>
 
-          {/* Descripción */}
           <div className="mb-6">
             <h2 className="text-2xl font-semibold mb-3 claroEvento oscuroEvento">Descripción</h2>
             <p className="text-gray-700 text-base leading-relaxed claroEvento oscuroEvento">
@@ -157,7 +156,6 @@ export default function EventDetail() {
 
           {/* Carrusel de imágenes */}
           <div className="flex flex-col items-center">
-
             <div className="max-w-4xl mx-auto text-left">
               {evento.carrusels && evento.carrusels.length > 0 && (
                 <div className="mb-8">
@@ -165,7 +163,7 @@ export default function EventDetail() {
                     {evento.carrusels.map((foto, index) => (
                       <img
                         key={index}
-                        src={foto}
+                        src={getImageSrc(foto)}
                         alt={`Foto ${index + 1}`}
                         className="h-48 rounded-lg shadow-md object-cover flex-shrink-0 cursor-pointer transition hover:scale-105"
                         onClick={() => setFullscreenImg(foto)}
@@ -177,7 +175,6 @@ export default function EventDetail() {
             </div>
           </div>
 
-          {/* Invitados */}
           <h2 className="text-2xl font-semibold mb-3 claroEvento oscuroEvento">Invitados</h2>
           {evento.invitados && evento.invitados.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6 ">
@@ -188,7 +185,7 @@ export default function EventDetail() {
                 >
                   {inv.fotoURL ? (
                     <img
-                      src={inv.fotoURL}
+                      src={getImageSrc(inv.fotoURL)}
                       alt={inv.nombre}
                       className="w-24 h-24 rounded-full object-cover mb-2"
                     />
@@ -197,7 +194,9 @@ export default function EventDetail() {
                       <span className="text-gray-500 ">Sin foto</span>
                     </div>
                   )}
-                  <h3 className="font-semibold text-center oscuro">{inv.nombre} {inv.apellidos}</h3>
+                  <h3 className="font-semibold text-center oscuro">
+                    {inv.nombre} {inv.apellidos}
+                  </h3>
                   <div className="text-gray-700 text-base mt-1 text-center oscuro">{inv.descripcion}</div>
                 </div>
               ))}
@@ -206,7 +205,6 @@ export default function EventDetail() {
             <div className="mb-6 text-gray-800 text-base md:text-lg">No hay invitados por ahora</div>
           )}
 
-          {/* Precio */}
           <h2 className="text-2xl font-semibold mb-3 claroEvento oscuroEvento">Precio</h2>
           <p className="text-gray-700 font-bold md:text-left text-center claroEvento oscuroEvento">
             {typeof evento.precio === "number"
@@ -214,21 +212,18 @@ export default function EventDetail() {
               : "Precio no disponible"}
           </p>
 
-
-
-          {/* agregar al carrito */}
-          <div className="flex  md:justify-end  justify-center items-center  mt-3">
+          <div className="flex md:justify-end justify-center items-center mt-3">
             <button
               type="button"
               onClick={() => setCantidad(Math.max(cantidad - 1, 1))}
-              className="bg-gray-500 text-white hover:bg-red-600 transition font-bold w-10 h-10 rounded-l-lg "
+              className="bg-gray-500 text-white hover:bg-red-600 transition font-bold w-10 h-10 rounded-l-lg"
             >
               -
             </button>
             <button
               type="button"
               onClick={() => handleEventoAlCarrito(cantidad)}
-              className="bg-gray-500 text-white h-10 px-5 hover:bg-green-600 transition "
+              className="bg-gray-500 text-white h-10 px-5 hover:bg-green-600 transition"
               style={{ marginRight: 0 }}
             >
               Agregar al carrito: <span className="font-bold">{cantidad}</span>
@@ -237,7 +232,7 @@ export default function EventDetail() {
             <button
               type="button"
               onClick={() => setCantidad(cantidad + 1)}
-              className="bg-gray-500 text-white  hover:bg-blue-600 transition font-bold w-10 h-10 rounded-r-lg"
+              className="bg-gray-500 text-white hover:bg-blue-600 transition font-bold w-10 h-10 rounded-r-lg"
             >
               +
             </button>

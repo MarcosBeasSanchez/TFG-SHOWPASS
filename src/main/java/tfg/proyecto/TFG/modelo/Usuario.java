@@ -51,10 +51,5 @@ public class Usuario {
 	
 	private Boolean activo;
 	
-	
-	
-	
-	
-	
-
+	private Boolean reportado;
 }

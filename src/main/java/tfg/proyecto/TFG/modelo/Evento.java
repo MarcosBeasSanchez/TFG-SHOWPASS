@@ -46,12 +46,14 @@ public class Evento {
 	@CollectionTable(name = "evento_invitados", 
 	joinColumns = @JoinColumn(name = "evento_id"))
 	private List<Invitado> invitados;
+	@Lob
 	private String imagen;
 	private LocalDateTime inicioEvento;
 	private LocalDateTime finEvento;
 	@Lob // Para textos largos
 	private String descripcion;
 	@Singular
+	@Lob
 	private List<String> carrusels;
 	private double precio;
 	@Enumerated(EnumType.STRING)

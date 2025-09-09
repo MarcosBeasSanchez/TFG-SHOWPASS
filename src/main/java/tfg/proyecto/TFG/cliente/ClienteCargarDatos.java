@@ -65,6 +65,7 @@ public class ClienteCargarDatos implements CommandLineRunner {
 					.rol(Rol.CLIENTE)
 					.cuenta(c1)
 					.activo(true)
+					.reportado(false)
 					.build();
 			
 			u2 = DTOusuarioSubida.builder()
@@ -78,9 +79,52 @@ public class ClienteCargarDatos implements CommandLineRunner {
 					.activo(true)
 					.build();
 			
+			
+			DTOusuarioSubida u3 = DTOusuarioSubida.builder()
+				    .nombre("usuarioReportado")
+				    .email("reportado@mail.com")
+				    .password("1234")
+				    .foto("https://randomuser.me/api/portraits/men/45.jpg")
+				    .fechaNacimiento(LocalDate.now().minusYears(30))
+				    .rol(Rol.CLIENTE)
+				    .cuenta(c1)
+				    .activo(true)
+				    .reportado(true) // ⚠️ reportado
+				    .build();
+
+				// Nuevo usuario no reportado
+				DTOusuarioSubida u4 = DTOusuarioSubida.builder()
+				    .nombre("usuarioExtra1")
+				    .email("extra1@mail.com")
+				    .password("1234")
+				    .foto("https://randomuser.me/api/portraits/women/32.jpg")
+				    .fechaNacimiento(LocalDate.now().minusYears(22))
+				    .rol(Rol.CLIENTE)
+				    .cuenta(c1)
+				    .activo(true)
+				    .reportado(false)
+				    .build();
+
+				// Otro usuario no reportado
+				DTOusuarioSubida u5 = DTOusuarioSubida.builder()
+				    .nombre("usuarioExtra2")
+				    .email("extra2@mail.com")
+				    .password("1234")
+				    .foto("https://randomuser.me/api/portraits/men/28.jpg")
+				    .fechaNacimiento(LocalDate.now().minusYears(27))
+				    .rol(Rol.CLIENTE)
+				    .cuenta(c1)
+				    .activo(true)
+				    .reportado(false)
+				    .build();
+
+			
 			DTOusuarioBajada usuarioBajada = daoUsuario.registerConDatos(u1); //registramos usuario con contraseña encriptada
 			DTOusuarioBajada adminBajada = daoUsuario.registerConDatos(u2); //registramos usuario con contraseña encriptada
-			
+			 daoUsuario.registerConDatos(u3);
+			 daoUsuario.registerConDatos(u4);
+			 daoUsuario.registerConDatos(u5);
+			 
 
 			DTOeventoSubida e1 = DTOeventoSubida.builder().nombre("Festival de Música Electrónica")
 					.localizacion("Madrid, España").inicioEvento(LocalDateTime.of(2025, 7, 15, 18, 0))

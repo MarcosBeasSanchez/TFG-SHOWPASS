@@ -14,9 +14,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.transaction.Transactional;
+import tfg.proyecto.TFG.dtos.DTOUsuarioReportado;
 import tfg.proyecto.TFG.dtos.DTOusuarioBajada;
 import tfg.proyecto.TFG.dtos.DTOusuarioLogin;
 import tfg.proyecto.TFG.dtos.DTOusuarioLoginBajada;
@@ -101,5 +103,32 @@ public class ControlUsuario {
     public ResponseEntity<List<DTOusuarioBajada>> findAllUsuarios() {
         List<DTOusuarioBajada> lista = daoUsuario.findAllUsuarios();
         return new ResponseEntity<>(lista, HttpStatus.OK);
+    }
+    
+    @GetMapping("findAllReportados")
+    public ResponseEntity<List<DTOUsuarioReportado>> getAllReportados() {
+        List<DTOUsuarioReportado> lista = daoUsuario.findAllReportados();
+        return new ResponseEntity<>(lista, HttpStatus.OK);
+    }
+
+    
+    @GetMapping("findByEmail")
+    public ResponseEntity<DTOUsuarioReportado> getReportadoByEmail(@RequestParam String email) {
+        DTOUsuarioReportado dto = daoUsuario.findByEmail(email);
+        if (dto != null) {
+            return new ResponseEntity<>(dto, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+    
+    @PutMapping("reportar")
+    public ResponseEntity<DTOUsuarioReportado> reportarUsuario(@RequestParam   String email) {
+        DTOUsuarioReportado dto = daoUsuario.reportarUsuario(email);
+        if (dto != null) {
+        	return new ResponseEntity<>(dto, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 }

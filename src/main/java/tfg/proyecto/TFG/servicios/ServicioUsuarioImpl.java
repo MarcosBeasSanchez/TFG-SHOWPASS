@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import tfg.proyecto.TFG.config.DtoConverter;
 import tfg.proyecto.TFG.config.JwtUtil;
+import tfg.proyecto.TFG.dtos.DTOUsuarioReportado;
 import tfg.proyecto.TFG.dtos.DTOusuarioBajada;
 import tfg.proyecto.TFG.dtos.DTOusuarioBajadaMinimo;
 import tfg.proyecto.TFG.dtos.DTOusuarioLogin;
@@ -198,6 +199,41 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 		return dtoLoginBajada;
 
 		
+	}
+
+	@Override
+	public DTOUsuarioReportado findByEmail(String email) {
+		// TODO Auto-generated method stub
+		Usuario usuario = repoUsuario.findByEmail(email);
+	    if (usuario != null) {
+	        return dtoConverter.map(usuario, DTOUsuarioReportado.class);
+	    }
+	    return null;
+	}
+
+	@Override
+	public List<DTOUsuarioReportado> findAllReportados() {
+		// TODO Auto-generated method stub
+		List<Usuario> usuariosReportados = repoUsuario.findByReportadoTrue();
+		
+		return dtoConverter.mapAll(usuariosReportados, DTOUsuarioReportado.class);
+	}
+
+	@Override
+	public DTOUsuarioReportado reportarUsuario(String email) {
+		// TODO Auto-generated method stub
+			Usuario 
+			usuario = repoUsuario.findByEmail(email);
+	        if (usuario == null) {
+	            return null;
+	        }
+
+	        usuario.setReportado(true);
+	        repoUsuario.save(usuario);
+
+	        DTOUsuarioReportado dto = dtoConverter.map(usuario, DTOUsuarioReportado.class);
+	        
+	        return dto;
 	}
 
 }
