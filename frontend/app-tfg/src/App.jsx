@@ -20,6 +20,7 @@ export default function App() {
 
   {/* Estado para el modo oscuro */ }
   const [darkMode, setDarkMode] = useState(false);
+
   {/* Aplicar o quitar la clase 'dark' al elemento raíz según el estado de darkMode */ }
   useEffect(() => {
     const root = document.documentElement;
@@ -119,7 +120,7 @@ export default function App() {
                   title={darkMode ? "Desactivar modo oscuro" : "Activar modo oscuro"}
                   onClick={() => setDarkMode((prev) => !prev)}
                 >
-                  dark_mode
+                  {darkMode ? "light_mode" : "dark_mode"}
                 </span>
                 <ProfileDropdown>
                   <span className="flex w-full text-left items-center justify-items-center-safe px-2 py-2 text-white">
@@ -218,7 +219,7 @@ export default function App() {
                       title={darkMode ? "Desactivar modo oscuro" : "Activar modo oscuro"}
                       onClick={() => setDarkMode((prev) => !prev)}
                     >
-                      dark_mode
+                     {darkMode ? "light_mode" : "dark_mode"}
                     </span>
 
                   </>
@@ -262,8 +263,6 @@ export default function App() {
                       <span className="material-symbols-outlined pr-2">logout</span>
                       Logout
                     </button>
-
-
                   </>
                 )}
               </div>

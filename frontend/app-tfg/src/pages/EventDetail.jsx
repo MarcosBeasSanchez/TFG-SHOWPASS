@@ -11,7 +11,7 @@ export default function EventDetail() {
   const [fullscreenImg, setFullscreenImg] = useState(null);
   const [cantidad, setCantidad] = useState(1);
 
- const getImageSrc = (img) => {
+  const getImageSrc = (img) => {
     if (!img) return ""; // si no hay imagen, devolvemos vacío
     if (img.startsWith("data:image/")) return img; // ya es Base64 con prefijo → no hacer nada
     if (img.startsWith("http://") || img.startsWith("https://")) return img; // es URL externa → usar tal cual
@@ -43,12 +43,11 @@ export default function EventDetail() {
   const formatDate = (fechaStr) => {
     if (!fechaStr) return "Por definir";
     const fecha = new Date(fechaStr);
-    return `${fecha.getDate().toString().padStart(2, "0")}/${
-      (fecha.getMonth() + 1).toString().padStart(2, "0")
-    }/${fecha.getFullYear()} - ${fecha.getHours().toString().padStart(2, "0")}:${fecha
-      .getMinutes()
-      .toString()
-      .padStart(2, "0")}`;
+    return `${fecha.getDate().toString().padStart(2, "0")}/${(fecha.getMonth() + 1).toString().padStart(2, "0")
+      }/${fecha.getFullYear()} - ${fecha.getHours().toString().padStart(2, "0")}:${fecha
+        .getMinutes()
+        .toString()
+        .padStart(2, "0")}`;
   };
 
   const handleEventoAlCarrito = async (cantidadSeleccionada) => {
@@ -127,9 +126,8 @@ export default function EventDetail() {
       </div>
 
       <div
-        className={`claro oscuroBox shadow-xl max-w w-full p-8 transform transition-all duration-700 ease-out ${
-          animate ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-        }`}
+        className={`claro oscuro shadow-xl max-w w-full p-8 transform transition-all duration-700 ease-out ${animate ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+          }`}
         style={{ position: "relative" }}
       >
         <div className="max-w-4xl mx-auto text-left ">
@@ -148,16 +146,16 @@ export default function EventDetail() {
 
           <div className="mb-6">
             <h2 className="text-2xl font-semibold mb-3 claroEvento oscuroEvento">Descripción</h2>
-            <p className="text-gray-700 text-base leading-relaxed claroEvento oscuroEvento">
+            <p className="text-gray-700 text-base mb-6 leading-relaxed claroEvento oscuroEvento">
               {evento.descripcion || "Este evento aún no tiene descripción."}
             </p>
             <h2 className="text-2xl font-semibold my-3 claroEvento oscuroEvento">Galería</h2>
           </div>
 
           {/* Carrusel de imágenes */}
-          <div className="flex flex-col items-center">
-            <div className="max-w-4xl mx-auto text-left">
-              {evento.carrusels && evento.carrusels.length > 0 && (
+          {evento.carrusels && evento.carrusels.length > 0 ? (
+            <div className="flex flex-col items-center">
+              <div className="max-w-4xl mx-auto text-left">
                 <div className="mb-8">
                   <div className="flex space-x-4 overflow-x-auto p-2">
                     {evento.carrusels.map((foto, index) => (
@@ -171,10 +169,13 @@ export default function EventDetail() {
                     ))}
                   </div>
                 </div>
-              )}
+              </div>
             </div>
-          </div>
+          ) : (
+            <p className="mb-6 text-gray-500">No hay imágenes en la galería.</p>
+          )}
 
+          {/* Invitados */}
           <h2 className="text-2xl font-semibold mb-3 claroEvento oscuroEvento">Invitados</h2>
           {evento.invitados && evento.invitados.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6 ">
@@ -202,7 +203,7 @@ export default function EventDetail() {
               ))}
             </div>
           ) : (
-            <div className="mb-6 text-gray-800 text-base md:text-lg">No hay invitados por ahora</div>
+            <div className="mb-6 text-gray-500 ">No hay invitados por ahora</div>
           )}
 
           <h2 className="text-2xl font-semibold mb-3 claroEvento oscuroEvento">Precio</h2>

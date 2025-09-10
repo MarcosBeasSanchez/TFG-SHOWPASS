@@ -118,7 +118,7 @@ const AdminEvents = () => {
                 body: payload
             });
 
-            console.log(res);
+            console.log (res);
 
             if (!res.ok) throw new Error("Error al crear evento");
 
@@ -163,25 +163,25 @@ const AdminEvents = () => {
             <h2 className="text-2xl font-bold oscuroTextoGris mb-4">Crear Evento</h2>
 
             {/* Formulario para crear evento */}
-            <form onSubmit={crearEvento} className="bg-gray-50 p-4 rounded shadow mb-4 flex flex-col gap-4 oscuro">
+            <form onSubmit={crearEvento} className="flex flex-col bg-gray-50 p-4 rounded shadow mb-4 gap-4 oscuro">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
                     <label>Nombre:</label>
-                    <input type="text" name="nombre" value={formData.nombre} maxLength={99} onChange={handleChange} required className="p-2 border rounded text-black oscuroBox " />
+                    <input type="text" name="nombre" value={formData.nombre} maxLength={99} onChange={handleChange} required className="p-2  rounded text-black oscuroBox " />
 
-                    <label>Localización:</label>
-                    <input type="text" name="localizacion" value={formData.localizacion} maxLength={50} onChange={handleChange} required className="p-2 border rounded text-black oscuroBox" />
+                    <label >Localización:</label>
+                    <input type="text" name="localizacion" value={formData.localizacion} maxLength={50} onChange={handleChange} required className="p-2  rounded text-black oscuroBox" />
 
                     <label>Inicio Evento:</label>
-                    <input type="datetime-local" name="inicioEvento" value={formData.inicioEvento} onChange={handleChange} required className="p-2 border rounded text-black oscuroBox" />
+                    <input type="datetime-local" name="inicioEvento" value={formData.inicioEvento} onChange={handleChange} required className="p-2  rounded text-black oscuroBox" />
 
                     <label>Fin Evento:</label>
-                    <input type="datetime-local" name="finEvento" value={formData.finEvento} onChange={handleChange} required className="p-2 border rounded text-black oscuroBox" />
+                    <input type="datetime-local" name="finEvento" value={formData.finEvento} onChange={handleChange} required className="p-2  rounded text-black oscuroBox" />
 
                     <label>Precio:</label>
-                    <input type="number" name="precio" value={formData.precio} onChange={handleChange} className="p-2 border rounded text-black oscuroBox" />
+                    <input type="number" name="precio" value={formData.precio} onChange={handleChange} className="p-2  rounded text-black oscuroBox" />
 
                     <label>Categoría:</label>
-                    <select name="categoria" value={formData.categoria} onChange={handleChange} required className="p-2 border rounded text-black oscuroBox">
+                    <select name="categoria" value={formData.categoria} onChange={handleChange} required className="p-2  rounded text-black oscuroBox">
                         <option value="">Selecciona categoría</option>
                         <option value="MUSICA">Música</option>
                         <option value="DEPORTES">Deportes</option>
@@ -191,13 +191,13 @@ const AdminEvents = () => {
                     </select>
 
                     <label>Imagen principal:</label>
-                    <input type="file" name="imagen" onChange={handleChange} className="p-2 border rounded text-black oscuroBox" />
+                    <input type="file" name="imagen" onChange={handleChange} className="p-2  rounded text-black oscuroBox" />
 
                     <label>Descripción:</label>
-                    <textarea name="descripcion" value={formData.descripcion}  onChange={handleChange} className="p-2 border rounded text-black md:col-span-2 oscuroBox" />
+                    <textarea name="descripcion" value={formData.descripcion}  onChange={handleChange} className="h-32 p-2  rounded text-black md:col-span-2 oscuroBox" />
 
                     <label>Carrusel de imágenes:</label>
-                    <input type="file" multiple onChange={handleCarruselChange} className="p-2 border rounded text-black md:col-span-2 oscuroBox" />
+                    <input type="file" multiple onChange={handleCarruselChange} className="w-1/2 p-2 rounded text-black md:col-span-2 oscuroBox" />
                     <div className="flex flex-wrap gap-2 md:col-span-2">
                         {formData.carrusels.map((file, idx) => (
                             <div key={idx} className="relative w-24 h-24">
@@ -211,10 +211,10 @@ const AdminEvents = () => {
                 <h3 className="font-bold ">Invitados</h3>
                 {formData.invitados.map((invitado, idx) => (
 
-                    <div key={idx} className="flex lg:flex-row flex-col bg-gray-200  rounded shadow gap-2 items-center justify- oscuro">
-                        <input type="text" name="nombre" placeholder="Nombre" value={invitado.nombre} maxLength={50} onChange={(e) => handleInvitadoChange(idx, e)} className="w-full  p-2 border rounded text-black oscuroBox" />
-                        <input type="text" name="apellidos" placeholder="Apellidos" value={invitado.apellidos} maxLength={50} onChange={(e) => handleInvitadoChange(idx, e)} className="w-full p-2 border rounded text-black oscuroBox" />
-                        <div className="flex flex-row gap-2 items-center justify-center lg:justify-start ">
+                    <div key={idx} className="flex lg:flex-row flex-col  gap-2 items-center justify- oscuro">
+                        <input type="text" name="nombre" placeholder="Nombre" value={invitado.nombre} maxLength={50} onChange={(e) => handleInvitadoChange(idx, e)} className="w-full  p-2  rounded text-black oscuroBox" />
+                        <input type="text" name="apellidos" placeholder="Apellidos" value={invitado.apellidos} maxLength={50} onChange={(e) => handleInvitadoChange(idx, e)} className="w-full p-2  rounded text-black oscuroBox" />
+                        <div className="flex flex-row gap-2 my-3.5 lg:my-0 items-center justify-center lg:justify-start ">
                             <label className=" bg-blue-500 text-white text-center px-4 py-2 rounded">
                                 Foto <input type="file" name="fotoURL" onChange={(e) => handleInvitadoChange(idx, e)} className="hidden" />
                             </label>
@@ -230,11 +230,11 @@ const AdminEvents = () => {
                 </div>
             </form>
 
-            {message && <p className="text-center mb-4 text-black oscuroTextoGris">{message}</p>}
+            {message && <p className="text-center mb-4 text-gray-500">{message}</p>}
 
             {/* Lista de eventos */}
             {loading ? (
-                <p className="text-black text-center">Cargando eventos...</p>
+                <p className="text-red-500 text-center">Cargando eventos...</p>
             ) : (
                 <div>
                     <h2 className="text-2xl font-bold oscuroTextoGris my-4">Todos los Eventos</h2>

@@ -78,11 +78,11 @@ export default function VentanaPrincipal() {
       )}
 
       {primerEvento && (
-        <div className="grid place-items-center p-5 sm:p-10 ">
+        <div className="grid place-items-center p-5 sm:p-10">
           <h1 className="text-2xl font-bold mb-4 text-gray-600 oscuroTextoGris">PRÓXIMOS EVENTOS</h1>
           <div
             key={primerEvento.id}
-            className="bg-white shadow-lg overflow-hidden hover:scale-101 transition transform lg:w-5/6 sm:w-full group"
+            className="bg-white shadow-lg overflow-hidden hover:scale-101 transition transform lg:w-5/6 w-full group"
           >
             <Link to={`/evento/${primerEvento.nombre}`}>
               <div className="relative w-full ">

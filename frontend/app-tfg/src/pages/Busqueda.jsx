@@ -26,6 +26,13 @@ export default function BusquedaEventos() {
         e.nombre.toLowerCase().includes(busqueda.toLowerCase())
     );
 
+    const getImageSrc = (img) => {
+        if (!img) return ""; // si no hay imagen, devolvemos vacío
+        if (img.startsWith("data:image/")) return img; // ya es Base64 con prefijo → no hacer nada
+        if (img.startsWith("http://") || img.startsWith("https://")) return img; // es URL externa → usar tal cual
+        return `data:image/png;base64,${img}`; // es Base64 crudo → agregamos el prefijo necesario
+    };
+
     return (
         <div className="p-5 [@media(min-width:978px)]:p-8">
             <h1 className="text-2xl font-bold mb-4 text-gray-600 text-center oscuroTextoGris">RESULTADOS DE BÚSQUEDA</h1>
@@ -45,7 +52,7 @@ export default function BusquedaEventos() {
                         <Link to={`/evento/${evento.nombre}`} className="w-full sm:w-full [@media(min-width:978px)]:w-130 lg:w-120 flex-shrink-0">
                             <div className="w-full h-90 aspect-square overflow-hidden flex items-center justify-center bg-gray-200">
                                 <img
-                                    src={evento.imagen}
+                                    src={getImageSrc(evento.imagen)}
                                     alt={evento.nombre}
                                     className="w-full h-full object-cover transition duration-500 group-hover:opacity-70"
                                 />

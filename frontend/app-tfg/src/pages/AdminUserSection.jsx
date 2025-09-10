@@ -83,15 +83,15 @@ const AdminUserSection = () => {
   };
 
   return (
-    <div className="mt-4 flex flex-col gap-4 max-w-md mx-auto">
+    <div className="mt-4 flex flex-col gap-4 w-full mx-auto">
       <p className="text-gray-500 mb-2 oscuroTextoGris">Buscar Usuario por Email:</p>
-      <div className="flex flex-col sm:flex-row gap-2">
+      <div className="flex flex-col sm:flex-row justify-center gap-2">
         <input
           type="text"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Correo del usuario..."
-          className="flex-1 p-2 border rounded-sm focus:outline-none focus:ring focus:border-blue-300 placeholder-gray-400 text-gray-500 oscuroBox"
+          className=" w-full p-2  border rounded-sm focus:outline-none focus:ring focus:border-blue-300 placeholder-gray-400 text-gray-500 oscuroBox"
         />
         <button
           onClick={buscarUsuario}
@@ -101,8 +101,8 @@ const AdminUserSection = () => {
         </button>
       </div>
 
-      {loading && <p className="text-gray-600 mt-2">Cargando...</p>}
-      {message && <p className="text-gray-700 mt-2">{message}</p>}
+      {loading && <p className="text-gray-500 mt-2">Cargando...</p>}
+      {message && <p className="text-gray-500 mt-2">{message}</p>}
 
       {usuario && (
         <div

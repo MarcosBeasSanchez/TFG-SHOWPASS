@@ -8,16 +8,13 @@ export default function CategoriaEventos() {
   const [eventos, setEventos] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  
+
   const getImageSrc = (img) => {
-    if (!img) return "/placeholder.jpg";
-
-    // Si ya es una URL válida (http, https o ruta local)
-    if (img.startsWith("http") || img.startsWith("/")) {
-      return img;
-    }
-
-    // Si es base64 (muy largo y sin prefijo), lo convertimos en data URL
-    return `data:image/jpeg;base64,${img}`;
+    if (!img) return "/placeholder.jpg"; // si no hay imagen, devolvemos vacío
+    if (img.startsWith("data:image/")) return img; // ya es Base64 con prefijo → no hacer nada
+    if (img.startsWith("http://") || img.startsWith("https://")) return img; // es URL externa → usar tal cual
+    return `data:image/png;base64,${img}`; // es Base64 crudo → agregamos el prefijo necesario
   };
 
   useEffect(() => {
@@ -99,4 +96,4 @@ export default function CategoriaEventos() {
       </div>
     </div>
   );
-}
+};
