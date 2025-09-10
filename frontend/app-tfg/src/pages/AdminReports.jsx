@@ -30,19 +30,19 @@ const AdminReportSection = () => {
       {usuarios.map((usuario) => (
         <div
           key={usuario.id}
-          className={`p-4 rounded shadow flex flex-col gap-2 bg-gray-50 border ${
+          className={`p-4 rounded shadow flex flex-col gap-2 bg-gray-50 border oscuroBox ${
             usuario.reportado ? "border-red-500" : "border-gray-300"
           }`}
         >
           <div className="flex justify-between items-center">
-            <p className="text-black font-semibold">{usuario.nombre}</p>
+            <p className="text-black font-semibold oscuroTextoGris">{usuario.nombre}</p>
             {usuario.reportado && (
               <span className="text-white bg-red-500 text-xs px-2 py-1 rounded">
                 Reportado
               </span>
             )}
           </div>
-          <p className="text-black">{usuario.email}</p>
+          <p className="text-black oscuroTextoGris">{usuario.email}</p>
         </div>
       ))}
     </div>

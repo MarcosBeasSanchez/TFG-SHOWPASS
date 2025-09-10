@@ -84,14 +84,14 @@ const AdminUserSection = () => {
 
   return (
     <div className="mt-4 flex flex-col gap-4 max-w-md mx-auto">
-      <p className="text-gray-500 mb-2">Buscar Usuario por Email:</p>
+      <p className="text-gray-500 mb-2 oscuroTextoGris">Buscar Usuario por Email:</p>
       <div className="flex flex-col sm:flex-row gap-2">
         <input
           type="text"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Correo del usuario..."
-          className="flex-1 p-2 border rounded-sm focus:outline-none focus:ring focus:border-blue-300 placeholder-gray-400 text-gray-500"
+          className="flex-1 p-2 border rounded-sm focus:outline-none focus:ring focus:border-blue-300 placeholder-gray-400 text-gray-500 oscuroBox"
         />
         <button
           onClick={buscarUsuario}
@@ -105,17 +105,20 @@ const AdminUserSection = () => {
       {message && <p className="text-gray-700 mt-2">{message}</p>}
 
       {usuario && (
-        <div className="mt-4 p-4 border rounded flex flex-col gap-2 bg-gray-50 oscuro">
-          <p className="text-black">
+        <div
+          className={`mt-4 p-4 border rounded flex flex-col gap-2 bg-gray-50 oscuroBox  ${usuario.reportado ? "border-red-500" : "border-gray-300"
+            }`}
+        >
+          <p className="text-black oscuroTextoGris">
             <strong>ID:</strong> {usuario.id}
           </p>
-          <p className="text-black">
+          <p className="text-black oscuroTextoGris">
             <strong>Email:</strong> {usuario.email}
           </p>
-          <p className="text-black">
+          <p className="text-black oscuroTextoGris">
             <strong>Nombre:</strong> {usuario.nombre}
           </p>
-          <p className="text-black">
+          <p className="text-black oscuroTextoGris">
             <strong>Reportado:</strong> {usuario.reportado ? "Sí" : "No"}
           </p>
 

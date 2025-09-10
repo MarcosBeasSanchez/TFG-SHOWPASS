@@ -237,6 +237,18 @@ export default function App() {
                       Ver tickets
                     </Link>
 
+                    {user?.rol === "ADMIN" && (
+                    <Link
+                      to="/admin"
+                      className="flex w-full text-left items-center justify-items-center-safe px-2 py-2 hover:bg-blue-800 rounded"
+                    >
+                      <span className="material-symbols-outlined pr-2">
+                        admin_panel_settings
+                      </span>
+                      Panel Admin
+                    </Link>
+                  )}
+
                     <button className="flex items-center  px-2 py-2 gap-2 " onClick={() => setDarkMode((prev) => !prev)}>
                       <span className="material-symbols-outlined ">
                         dark_mode

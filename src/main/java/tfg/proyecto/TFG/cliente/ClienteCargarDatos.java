@@ -79,7 +79,7 @@ public class ClienteCargarDatos implements CommandLineRunner {
 					.activo(true)
 					.build();
 			
-			
+			// Nuevo usuario reportado
 			DTOusuarioSubida u3 = DTOusuarioSubida.builder()
 				    .nombre("usuarioReportado")
 				    .email("reportado@mail.com")

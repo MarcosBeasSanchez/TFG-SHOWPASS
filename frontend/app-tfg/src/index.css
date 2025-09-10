@@ -20,6 +20,7 @@ body {
 .dark .oscuroBox {
     @apply bg-gray-900 text-gray-400;
 }
+
 .dark .oscuroTextoGris {
     @apply text-gray-400;
 }

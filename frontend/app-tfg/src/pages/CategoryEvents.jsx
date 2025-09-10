@@ -8,6 +8,18 @@ export default function CategoriaEventos() {
   const [eventos, setEventos] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const getImageSrc = (img) => {
+    if (!img) return "/placeholder.jpg";
+
+    // Si ya es una URL válida (http, https o ruta local)
+    if (img.startsWith("http") || img.startsWith("/")) {
+      return img;
+    }
+
+    // Si es base64 (muy largo y sin prefijo), lo convertimos en data URL
+    return `data:image/jpeg;base64,${img}`;
+  };
+
   useEffect(() => {
     const fetchEventos = async () => {
       try {
@@ -46,7 +58,7 @@ export default function CategoriaEventos() {
             className=" text-gray-700 rounded-xl shadow-md hover:shadow-lg transition "
           >
             <img
-              src={evento.imagen || "/placeholder.jpg"}
+              src={getImageSrc(evento.imagen)}
               alt={evento.nombre}
               className="w-full h-80 object-cover"
             />

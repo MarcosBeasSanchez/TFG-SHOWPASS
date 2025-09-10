@@ -15,7 +15,7 @@ const AdminPanel = () => {
     return (
         <div className='min-h-screen p-4'>
             <div className='max-w-5xl mx-auto p-6 bg-white shadow rounded oscuro'>
-                <h1 className='text-2xl font-bold text-gray-600 mb-6'>Panel de Administración</h1>
+                <h1 className='text-2xl font-bold text-gray-600  oscuroTextoGris mb-6'>Panel de Administración</h1>
 
                 {/* Botones de navegación */}
                 <div className='flex flex-col md:flex-row justify-center  mt-8'>
@@ -51,7 +51,7 @@ const AdminPanel = () => {
 
                 <div className='mt-10'>
                     {activeSection && (
-                        <h2 className='text-xl font-bold text-gray-600 mb-4'>
+                        <h2 className='text-xl font-bold text-gray-600 oscuroTextoGris mb-4'>
                             {sectionTitles[activeSection]}
                         </h2>
                     )}

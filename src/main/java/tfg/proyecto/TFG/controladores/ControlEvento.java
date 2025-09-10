@@ -32,7 +32,7 @@ import tfg.proyecto.TFG.modelo.Categoria;
 import tfg.proyecto.TFG.servicios.IServicioEvento;
 
 
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "http://localhost:5173") //permite las peticiones desde el front
 @RestController
 @RequestMapping("/tfg/evento/")
 public class ControlEvento {
