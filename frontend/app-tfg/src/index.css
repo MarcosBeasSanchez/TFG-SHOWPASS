@@ -11,7 +11,7 @@ body {
 /* Estilos para el modo oscuro */
 
 .dark body {
-  @apply bg-gray-950 text-white ; 
+  @apply bg-gray-900 text-white ; 
 }
 
 .dark .oscuro {

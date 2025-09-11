@@ -182,7 +182,7 @@ export default function EventDetail() {
               {evento.invitados.map((inv, index) => (
                 <div
                   key={index}
-                  className="bg-gray-50 oscuro rounded-lg shadow p-4 flex flex-col items-center text-gray-800"
+                  className="bg-gray-50 oscuro rounded-lg shadow p-4 flex flex-col items-center text-gray-800 oscuroBox"
                 >
                   {inv.fotoURL ? (
                     <img
@@ -195,10 +195,10 @@ export default function EventDetail() {
                       <span className="text-gray-500 ">Sin foto</span>
                     </div>
                   )}
-                  <h3 className="font-semibold text-center oscuro">
+                  <h3 className="font-semibold text-center ">
                     {inv.nombre} {inv.apellidos}
                   </h3>
-                  <div className="text-gray-700 text-base mt-1 text-center oscuro">{inv.descripcion}</div>
+                  <div className="text-gray-500 text-base mt-1 text-center">{inv.descripcion}</div>
                 </div>
               ))}
             </div>

@@ -123,7 +123,7 @@ export default function App() {
                   {darkMode ? "light_mode" : "dark_mode"}
                 </span>
                 <ProfileDropdown>
-                  <span className="flex w-full text-left items-center justify-items-center-safe px-2 py-2 text-white">
+                  <span className="flex w-full text-left text-sm items-center justify-items-center-safe px-2 py-2 text-white">
                     👋 Hola, {user?.nombre}
                   </span>
 

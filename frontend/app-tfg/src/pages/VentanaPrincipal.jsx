@@ -82,7 +82,7 @@ export default function VentanaPrincipal() {
           <h1 className="text-2xl font-bold mb-4 text-gray-600 oscuroTextoGris">PRÓXIMOS EVENTOS</h1>
           <div
             key={primerEvento.id}
-            className="bg-white shadow-lg overflow-hidden hover:scale-101 transition transform lg:w-5/6 w-full group"
+            className="bg-white shadow-lg overflow-hidden hover:scale-101 transition transform lg:w-full w-full group"
           >
             <Link to={`/evento/${primerEvento.nombre}`}>
               <div className="relative w-full ">

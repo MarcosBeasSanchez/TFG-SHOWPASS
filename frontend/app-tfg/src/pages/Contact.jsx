@@ -7,7 +7,7 @@ export default function Contact() {
     return (
         <section className="">
             <div className="w-full p-6 sm:p-8 text-gray-900 shadow-lg rounded-lg">
-                <h1 className="text-3xl font-bold mb-6 text-center">Contáctanos</h1>
+                <h1 className="text-3xl font-bold mb-6 text-center oscuroTextoGris">Contáctanos</h1>
 
                 <div className="w-full flex justify-center mt-8">
                     <iframe
@@ -23,16 +23,16 @@ export default function Contact() {
                     ></iframe>
                 </div>
 
-                <ul className="flex flex-row gap-10 md:gap-20 justify-center items-center w-full my-10">
+                <ul className="flex flex-row gap-10 md:gap-20 justify-center items-center w-full my-10 ">
                     {devs.map((dev, idx) => (
-                        <li key={idx} className="flex flex-col items-center bg-gray-100/80 backdrop-blur-md p-4 rounded-lg flex-1 max-w-xs">
+                        <li key={idx} className="flex flex-col items-center bg-gray-100/80 backdrop-blur-md p-4 rounded-lg flex-1 max-w-xs oscuro">
                             <img
                                 src={dev.photo}
                                 alt={dev.nombre}
                                 className="w-20 h-20 rounded-full mb-2 border mx-auto"
                             />
                             <h2 className="text-lg font-semibold text-center">{dev.nombre}</h2>
-                            <p className="text-gray-700 text-center">{dev.descripcion}</p>
+                            <p className="text-gray-500 text-center">{dev.descripcion}</p>
                             <a
                                 href={dev.github}
                                 target="_blank"

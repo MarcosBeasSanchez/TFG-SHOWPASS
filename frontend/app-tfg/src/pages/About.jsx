@@ -18,7 +18,7 @@ const members = [
 export default function About() {
   return (
     <div className="flex items-center justify-center min-h-screen px-4 py-4">
-      <div className="w-full max-w-4xl p-6 sm:p-8 bg-white text-gray-900 shadow-lg rounded-lg">
+      <div className="w-full max-w-4xl p-6 sm:p-8 bg-white text-gray-900 shadow-lg rounded-lg oscuro">
         <h1 className="text-3xl font-bold mb-6">Sobre Nosotros</h1>
         <p className="mb-4">
           Somos dos estudiantes apasionados por la tecnología y el desarrollo de software. Este proyecto es nuestro Trabajo de Fin de Grado (TFG), donde hemos puesto en práctica todos los conocimientos adquiridos durante el Grado Superior de
@@ -30,14 +30,14 @@ export default function About() {
         <h2 className="text-xl font-semibold mb-4">¿Quiénes somos?</h2>
         <div className="flex flex-col sm:flex-row sm:justify-evenly gap-8 my-10">
           {members.map((member, idx) => (
-            <div key={idx} className="flex flex-col items-center bg-gray-100 p-4 w-full sm:w-80 justify-center rounded-lg">
+            <div key={idx} className="flex flex-col items-center bg-gray-100 p-4 w-full sm:w-80 justify-center rounded-lg fondoOscuro">
               <img
                 src={member.photo}
                 alt={member.name}
-                className="w-24 h-24 sm:w-28 sm:h-28 rounded-full mb-2 border"
+                className="w-24 h-24 sm:w-28 sm:h-28 rounded-full mb-2"
               />
               <strong className="text-lg text-center">{member.name}</strong>
-              <span className="text-sm text-gray-700 text-center">{member.role}</span>
+              <span className="text-sm text-gray-500 text-center">{member.role}</span>
               <a
                 href={member.github}
                 target="_blank"

@@ -159,29 +159,29 @@ const AdminEvents = () => {
     };
 
     return (
-        <div className="mt-4 px-2 md:px-0 text-gray-500">
+        <div className="mt-4 px-2 md:px-0 text-gray-500 ">
             <h2 className="text-2xl font-bold oscuroTextoGris mb-4">Crear Evento</h2>
 
             {/* Formulario para crear evento */}
-            <form onSubmit={crearEvento} className="flex flex-col bg-gray-50 p-4 rounded shadow mb-4 gap-4 oscuro">
+            <form onSubmit={crearEvento} className="flex flex-col bg-white p-4 rounded  mb-4 gap-4 oscuro">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
                     <label>Nombre:</label>
-                    <input type="text" name="nombre" value={formData.nombre} maxLength={99} onChange={handleChange} required className="p-2  rounded text-black oscuroBox " />
+                    <input type="text" name="nombre" value={formData.nombre} maxLength={99} onChange={handleChange} required className="p-2  rounded bg-gray-200 text-black oscuroBox " />
 
                     <label >Localización:</label>
-                    <input type="text" name="localizacion" value={formData.localizacion} maxLength={50} onChange={handleChange} required className="p-2  rounded text-black oscuroBox" />
+                    <input type="text" name="localizacion" value={formData.localizacion} maxLength={50} onChange={handleChange} required className="p-2  rounded bg-gray-200 text-black oscuroBox" />
 
                     <label>Inicio Evento:</label>
-                    <input type="datetime-local" name="inicioEvento" value={formData.inicioEvento} onChange={handleChange} required className="p-2  rounded text-black oscuroBox" />
+                    <input type="datetime-local" name="inicioEvento" value={formData.inicioEvento} onChange={handleChange} required className="p-2  rounded  bg-gray-200 text-black oscuroBox" />
 
                     <label>Fin Evento:</label>
-                    <input type="datetime-local" name="finEvento" value={formData.finEvento} onChange={handleChange} required className="p-2  rounded text-black oscuroBox" />
+                    <input type="datetime-local" name="finEvento" value={formData.finEvento} onChange={handleChange} required className="p-2  rounded  bg-gray-200 text-black oscuroBox" />
 
                     <label>Precio:</label>
-                    <input type="number" name="precio" value={formData.precio} onChange={handleChange} className="p-2  rounded text-black oscuroBox" />
+                    <input type="number" name="precio" value={formData.precio} onChange={handleChange} className="p-2  rounded  bg-gray-200 text-black oscuroBox" />
 
                     <label>Categoría:</label>
-                    <select name="categoria" value={formData.categoria} onChange={handleChange} required className="p-2  rounded text-black oscuroBox">
+                    <select name="categoria" value={formData.categoria} onChange={handleChange} required className="p-2  rounded bg-gray-200 text-black oscuroBox">
                         <option value="">Selecciona categoría</option>
                         <option value="MUSICA">Música</option>
                         <option value="DEPORTES">Deportes</option>
@@ -191,13 +191,13 @@ const AdminEvents = () => {
                     </select>
 
                     <label>Imagen principal:</label>
-                    <input type="file" name="imagen" onChange={handleChange} className="p-2  rounded text-black oscuroBox" />
+                    <input type="file" name="imagen" onChange={handleChange} className="p-2  bg-gray-200 rounded text-black oscuroBox" />
 
                     <label>Descripción:</label>
-                    <textarea name="descripcion" value={formData.descripcion}  onChange={handleChange} className="h-32 p-2  rounded text-black md:col-span-2 oscuroBox" />
+                    <textarea name="descripcion" value={formData.descripcion}  onChange={handleChange} className="h-32 p-2  bg-gray-200 rounded text-black md:col-span-2 oscuroBox" />
 
                     <label>Carrusel de imágenes:</label>
-                    <input type="file" multiple onChange={handleCarruselChange} className="w-1/2 p-2 rounded text-black md:col-span-2 oscuroBox" />
+                    <input type="file" multiple onChange={handleCarruselChange} className="w-1/2 p-2 bg-gray-200 rounded text-black md:col-span-2 oscuroBox" />
                     <div className="flex flex-wrap gap-2 md:col-span-2">
                         {formData.carrusels.map((file, idx) => (
                             <div key={idx} className="relative w-24 h-24">

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import config from "../config/config";
 import jsPDF from "jspdf";
+import { descargarPDF, enviarPDF } from "../utils/entradasPdf";
 
 
 export default function ShoppingCart({ user }) {
@@ -99,73 +100,6 @@ export default function ShoppingCart({ user }) {
       console.error(err);
       alert("No se pudo finalizar la compra");
     }
-  };
-
-
-  const descargarPDF = (ticket) => {
-    const doc = new jsPDF("portrait", "pt", "a4"); // Tamaño A4, puntos
-
-    const margin = 40;
-    const contentWidth = 520;
-
-    // --- Cabecera ---
-    doc.setFillColor(240, 240, 240); // fondo gris claro
-    doc.rect(margin, margin, contentWidth, 60, "F"); // rectángulo relleno
-
-
-
-    // Nombre de la página y icono
-    doc.setFontSize(22);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(0, 51, 102); // azul oscuro
-    doc.text("SHOWPASS", margin + 70, margin + 35);
-    // Puedes agregar un icono como imagen si lo tienes
-
-    // --- Sección del evento ---
-    doc.setFillColor(0, 51, 102); // azul oscuro
-    doc.rect(margin, margin + 70, contentWidth, 150, "F");
-
-    // Imagen del evento
-    if (ticket.eventoImagen) {
-      doc.addImage(ticket.eventoImagen, "JPEG", margin + 10, margin + 80, 120, 120);
-    }
-
-    // Nombre del evento
-    doc.setFontSize(18);
-    doc.setTextColor(255, 215, 0); // dorado
-    doc.text(ticket.eventoNombre, margin + 140, margin + 100);
-
-    // Fecha de inicio
-    doc.setFontSize(12);
-    doc.setTextColor(255, 255, 255);
-    doc.text(`Inicio: ${new Date(ticket.eventoInicio).toLocaleString()}`, margin + 140, margin + 120);
-
-    // Precio
-    doc.text(`Precio: ${ticket.precio.toFixed(2)} €`, margin + 140, margin + 140);
-
-    // --- QR en la esquina derecha ---
-    if (ticket.codigoQR) {
-      const qrSize = 100;
-      doc.addImage(`data:image/png;base64,${ticket.codigoQR}`, "PNG", margin + contentWidth - qrSize - 10, margin + 80, qrSize, qrSize);
-    }
-
-    // --- Información del usuario debajo de la sección ---
-    const infoStartY = margin + 250;
-    doc.setFillColor(245, 245, 245); // gris claro
-    doc.rect(margin, infoStartY, contentWidth, 100, "F");
-
-    doc.setFontSize(12);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`ID Ticket: ${ticket.id}`, margin + 10, infoStartY + 20);
-    doc.text(`Usuario ID: ${ticket.usuarioId}`, margin + 10, infoStartY + 40);
-    doc.text(`Evento ID: ${ticket.eventoId}`, margin + 10, infoStartY + 60);
-
-    // Nota inferior
-    doc.setFontSize(10);
-    doc.setTextColor(120, 120, 120);
-    doc.text("Prohibida la reventa. No reembolsable. Mostrar en la entrada del evento.", margin + 10, infoStartY + 90);
-
-    doc.save(`ticket_${ticket.id}.pdf`);
   };
 
   {/*if (loading) return <p className="p-4">Cargando carrito...</p>;*/ }
@@ -276,12 +210,18 @@ export default function ShoppingCart({ user }) {
                     <p className="text-gray-500">Inicio del evento: {new Date(ticket.eventoInicio).toLocaleString()}</p>
                   </div>
                 </div>
-                <div className="text-end">
+                <div className="flex gap-2 md:flex-col flex-row">
                   <button
                     onClick={() => descargarPDF(ticket)}
                     className="bg-blue-500 text-white text-xs  px-3 py-1 rounded hover:bg-blue-600"
                   >
                     Descargar PDF
+                  </button>
+                   <button
+                    onClick={() => enviarPDF(ticket)}
+                    className="bg-gray-500 text-white text-xs  px-3 py-1 rounded hover:bg-gray-600"
+                  >
+                    Enviar PDF a mi email
                   </button>
                 </div>
 
