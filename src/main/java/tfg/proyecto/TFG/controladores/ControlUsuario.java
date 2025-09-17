@@ -29,7 +29,7 @@ import tfg.proyecto.TFG.servicios.IServicioUsuario;
 
 @RestController
 @RequestMapping("/tfg/usuario/")
-@CrossOrigin(origins = "http://localhost:5173") // acepta la conexion con http con vite puerto 5173
+@CrossOrigin(origins = "*") // acepta la conexion con http con vite puerto 5173
 public class ControlUsuario {
 
 	@Autowired
