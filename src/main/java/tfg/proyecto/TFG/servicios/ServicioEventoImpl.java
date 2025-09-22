@@ -86,6 +86,13 @@ public class ServicioEventoImpl implements IServicioEvento{
 		
 	    return  dtoConverter.mapAll((List<Evento>) eventoDAO.findByCategoria(categoria), DTOeventoBajada.class);
 	}
+
+	@Override
+	public List<DTOeventoBajada> buscarPorNombreConteniendo(String nombre) {
+		List<Evento>eventosFiltrados= eventoDAO.findByNombreContainingIgnoreCase(nombre);
+		
+		return dtoConverter.mapAll(eventosFiltrados, DTOeventoBajada.class);
+	}
 	
 	
 }

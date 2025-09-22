@@ -18,7 +18,8 @@ interface ApiService {
 }
 
 object ApiClient {
-    private const val BASE_URL = "http://192.168.1.133:8080" // localhost en emulador
+    //private const val BASE_URL = "http://192.168.1.133:8080" // localhost en emulador
+    private const val BASE_URL = "http://192.168.0.180:8080" //ipv4 ordenador MB
 
     val api: ApiService by lazy {
         Retrofit.Builder()

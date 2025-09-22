@@ -14,4 +14,5 @@ public interface IServicioEvento {
 	boolean eliminarEvento(Long id);
 	DTOeventoBajada obtnerPorElNombre(String nombre);
 	List<DTOeventoBajada> obtenerPorCategoria(Categoria categoria);
+	List<DTOeventoBajada> buscarPorNombreConteniendo(String nombre);
 }

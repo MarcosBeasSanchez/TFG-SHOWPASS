@@ -104,6 +104,7 @@ export default function ShoppingCart({ user }) {
 
   {/*if (loading) return <p className="p-4">Cargando carrito...</p>;*/ }
   if (error) return <p className="p-4 text-red-500">Error: {error}</p>;
+  
   if (!carrito || carrito.eventos.length === 0)
     return (
       <div className="flex flex-col items-center justify-center min-h-screen w-full px-4">

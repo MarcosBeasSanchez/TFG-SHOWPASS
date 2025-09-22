@@ -13,4 +13,6 @@ public interface RepositorioEvento extends CrudRepository<Evento, Long>{
 	
 	Optional<Evento> findByNombre(String nombre);
 	List<Evento> findByCategoria(Categoria categoria);
+	// Busca todos los eventos cuyo nombre contenga la cadena 'nombre', ignorando mayúsculas/minúsculas
+    List<Evento> findByNombreContainingIgnoreCase(String nombre);
 }

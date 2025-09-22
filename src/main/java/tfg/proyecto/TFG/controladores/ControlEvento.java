@@ -103,7 +103,7 @@ public class ControlEvento {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-	
+	//trae un evento unicamente escribiendolo de manera exacta
 	@GetMapping("findByNombre") 
     public ResponseEntity<DTOeventoBajada> obtenerPorNombre(@RequestParam String nombre) {
         try {
@@ -126,5 +126,16 @@ public class ControlEvento {
 		        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		    }
 	
+	}
+	
+	@GetMapping("filterByNombre")
+	public ResponseEntity<List<DTOeventoBajada>> busquedaParcialPorNombre(@RequestParam String nombre) {
+	    try {
+	        // Busca todos los eventos que contengan la palabra `nombre`, ignorando mayúsculas/minúsculas
+	        List<DTOeventoBajada> eventos = daoEvento.buscarPorNombreConteniendo(nombre);
+	        return new ResponseEntity<>(eventos, HttpStatus.OK);
+	    } catch (RuntimeException e) {
+	        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	    }
 	}
 }
