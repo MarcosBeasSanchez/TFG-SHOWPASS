@@ -1,5 +1,6 @@
 package com.example.appmovilshowpass
 
+import AuthViewModel
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -34,6 +35,9 @@ import com.example.appmovilshowpass.model.BottomNavItem
 import com.example.appmovilshowpass.ui.components.BusquedaScreen
 import com.example.appmovilshowpass.ui.components.SimpleScreen
 import com.example.appmovilshowpass.ui.components.EventoScreen
+import com.example.appmovilshowpass.ui.components.LoginScreen
+import com.example.appmovilshowpass.ui.components.RegisterScreen
+import com.example.appmovilshowpass.ui.components.UsuarioScreen
 import com.example.appmovilshowpass.ui.screens.BusquedaViewModel
 import com.example.appmovilshowpass.ui.screens.EventoViewModel
 import com.example.appmovilshowpass.ui.theme.AppMovilShowpassTheme
@@ -77,6 +81,10 @@ class MainActivity : ComponentActivity() {
 fun MainScreen() {
     val navController = rememberNavController()
 
+
+    // AuthViewModel global para toda la pantalla (una sola instancia)
+    val authViewModel: AuthViewModel = viewModel()
+
     val items = listOf(
         //BottomNavItem("Inicio", Icons.Default.Home, "inicio"),
         BottomNavItem("Eventos", Icons.Filled.DateRange, "eventos"),
@@ -96,10 +104,20 @@ fun MainScreen() {
                         contentAlignment = Alignment.CenterStart
                     ) {
                         Text(
-                            text = "SHOWPASS",
+                            text = "SHOWPASS", 
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White
+                        )
+                    }
+                },
+                actions = {
+                    // Si hay usuario logueado, mostramos "Bienvenido <nombre>" a la derecha
+                    authViewModel.currentUser?.nombre?.let { nombre ->
+                        Text(
+                            text = "Bienvenido $nombre",
+                            color = Color.White,
+                            modifier = Modifier.padding(end = 16.dp)
                         )
                     }
                 },
@@ -156,11 +174,52 @@ fun MainScreen() {
             }
             composable("buscar") {
                 val busquedaViewModel: BusquedaViewModel = viewModel()
-                BusquedaScreen(viewModel=busquedaViewModel) }
+                BusquedaScreen(viewModel = busquedaViewModel)
+            }
             composable("categorias") { SimpleScreen("Pantalla Categorías") }
+
+            composable("usuario") {
+                // Estado de sesión: en una app real esto debería venir de un ViewModel o DataStore
+                var loggedIn by remember { mutableStateOf(false) }
+            }
+
+            composable("usuario") {
+                // Pasamos el authViewModel para que UsuarioScreen lea el estado
+                UsuarioScreen(
+                    authViewModel = authViewModel,
+                    onLoginClick = { navController.navigate("login") },
+                    onRegisterClick = { navController.navigate("register") }
+                )
+            }
+
+            // Pantalla de login en Compose
+            composable("login") {
+                LoginScreen(
+                    authViewModel = authViewModel,
+                    onLoginSuccess = {
+                        // Volver a la pantalla anterior (usuario) tras login exitoso
+                        navController.popBackStack()
+                    },
+                    onGoToRegister = { navController.navigate("register") }
+                )
+            }
+
+            // Pantalla de register en Compose
+            composable("register") {
+                RegisterScreen(
+                    authViewModel = authViewModel,
+                    onRegisterSuccess = {
+                        // Si el register auto-loguea, volver a usuario
+                        navController.popBackStack()
+                    },
+                    onGoToLogin = { navController.navigate("login") }
+                )
+            }
         }
+
     }
 }
+
 
 
 
