@@ -9,7 +9,6 @@ import com.example.appmovilshowpass.ui.screens.BusquedaViewModel
 
 @Composable
 fun BusquedaScreen(viewModel: BusquedaViewModel = viewModel()) {
-
     val eventos by viewModel.eventos.collectAsState()
 
     SearchBarBusqueda(eventos = eventos,viewModel= viewModel)
