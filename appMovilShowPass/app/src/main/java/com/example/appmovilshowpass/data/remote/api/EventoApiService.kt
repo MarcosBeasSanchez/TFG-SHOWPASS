@@ -5,6 +5,11 @@ import retrofit2.http.GET
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import com.example.appmovilshowpass.data.local.BASE_URL //
+import com.example.appmovilshowpass.model.Login
+import com.example.appmovilshowpass.model.Register
+import com.example.appmovilshowpass.model.Usuario
+import retrofit2.http.Body
+import retrofit2.http.POST
 import retrofit2.http.Query
 
 interface EventoApiService {
@@ -16,7 +21,16 @@ interface EventoApiService {
 
     @GET("tfg/evento/findById") // buscar evento por id
     suspend fun findById(@Query("id") id: Long): DTOeventoBajada
+
+    @POST("/tfg/usuario/login")
+    suspend fun login(@Body request: Login): Usuario
+
+    @POST("/tfg/usuario/register")
+    suspend fun register(@Body request: Register): Usuario
+
 }
+
+
 
 
 object RetrofitClient {

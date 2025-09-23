@@ -1,5 +1,6 @@
 package com.example.appmovilshowpass
 
+import AuthViewModel
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -42,6 +43,9 @@ import com.example.appmovilshowpass.ui.components.BusquedaScreen
 import com.example.appmovilshowpass.ui.components.EventoInfo
 import com.example.appmovilshowpass.ui.components.SimpleScreen
 import com.example.appmovilshowpass.ui.components.EventoScreen
+import com.example.appmovilshowpass.ui.components.LoginScreen
+import com.example.appmovilshowpass.ui.components.RegisterScreen
+import com.example.appmovilshowpass.ui.components.UsuarioScreen
 import com.example.appmovilshowpass.ui.screens.BusquedaViewModel
 import com.example.appmovilshowpass.ui.screens.EventoViewModel
 import com.example.appmovilshowpass.ui.theme.AppMovilShowpassTheme
@@ -85,6 +89,10 @@ class MainActivity : ComponentActivity() {
 fun MainScreen() {
     val navController = rememberNavController()
 
+
+    // AuthViewModel global para toda la pantalla (una sola instancia)
+    val authViewModel: AuthViewModel = viewModel()
+
     val items = listOf(
         //BottomNavItem("Inicio", Icons.Default.Home, "inicio"),
         BottomNavItem("Eventos", Icons.Filled.DateRange, "eventos"),
@@ -104,10 +112,20 @@ fun MainScreen() {
                         contentAlignment = Alignment.CenterStart
                     ) {
                         Text(
-                            text = "SHOWPASS",
+                            text = "SHOWPASS", 
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White
+                        )
+                    }
+                },
+                actions = {
+                    // Si hay usuario logueado, mostramos "Bienvenido <nombre>" a la derecha
+                    authViewModel.currentUser?.nombre?.let { nombre ->
+                        Text(
+                            text = "Bienvenido $nombre",
+                            color = Color.White,
+                            modifier = Modifier.padding(end = 16.dp)
                         )
                     }
                 },
@@ -160,21 +178,20 @@ fun MainScreen() {
             popExitTransition = { fadeOut(animationSpec = tween(1000)) },
             modifier = Modifier.padding(innerPadding)
         ) {
-            //composable("inicio") { SimpleScreen("Pantalla Inicio") }
-            composable("usuario") {
-                SimpleScreen("Pantalla Usuario")
-            }
             composable("eventos") {
                 val eventoViewModel: EventoViewModel = viewModel()
                 EventoScreen(viewModel = eventoViewModel, navController = navController)
             }
+
             composable("buscar") {
                 val busquedaViewModel: BusquedaViewModel = viewModel()
-                BusquedaScreen(viewModel = busquedaViewModel,navController=navController)
+                BusquedaScreen(viewModel = busquedaViewModel, navController = navController)
             }
+
             composable("categorias") {
                 SimpleScreen("Pantalla Categorías")
             }
+
             composable(
                 "evento_info/{eventoId}",
                 arguments = listOf(navArgument("eventoId") { type = NavType.LongType })
@@ -182,9 +199,39 @@ fun MainScreen() {
                 val eventoId = backStackEntry.arguments?.getLong("eventoId") ?: 0L
                 EventoInfo(eventoId = eventoId)
             }
+
+            composable("usuario") {
+                UsuarioScreen(
+                    authViewModel = authViewModel,
+                    onLoginClick = { navController.navigate("login") },
+                    onRegisterClick = { navController.navigate("register") }
+                )
+            }
+
+            composable("login") {
+                LoginScreen(
+                    authViewModel = authViewModel,
+                    onLoginSuccess = {
+                        navController.popBackStack()
+                    },
+                    onGoToRegister = { navController.navigate("register") }
+                )
+            }
+
+            composable("register") {
+                RegisterScreen(
+                    authViewModel = authViewModel,
+                    onRegisterSuccess = {
+                        navController.popBackStack()
+                    },
+                    onGoToLogin = { navController.navigate("login") }
+                )
+            }
         }
+
     }
 }
+
 
 
 

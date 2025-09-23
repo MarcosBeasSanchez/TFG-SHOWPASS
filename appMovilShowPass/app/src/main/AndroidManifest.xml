@@ -14,7 +14,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppMovilShowpass"
         >
-
         <activity
             android:name="MainActivity"
             android:exported="true"
