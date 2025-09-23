@@ -23,15 +23,16 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.example.appmovilshowpass.model.Evento
 
 @Composable
-fun EventoCardHorizontal(evento: Evento) {
+fun EventoCardHorizontal(evento: Evento,modifier: Modifier = Modifier) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 5.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
@@ -78,7 +79,8 @@ fun EventoCardHorizontal(evento: Evento) {
                     maxLines = 5,
                     letterSpacing = 0.25.sp,
                     lineHeight = 20.sp,
-                    textAlign = TextAlign.Unspecified
+                    textAlign = TextAlign.Unspecified,
+                    overflow = TextOverflow.Ellipsis
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(

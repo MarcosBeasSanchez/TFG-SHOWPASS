@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.appmovilshowpass.data.remote.api.RetrofitClient
 import com.example.appmovilshowpass.data.remote.dto.toEvento
 import com.example.appmovilshowpass.model.Evento
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -15,9 +16,9 @@ class EventoViewModel : ViewModel() {
     private val _eventos = MutableStateFlow<List<Evento>>(emptyList())
     val eventos: StateFlow<List<Evento>> = _eventos
 
-    //Al iniciar el ViewModel, se llama a obtenerEventos para cargar los datos
+    //Al iniciar el ViewModel
     init {
-        obtenerEventos()
+        actualizarEventosPeriodicamente()
     }
 
     // Función para obtener eventos desde la API y actualizar el StateFlow
@@ -29,6 +30,15 @@ class EventoViewModel : ViewModel() {
                 _eventos.value = listaDto.map { it.toEvento() }
             } catch (e: Exception) {
                 e.printStackTrace()
+            }
+        }
+    }
+    // Función que hace polling cada 5 segundos
+    private fun actualizarEventosPeriodicamente() {
+        viewModelScope.launch {
+            while (true) { //bucle infinito
+                obtenerEventos()
+                delay(5000) // espera 5 segundos
             }
         }
     }

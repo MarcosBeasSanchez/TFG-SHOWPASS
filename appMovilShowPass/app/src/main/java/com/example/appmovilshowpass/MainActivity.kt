@@ -5,6 +5,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
@@ -28,10 +33,13 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.*
+import androidx.navigation.navArgument
 
 import com.example.appmovilshowpass.model.BottomNavItem
 import com.example.appmovilshowpass.ui.components.BusquedaScreen
+import com.example.appmovilshowpass.ui.components.EventoInfo
 import com.example.appmovilshowpass.ui.components.SimpleScreen
 import com.example.appmovilshowpass.ui.components.EventoScreen
 import com.example.appmovilshowpass.ui.screens.BusquedaViewModel
@@ -144,20 +152,36 @@ fun MainScreen() {
     ) { innerPadding ->
 
         NavHost(
-            navController,
+            navController = navController,
             startDestination = "eventos",
-            Modifier.padding(innerPadding)
+            enterTransition = { fadeIn(animationSpec = tween(1000)) },
+            exitTransition = { fadeOut(animationSpec = tween(1000)) },
+            popEnterTransition = { fadeIn(animationSpec = tween(1000)) },
+            popExitTransition = { fadeOut(animationSpec = tween(1000)) },
+            modifier = Modifier.padding(innerPadding)
         ) {
             //composable("inicio") { SimpleScreen("Pantalla Inicio") }
-            composable("usuario") { SimpleScreen("Pantalla Usuario") }
+            composable("usuario") {
+                SimpleScreen("Pantalla Usuario")
+            }
             composable("eventos") {
                 val eventoViewModel: EventoViewModel = viewModel()
-                EventoScreen(viewModel = eventoViewModel)
+                EventoScreen(viewModel = eventoViewModel, navController = navController)
             }
             composable("buscar") {
                 val busquedaViewModel: BusquedaViewModel = viewModel()
-                BusquedaScreen(viewModel=busquedaViewModel) }
-            composable("categorias") { SimpleScreen("Pantalla Categorías") }
+                BusquedaScreen(viewModel = busquedaViewModel,navController=navController)
+            }
+            composable("categorias") {
+                SimpleScreen("Pantalla Categorías")
+            }
+            composable(
+                "evento_info/{eventoId}",
+                arguments = listOf(navArgument("eventoId") { type = NavType.LongType })
+            ) { backStackEntry ->
+                val eventoId = backStackEntry.arguments?.getLong("eventoId") ?: 0L
+                EventoInfo(eventoId = eventoId)
+            }
         }
     }
 }

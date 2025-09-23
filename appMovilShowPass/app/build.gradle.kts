@@ -1,3 +1,5 @@
+import org.gradle.kotlin.dsl.implementation
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -10,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.appmovilshowpass"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -65,6 +67,9 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.1")
     //barra de estado
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.33.2-alpha")
+    //Iconos
+    implementation("androidx.compose.material:material-icons-extended")
+
 
 
 

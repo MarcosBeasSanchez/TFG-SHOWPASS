@@ -18,12 +18,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.appmovilshowpass.model.Evento
 import com.example.appmovilshowpass.ui.screens.EventoViewModel
 
 @Composable
-fun EventoScreen(viewModel: EventoViewModel = viewModel()) {
+fun EventoScreen(viewModel: EventoViewModel = viewModel(),navController: NavController) {
+
     val eventos by viewModel.eventos.collectAsState()
+
     if (eventos.isEmpty()) {
         BarraCarga()
     } else {
@@ -34,7 +37,7 @@ fun EventoScreen(viewModel: EventoViewModel = viewModel()) {
 
         ) {
             items(eventos, key = { it.id }) { evento ->
-                EventoCard(evento)
+                EventoCard(evento, navController = navController)
             }
         }
 
