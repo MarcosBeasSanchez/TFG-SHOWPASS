@@ -93,6 +93,11 @@ public class ServicioEventoImpl implements IServicioEvento{
 		
 		return dtoConverter.mapAll(eventosFiltrados, DTOeventoBajada.class);
 	}
+
+	@Override
+	public DTOeventoBajada obtnerPorElId(Long id) {
+		return dtoConverter.map(eventoDAO.findById(id),DTOeventoBajada.class);
+	}
 	
 	
 }

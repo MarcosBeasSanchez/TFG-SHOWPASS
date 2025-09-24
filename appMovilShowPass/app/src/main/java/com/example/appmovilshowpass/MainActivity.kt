@@ -1,6 +1,7 @@
 package com.example.appmovilshowpass
 
 import AuthViewModel
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -14,10 +15,12 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.LocalActivity
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,9 +29,11 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -58,8 +63,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             AppMovilShowpassTheme {
-                val primaryColor = MaterialTheme.colorScheme.primary.toArgb()
-                val darkIcons = MaterialTheme.colorScheme.primary.luminance() > 0.5f
+                val primaryColor = MaterialTheme.colorScheme.background.toArgb()
+                val darkIcons = MaterialTheme.colorScheme.background.luminance() > 0.5f
+
+                // Bloquear orientación vertical
+                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
                 // Aplicamos el color dinámico a la status bar
                 SideEffect {
@@ -95,9 +103,9 @@ fun MainScreen() {
 
     val items = listOf(
         //BottomNavItem("Inicio", Icons.Default.Home, "inicio"),
-        BottomNavItem("Eventos", Icons.Filled.DateRange, "eventos"),
+        BottomNavItem("Eventos", Icons.Filled.Event, "eventos"),
         BottomNavItem("Busqueda", Icons.Default.Search, "buscar"),
-        BottomNavItem("Categorias", Icons.Default.List, "categorias"),
+        BottomNavItem("Categorias", Icons.Default.ShoppingCart, "carrito"),
         BottomNavItem("Usuario", Icons.Default.Person, "usuario"),
     )
 
@@ -105,17 +113,23 @@ fun MainScreen() {
         topBar = {
             TopAppBar(
                 title = {
-                    Box(
+                    Row(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight(),
-                        contentAlignment = Alignment.CenterStart
+                            .fillMaxSize(),
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
                             text = "SHOWPASS", 
                             fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Black,
+                            fontStyle = FontStyle.Normal,
                             color = Color.White
+                        )
+                        Icon(
+                            imageVector = Icons.Outlined.LocalActivity,
+                            contentDescription = "Icono",
+                            tint = Color.White
                         )
                     }
                 },
@@ -138,12 +152,10 @@ fun MainScreen() {
             )
         },
         bottomBar = {
-
             NavigationBar(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(height = 120.dp) // Ajusta la altura si es necesario, 50dp es un poco pequeño
-                    .padding(0.dp),
+
 
                 ) {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -182,16 +194,6 @@ fun MainScreen() {
                 val eventoViewModel: EventoViewModel = viewModel()
                 EventoScreen(viewModel = eventoViewModel, navController = navController)
             }
-
-            composable("buscar") {
-                val busquedaViewModel: BusquedaViewModel = viewModel()
-                BusquedaScreen(viewModel = busquedaViewModel, navController = navController)
-            }
-
-            composable("categorias") {
-                SimpleScreen("Pantalla Categorías")
-            }
-
             composable(
                 "evento_info/{eventoId}",
                 arguments = listOf(navArgument("eventoId") { type = NavType.LongType })
@@ -199,6 +201,16 @@ fun MainScreen() {
                 val eventoId = backStackEntry.arguments?.getLong("eventoId") ?: 0L
                 EventoInfo(eventoId = eventoId)
             }
+
+            composable("buscar") {
+                val busquedaViewModel: BusquedaViewModel = viewModel()
+                BusquedaScreen(viewModel = busquedaViewModel, navController = navController)
+            }
+
+            composable("carrito") {
+                SimpleScreen("Pantalla Carrito")
+            }
+
 
             composable("usuario") {
                 UsuarioScreen(

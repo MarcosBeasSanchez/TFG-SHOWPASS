@@ -15,4 +15,5 @@ public interface IServicioEvento {
 	DTOeventoBajada obtnerPorElNombre(String nombre);
 	List<DTOeventoBajada> obtenerPorCategoria(Categoria categoria);
 	List<DTOeventoBajada> buscarPorNombreConteniendo(String nombre);
+	DTOeventoBajada obtnerPorElId(Long id);
 }

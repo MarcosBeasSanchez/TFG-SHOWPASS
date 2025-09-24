@@ -32,7 +32,7 @@ import com.example.appmovilshowpass.model.Evento
 
 @Composable
 fun EventoCard(evento: Evento, navController: NavController) {
-    val context = LocalContext.current  // <-- obtiene el context actual
+    val context = LocalContext.current
 
     Card(
         modifier = Modifier
@@ -42,7 +42,7 @@ fun EventoCard(evento: Evento, navController: NavController) {
                 navController.navigate("evento_info/${evento.id}")
             },
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        shape = RoundedCornerShape(0.dp)
+        shape = RoundedCornerShape(5.dp)
 
     )
     {
@@ -57,8 +57,7 @@ fun EventoCard(evento: Evento, navController: NavController) {
                     modifier = Modifier
                         .fillMaxSize()
                         .height(200.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                    ,
+                        .clip(RoundedCornerShape(5.dp)),
                     contentScale = ContentScale.Crop
                 )
             }

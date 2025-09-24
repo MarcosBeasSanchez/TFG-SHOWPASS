@@ -10,6 +10,7 @@ import com.example.appmovilshowpass.model.Register
 import com.example.appmovilshowpass.model.Usuario
 import retrofit2.http.Body
 import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface EventoApiService {
@@ -21,6 +22,9 @@ interface EventoApiService {
 
     @GET("tfg/evento/findById") // buscar evento por id
     suspend fun findById(@Query("id") id: Long): DTOeventoBajada
+
+    @GET("tfg/evento/findByCategoria/{categoria}")
+    suspend fun findByCategoria(@Path("categoria") categoria: String): List<DTOeventoBajada>
 
     @POST("/tfg/usuario/login")
     suspend fun login(@Body request: Login): Usuario
