@@ -20,21 +20,35 @@ class EventoViewModel : ViewModel() {
 
     init {
         obtenerEventos()
-        //actualizarEventosPeriodicamente()
     }
 
     // Función para obtener eventos desde la API y actualizar el StateFlow
-    private fun obtenerEventos() {
+    fun obtenerEventos() {
         viewModelScope.launch {
             try {
                 val listaDto = RetrofitClient.eventoApiService.obtenerTodosEventos()
                 Log.d("EventoViewModel", "Eventos recibidos: ${listaDto.size}")
-                _eventos.value = listaDto.map { it.toEvento() }
+                // Convertir DTOs a modelos de dominio y actualizar el StateFlow
+                _eventos.value = listaDto.map { it.toEvento() }.shuffled()
+
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
+
+    // Versión suspendida de la función para llamadas desde corrutinas
+    suspend fun obtenerEventosSuspend() {
+        try {
+            val listaDto = RetrofitClient.eventoApiService.obtenerTodosEventos()
+            _eventos.value = listaDto.map { it.toEvento() }.shuffled()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+    }
+
+    // Función para filtrar eventos por categoría
     fun filtrarEventosPorCategoria(categoria: String) {
         viewModelScope.launch {
             try {
@@ -49,7 +63,6 @@ class EventoViewModel : ViewModel() {
             }
         }
     }
-
 
     // Función que hace polling cada 5 segundos
     private fun actualizarEventosPeriodicamente() {

@@ -8,9 +8,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 
 @Composable
-fun BarraCarga()= CircularProgressIndicator(
-        modifier = Modifier
+fun BarraCarga(modifier: Modifier = Modifier) {
+    CircularProgressIndicator(
+        modifier = modifier
             .fillMaxSize()
-            .wrapContentSize(),
+            .wrapContentSize(), // centra dentro del espacio disponible
         color = Color.Gray
     )
+}
