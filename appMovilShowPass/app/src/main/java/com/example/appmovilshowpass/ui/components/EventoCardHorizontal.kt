@@ -1,6 +1,9 @@
 package com.example.appmovilshowpass.ui.components
 
+import android.R.style.Theme
+import android.content.res.Resources
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,12 +17,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -30,7 +36,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.appmovilshowpass.model.Evento
 
 @Composable
-fun EventoCardHorizontal(evento: Evento,modifier: Modifier = Modifier) {
+fun EventoCardHorizontal(evento: Evento, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -42,12 +48,16 @@ fun EventoCardHorizontal(evento: Evento,modifier: Modifier = Modifier) {
             evento.nombre,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(start = 12.dp, top = 12.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp)
+
         )
 
         Row(
-            modifier = Modifier.padding(12.dp),
+            modifier = Modifier.padding(12.dp, 0.dp, 12.dp, 12.dp),
             verticalAlignment = Alignment.CenterVertically
+
         ) {
             if (evento.imagen.isNotEmpty()) {
                 Box(
@@ -77,20 +87,36 @@ fun EventoCardHorizontal(evento: Evento,modifier: Modifier = Modifier) {
                 Text(
                     evento.descripcion,
                     fontSize = 12.sp,
-                    maxLines = 5,
+                    maxLines = 6,
                     letterSpacing = 0.25.sp,
                     lineHeight = 20.sp,
                     textAlign = TextAlign.Unspecified,
                     overflow = TextOverflow.Ellipsis
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    "Precio: ${evento.precio} €",
-                    fontSize = 12.sp,
-                    fontStyle = FontStyle.Italic,
-                    fontWeight = FontWeight.Bold
-                )
+                Spacer(modifier = Modifier.height(0.dp))
             }
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 12.dp, end = 12.dp),
+            contentAlignment = Alignment.BottomEnd
+        ) {
+            Text(
+                text = "${evento.precio}€",
+                style = TextStyle(
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = Color.White
+                ),
+                modifier = Modifier
+                    .background(
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        shape = RoundedCornerShape(5.dp)
+                    )
+                    .padding(horizontal = 5.dp, vertical = 5.dp)
+
+            )
         }
     }
 }

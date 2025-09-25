@@ -5,6 +5,8 @@ import retrofit2.http.GET
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import com.example.appmovilshowpass.data.local.BASE_URL //
+import com.example.appmovilshowpass.data.remote.dto.DTOusuarioBajada
+import com.example.appmovilshowpass.data.remote.dto.DTOusuarioLoginBajada
 import com.example.appmovilshowpass.model.Login
 import com.example.appmovilshowpass.model.Register
 import com.example.appmovilshowpass.model.Usuario
@@ -27,14 +29,12 @@ interface EventoApiService {
     suspend fun findByCategoria(@Path("categoria") categoria: String): List<DTOeventoBajada>
 
     @POST("/tfg/usuario/login")
-    suspend fun login(@Body request: Login): Usuario
+    suspend fun login(@Body request: Login): DTOusuarioLoginBajada
 
     @POST("/tfg/usuario/register")
     suspend fun register(@Body request: Register): Usuario
 
 }
-
-
 
 
 object RetrofitClient {

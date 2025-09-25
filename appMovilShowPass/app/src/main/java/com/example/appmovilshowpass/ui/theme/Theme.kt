@@ -41,7 +41,7 @@ private val DarkColorScheme = darkColorScheme(
 private val LightColorScheme = lightColorScheme(
     primary = Color(0xFF1E3481),        // azul base
     onPrimary = Color(0xFFFFFFFF),      // texto blanco sobre azul
-    primaryContainer = Color(0xFFE0E6FF),
+    primaryContainer = Color(0xFF1E3481),
     onPrimaryContainer = Color(0xFF0A1B57),
 
     secondary = Color(0xFF6074B5),

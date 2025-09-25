@@ -45,8 +45,6 @@ fun SearchBarBusqueda(
     var busquedaRealizada by remember { mutableStateOf(false) } // nuevo estado
     val eventos by viewModel.eventos.collectAsState()
 
-
-
     Column(
         modifier =
             Modifier

@@ -2,7 +2,9 @@ package com.example.appmovilshowpass.ui.components
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,14 +14,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -64,20 +69,37 @@ fun EventoCard(evento: Evento, navController: NavController) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 evento.descripcion,
-                fontSize = 13.sp,
+                fontSize = 14.sp,
                 fontWeight = FontWeight.Light,
-                maxLines = 7,
+                maxLines = 12,
                 letterSpacing = 0.25.sp,
                 lineHeight = 20.sp,
                 overflow = TextOverflow.Ellipsis
             )
             Spacer(modifier = Modifier.height(8.dp))
 
-            Text(
-                "Precio: ${evento.precio} €",
-                fontSize = 14.sp, fontStyle = FontStyle.Italic,
-                modifier = Modifier.padding()
-            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(),
+                contentAlignment = Alignment.CenterEnd
+            ) {
+                Text(
+                    text = "PVP: ${evento.precio}€",
+                    style = TextStyle(
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = Color.White
+                    ),
+                    modifier = Modifier
+                        .background(
+                            color = MaterialTheme.colorScheme.primaryContainer,
+                            shape = RoundedCornerShape(5.dp)
+                        )
+                        .padding(horizontal = 8.dp, vertical = 8.dp)
+
+                )
+            }
 
         }
     }

@@ -20,7 +20,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.Event
 import androidx.compose.material.icons.outlined.LocalActivity
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.PersonOutline
+import androidx.compose.material.icons.outlined.QrCode
+import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +50,7 @@ import androidx.navigation.compose.*
 import androidx.navigation.navArgument
 
 import com.example.appmovilshowpass.model.BottomNavItem
+import com.example.appmovilshowpass.model.Rol
 import com.example.appmovilshowpass.ui.components.BusquedaScreen
 import com.example.appmovilshowpass.ui.components.EventoInfo
 import com.example.appmovilshowpass.ui.components.SimpleScreen
@@ -103,10 +110,10 @@ fun MainScreen() {
 
     val items = listOf(
         //BottomNavItem("Inicio", Icons.Default.Home, "inicio"),
-        BottomNavItem("Eventos", Icons.Filled.Event, "eventos"),
-        BottomNavItem("Busqueda", Icons.Default.Search, "buscar"),
-        BottomNavItem("Categorias", Icons.Default.ShoppingCart, "carrito"),
-        BottomNavItem("Usuario", Icons.Default.Person, "usuario"),
+        BottomNavItem("Eventos", Icons.Outlined.Event, "eventos"),
+        BottomNavItem("Busqueda", Icons.Outlined.Search, "buscar"),
+        BottomNavItem("Carrito", Icons.Outlined.ShoppingCart, "carrito"),
+        BottomNavItem("Tickets", Icons.Outlined.QrCode, "tickets"),
     )
 
     Scaffold(
@@ -120,7 +127,7 @@ fun MainScreen() {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "SHOWPASS", 
+                            text = "SHOWPASS",
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Black,
                             fontStyle = FontStyle.Normal,
@@ -134,19 +141,23 @@ fun MainScreen() {
                     }
                 },
                 actions = {
-                    // Si hay usuario logueado, mostramos "Bienvenido <nombre>" a la derecha
-                    authViewModel.currentUser?.nombre?.let { nombre ->
-                        Text(
-                            text = "Bienvenido $nombre",
-                            color = Color.White,
-                            modifier = Modifier.padding(end = 16.dp)
+                    IconButton(
+                        modifier = Modifier.fillMaxHeight(),
+                        onClick = {
+                            navController.navigate("usuario")
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Person,
+                            contentDescription = "Usuario",
+                            tint = Color.White
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = DarkBlue
                 ),
-                modifier = Modifier.height(80.dp)
+                modifier = Modifier.height(90.dp)
 
 
             )
@@ -157,9 +168,10 @@ fun MainScreen() {
                     .fillMaxWidth()
 
 
-                ) {
+            ) {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
+
                 items.forEach { item ->
                     NavigationBarItem(
                         modifier = (Modifier.height(height = 20.dp)),
@@ -178,7 +190,24 @@ fun MainScreen() {
                     )
                 }
             }
-        }
+        },
+        floatingActionButton = {
+
+            if (authViewModel.currentUser?.rol == Rol.ADMIN) {
+                FloatingActionButton(
+                    onClick = {},
+                    contentColor = Color.White,
+                    shape = FloatingActionButtonDefaults.largeShape,
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.AdminPanelSettings, // puedes cambiarlo por otro
+                        contentDescription = "Panel Admin",
+                    )
+                }
+            }
+
+        },
+        floatingActionButtonPosition = FabPosition.End
     ) { innerPadding ->
 
         NavHost(
@@ -210,7 +239,9 @@ fun MainScreen() {
             composable("carrito") {
                 SimpleScreen("Pantalla Carrito")
             }
-
+            composable("tickets") {
+                SimpleScreen("Pantalla Tickets")
+            }
 
             composable("usuario") {
                 UsuarioScreen(
@@ -219,7 +250,6 @@ fun MainScreen() {
                     onRegisterClick = { navController.navigate("register") }
                 )
             }
-
             composable("login") {
                 LoginScreen(
                     authViewModel = authViewModel,
@@ -229,7 +259,6 @@ fun MainScreen() {
                     onGoToRegister = { navController.navigate("register") }
                 )
             }
-
             composable("register") {
                 RegisterScreen(
                     authViewModel = authViewModel,
