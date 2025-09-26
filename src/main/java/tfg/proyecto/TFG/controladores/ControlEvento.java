@@ -84,6 +84,7 @@ public class ControlEvento {
         return new ResponseEntity<>(lista, HttpStatus.OK);
     }
 	
+	
 	@PutMapping("update/{id}")
     public ResponseEntity<DTOeventoBajada> actualizarEvento(@PathVariable Long id, @RequestBody DTOeventoSubida dto) {
         try {
@@ -114,6 +115,17 @@ public class ControlEvento {
         }
     }
 	
+	//trae un evento unicamente escribiendolo de manera exacta
+		@GetMapping("findById") 
+	    public ResponseEntity<DTOeventoBajada> obtenerPorId(@RequestParam Long id) {
+	        try {
+	            DTOeventoBajada evento = daoEvento.obtnerPorElId(id);
+	            return new ResponseEntity<>(evento, HttpStatus.OK);
+	        } catch (RuntimeException e) {
+	            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	        }
+	    }
+	
 	@GetMapping("findByCategoria/{categoria}")
 	public ResponseEntity<List<DTOeventoBajada>> obtenerPorCategoria(@PathVariable String categoria) {
 		 try {
@@ -127,11 +139,10 @@ public class ControlEvento {
 		    }
 	
 	}
-	
+	// Busca todos los eventos que contengan la palabra `nombre`, ignorando mayúsculas/minúsculas
 	@GetMapping("filterByNombre")
 	public ResponseEntity<List<DTOeventoBajada>> busquedaParcialPorNombre(@RequestParam String nombre) {
 	    try {
-	        // Busca todos los eventos que contengan la palabra `nombre`, ignorando mayúsculas/minúsculas
 	        List<DTOeventoBajada> eventos = daoEvento.buscarPorNombreConteniendo(nombre);
 	        return new ResponseEntity<>(eventos, HttpStatus.OK);
 	    } catch (RuntimeException e) {

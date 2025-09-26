@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -62,7 +63,6 @@ fun EventoInfo(eventoId: Long) {
     val scrollState = rememberScrollState()
     val scope = rememberCoroutineScope()
 
-
     // Llamada al backend
     LaunchedEffect(eventoId) {
         scope.launch {
@@ -75,146 +75,155 @@ fun EventoInfo(eventoId: Long) {
             }
         }
     }
-
-    // UI
+    // Contenido
     evento?.let { e ->
         Column(
             modifier = Modifier
-                .padding(14.dp)
+                .padding(0.dp, 0.dp, 0.dp, 0.dp)
                 .verticalScroll(scrollState)
         ) {
-            Text(e.nombre, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-            Text(e.localizacion, fontSize = 18.sp)
-            Spacer(modifier = Modifier.height(8.dp))
-
             if (e.imagen.isNotEmpty()) {
                 Image(
                     painter = rememberAsyncImagePainter(e.imagen),
                     contentDescription = e.nombre,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(200.dp)
-                        .clip(RoundedCornerShape(8.dp)),
+                        .height(250.dp)
+                        .clip(RoundedCornerShape(0.dp)),
 
                     contentScale = ContentScale.Crop
                 )
             }
-            Spacer(modifier = Modifier.height(16.dp))
-            Row(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceEvenly
-            )
-            {
-                Text(
-                    "Inicio: ${formatearFecha(e.inicioEvento)}",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Light,
+                    .fillMaxSize()
+                    .padding(14.dp)
+            ) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(e.nombre, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                Text(e.localizacion, fontSize = 18.sp)
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceEvenly
                 )
-                Spacer(modifier = Modifier.width(16.dp))
-                Text(
-                    "Fin: ${formatearFecha(e.finEvento)}",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Light,
-                )
-            }
-            Spacer(modifier = Modifier.width(16.dp))
-            Text("Descripción", fontSize = 18.sp, modifier = Modifier.padding(vertical = 8.dp))
-            Text(
-                e.descripcion,
-                fontSize = 14.sp,
-                letterSpacing = 0.50.sp,
-                lineHeight = 23.sp,
-                fontWeight = FontWeight.Light,
-            )
-            Spacer(modifier = Modifier.height(20.dp))
-            // Carrusel de imágenes
-            if (e.carrusels.isNotEmpty()) {
-                Text("Imágenes", fontSize = 18.sp, modifier = Modifier.padding(vertical = 8.dp))
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(horizontal = 8.dp)
-                ) {
-                    items(e.carrusels) { imagenUrl ->
-                        Image(
-                            painter = rememberAsyncImagePainter(imagenUrl),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(width = 300.dp, height = 200.dp)
-                                .clip(RoundedCornerShape(12.dp)),
-                            contentScale = ContentScale.Crop
-                        )
-                    }
+                {
+                    Text(
+                        "Inicio: ${formatearFecha(e.inicioEvento)}",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Light,
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Text(
+                        "Fin: ${formatearFecha(e.finEvento)}",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Light,
+                    )
                 }
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            if (e.invitados.isNotEmpty()) {
-                Text("Invitados", fontSize = 18.sp, modifier = Modifier.padding(vertical = 8.dp))
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(
-                        8.dp,
-                        Alignment.CenterHorizontally
-                    ),
-                    contentPadding = PaddingValues(horizontal = 8.dp),
-                ) {
-                    items(e.invitados) { invitado ->
-                        Card(
-                            shape = RoundedCornerShape(12.dp),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                            modifier = Modifier
-                                .width(170.dp)
-                                .height(220.dp)
-                                .padding(4.dp)
-                        ) {
-                            Column(
+                Spacer(modifier = Modifier.width(16.dp))
+                Text("Descripción", fontSize = 18.sp, modifier = Modifier.padding(vertical = 8.dp))
+                Text(
+                    e.descripcion,
+                    fontSize = 14.sp,
+                    letterSpacing = 0.50.sp,
+                    lineHeight = 23.sp,
+                    fontWeight = FontWeight.Light,
+                )
+                Spacer(modifier = Modifier.height(20.dp))
+                // Carrusel de imágenes
+                if (e.carrusels.isNotEmpty()) {
+                    Text("Imágenes", fontSize = 18.sp, modifier = Modifier.padding(vertical = 8.dp))
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        contentPadding = PaddingValues(horizontal = 8.dp)
+                    ) {
+                        items(e.carrusels) { imagenUrl ->
+                            Image(
+                                painter = rememberAsyncImagePainter(imagenUrl),
+                                contentDescription = null,
                                 modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(12.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                // Foto circular
-                                Image(
-                                    painter = rememberAsyncImagePainter(invitado.fotoURL),
-                                    contentDescription = invitado.nombre,
-                                    modifier = Modifier
-                                        .size(100.dp)
-                                        .clip(CircleShape),
-                                    contentScale = ContentScale.Crop
-                                )
-
-                                Spacer(modifier = Modifier.height(10.dp))
-
-                                // Nombre
-                                Text(
-                                    text = "${invitado.nombre} ${invitado.apellidos}",
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    textAlign = TextAlign.Center
-                                )
-
-                                Spacer(modifier = Modifier.height(6.dp))
-
-                                // Descripción
-                                Text(
-                                    text = invitado.descripcion,
-                                    fontSize = 12.sp,
-                                    textAlign = TextAlign.Center,
-                                    lineHeight = 16.sp,
-                                    maxLines = 4,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            }
+                                    .size(width = 300.dp, height = 200.dp)
+                                    .clip(RoundedCornerShape(12.dp)),
+                                contentScale = ContentScale.Crop
+                            )
                         }
                     }
                 }
-                Text("Precio", fontSize = 18.sp, modifier = Modifier.padding(vertical = 6.dp))
-                Text("${e.precio} €", fontSize = 16.sp)
-                Spacer(modifier = Modifier.height(30.dp))
-                BotonesComprarTicket()
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                if (e.invitados.isNotEmpty()) {
+                    Text(
+                        "Invitados",
+                        fontSize = 18.sp,
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(
+                            8.dp,
+                            Alignment.CenterHorizontally
+                        ),
+                        contentPadding = PaddingValues(horizontal = 8.dp),
+                    ) {
+                        items(e.invitados) { invitado ->
+                            Card(
+                                shape = RoundedCornerShape(12.dp),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                                modifier = Modifier
+                                    .width(170.dp)
+                                    .height(220.dp)
+                                    .padding(4.dp)
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(12.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    // Foto circular
+                                    Image(
+                                        painter = rememberAsyncImagePainter(invitado.fotoURL),
+                                        contentDescription = invitado.nombre,
+                                        modifier = Modifier
+                                            .size(100.dp)
+                                            .clip(CircleShape),
+                                        contentScale = ContentScale.Crop
+                                    )
+
+                                    Spacer(modifier = Modifier.height(10.dp))
+
+                                    // Nombre
+                                    Text(
+                                        text = "${invitado.nombre} ${invitado.apellidos}",
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        textAlign = TextAlign.Center
+                                    )
+
+                                    Spacer(modifier = Modifier.height(6.dp))
+
+                                    // Descripción
+                                    Text(
+                                        text = invitado.descripcion,
+                                        fontSize = 12.sp,
+                                        textAlign = TextAlign.Center,
+                                        lineHeight = 16.sp,
+                                        maxLines = 4,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    Text("Precio", fontSize = 18.sp, modifier = Modifier.padding(vertical = 6.dp))
+                    Text("${e.precio} €", fontSize = 16.sp)
+                    Spacer(modifier = Modifier.height(30.dp))
+                    BotonesComprarTicket()
+                }
+
             }
         } ?: run {
             // Mientras carga

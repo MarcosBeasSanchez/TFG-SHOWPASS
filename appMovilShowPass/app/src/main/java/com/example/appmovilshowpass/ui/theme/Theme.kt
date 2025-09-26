@@ -13,39 +13,55 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Color(0xFF000000),       // negro para TopAppBar, FAB, etc.
-    secondary = Color(0xFF625B71),
-    background = Color(0xFF1C1B1F),    // fondo oscuro en modo oscuro
+    primary = Color(0xFF9FAFF5),        // azul claro para resaltar en dark mode
+    onPrimary = Color(0xFF0A1B57),      // texto oscuro sobre primary
+    primaryContainer = Color(0xFF1E3481), // azul base como contenedor
+    onPrimaryContainer = Color(0xFFE0E6FF),
+
+    secondary = Color(0xFFAAB8F0),
+    onSecondary = Color(0xFF18224F),
+    secondaryContainer = Color(0xFF6074B5),
+    onSecondaryContainer = Color(0xFFDEE3FF),
+
+    tertiary = Color(0xFFFFCC80),
+    onTertiary = Color(0xFF3A2500),
+    tertiaryContainer = Color(0xFFFFB74D),
+    onTertiaryContainer = Color(0xFF000000),
+
+    background = Color(0xFF121212),
+    onBackground = Color(0xFFE0E0E0),
+
     surface = Color(0xFF1C1B1F),
-    error = Color(0xFFB3261E),
-    onPrimary = Color.White,            // texto sobre primary
-    onSecondary = Color.White,
-    onBackground = Color.White,         // texto sobre fondo oscuro
-    onSurface = Color.White,
-    onError = Color.White
+    onSurface = Color(0xFFE0E0E0),
+
+    error = Color(0xFFCF6679),
+    onError = Color(0xFF000000)
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Color(0xFFFFFFFF),       // blanco para TopAppBar, FAB, etc.
-    secondary = Color(0xC9CCC2DC),
-    background = Color(0xFFFFFBFE),    // fondo claro en modo claro
-    surface = Color(0xFFFFFBFE),
-    error = Color(0xFFCF6679),
-    onPrimary = Color.Black,            // texto sobre primary
-    onSecondary = Color.Black,
-    onBackground = Color.Black,         // texto sobre fondo claro
-    onSurface = Color.Black,
-    onError = Color.Black
+    primary = Color(0xFF1E3481),        // azul base
+    onPrimary = Color(0xFFFFFFFF),      // texto blanco sobre azul
+    primaryContainer = Color(0xFF1E3481),
+    onPrimaryContainer = Color(0xFF0A1B57),
 
-    /* Other default colors to override
+    secondary = Color(0xFF6074B5),
+    onSecondary = Color(0xFFFFFFFF),
+    secondaryContainer = Color(0xFFDEE3FF),
+    onSecondaryContainer = Color(0xFF18224F),
+
+    tertiary = Color(0xFFFFB74D),
+    onTertiary = Color(0xFF000000),
+    tertiaryContainer = Color(0xFFFFE0B2),
+    onTertiaryContainer = Color(0xFF3A2500),
+
     background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    onBackground = Color(0xFF1A1A1A),
+
+    surface = Color(0xFFFFFFFF),
+    onSurface = Color(0xFF1A1A1A),
+
+    error = Color(0xFFB3261E),
+    onError = Color(0xFFFFFFFF)
 )
 
 @Composable

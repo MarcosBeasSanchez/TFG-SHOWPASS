@@ -1,46 +1,101 @@
 package com.example.appmovilshowpass.ui.components
 
-
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.appmovilshowpass.model.Evento
+import com.example.appmovilshowpass.model.Categoria
 import com.example.appmovilshowpass.ui.screens.EventoViewModel
+import com.example.appmovilshowpass.ui.theme.Typography
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EventoScreen(viewModel: EventoViewModel = viewModel(),navController: NavController) {
+fun EventoScreen(
+    viewModel: EventoViewModel = viewModel(),
+    navController: NavController
+) {
+    val eventos by viewModel.eventos.collectAsState() //Lista de eventos desde el ViewModel
+    val eventosBoton =
+        listOf("TODOS") + Categoria.values().map { it.name } //Btones de categorias y filtrado
+    var isRefreshing by remember { mutableStateOf(false) } //Estado de refresco
+    val scope = rememberCoroutineScope() //Corrutina para refresco
 
-    val eventos by viewModel.eventos.collectAsState()
+    PullToRefreshBox(
+        isRefreshing = isRefreshing,
+        onRefresh = {
+            isRefreshing = true
+            scope.launch {
+                viewModel.obtenerEventosSuspend()
+                isRefreshing = false
+            }
+        },
+        modifier = Modifier.fillMaxSize()
+    )
+    {
+        if (eventos.isEmpty()) {
+            BarraCarga(modifier=Modifier.fillMaxSize())
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(10.dp)
+            )
+            {
+                item {
+                    LazyRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(0.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        items(eventosBoton) { boton ->
+                            OutlinedButton(
+                                onClick = { viewModel.filtrarEventosPorCategoria(boton) },
+                                modifier = Modifier.padding(3.dp),
+                                shape = RoundedCornerShape(10.dp)
+                            ) {
+                                Text(boton)
+                            }
+                        }
+                    }
+                }
 
-    if (eventos.isEmpty()) {
-        BarraCarga()
-    } else {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(5.dp)
-
-        ) {
-            items(eventos, key = { it.id }) { evento ->
-                EventoCard(evento, navController = navController)
+                //  Items con las tarjetas de eventos
+                items(eventos, key = { it.id }) { evento ->
+                    EventoCard(evento, navController = navController)
+                }
             }
         }
-
     }
 }
-

@@ -1,6 +1,7 @@
 package com.example.appmovilshowpass
 
 import AuthViewModel
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -14,10 +15,18 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.Event
+import androidx.compose.material.icons.outlined.LocalActivity
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.PersonOutline
+import androidx.compose.material.icons.outlined.QrCode
+import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,9 +35,11 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -39,6 +50,7 @@ import androidx.navigation.compose.*
 import androidx.navigation.navArgument
 
 import com.example.appmovilshowpass.model.BottomNavItem
+import com.example.appmovilshowpass.model.Rol
 import com.example.appmovilshowpass.ui.components.BusquedaScreen
 import com.example.appmovilshowpass.ui.components.EventoInfo
 import com.example.appmovilshowpass.ui.components.SimpleScreen
@@ -58,8 +70,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             AppMovilShowpassTheme {
-                val primaryColor = MaterialTheme.colorScheme.primary.toArgb()
-                val darkIcons = MaterialTheme.colorScheme.primary.luminance() > 0.5f
+                val primaryColor = MaterialTheme.colorScheme.background.toArgb()
+                val darkIcons = MaterialTheme.colorScheme.background.luminance() > 0.5f
+
+                // Bloquear orientación vertical
+                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
                 // Aplicamos el color dinámico a la status bar
                 SideEffect {
@@ -95,59 +110,68 @@ fun MainScreen() {
 
     val items = listOf(
         //BottomNavItem("Inicio", Icons.Default.Home, "inicio"),
-        BottomNavItem("Eventos", Icons.Filled.DateRange, "eventos"),
-        BottomNavItem("Busqueda", Icons.Default.Search, "buscar"),
-        BottomNavItem("Categorias", Icons.Default.List, "categorias"),
-        BottomNavItem("Usuario", Icons.Default.Person, "usuario"),
+        BottomNavItem("Eventos", Icons.Outlined.Event, "eventos"),
+        BottomNavItem("Busqueda", Icons.Outlined.Search, "buscar"),
+        BottomNavItem("Carrito", Icons.Outlined.ShoppingCart, "carrito"),
+        BottomNavItem("Tickets", Icons.Outlined.QrCode, "tickets"),
     )
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
-                    Box(
+                    Row(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight(),
-                        contentAlignment = Alignment.CenterStart
+                            .fillMaxSize(),
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "SHOWPASS", 
+                            text = "SHOWPASS",
                             fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Black,
+                            fontStyle = FontStyle.Normal,
                             color = Color.White
+                        )
+                        Icon(
+                            imageVector = Icons.Outlined.LocalActivity,
+                            contentDescription = "Icono",
+                            tint = Color.White
                         )
                     }
                 },
                 actions = {
-                    // Si hay usuario logueado, mostramos "Bienvenido <nombre>" a la derecha
-                    authViewModel.currentUser?.nombre?.let { nombre ->
-                        Text(
-                            text = "Bienvenido $nombre",
-                            color = Color.White,
-                            modifier = Modifier.padding(end = 16.dp)
+                    IconButton(
+                        modifier = Modifier.fillMaxHeight(),
+                        onClick = {
+                            navController.navigate("usuario")
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Person,
+                            contentDescription = "Usuario",
+                            tint = Color.White
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = DarkBlue
                 ),
-                modifier = Modifier.height(80.dp)
+                modifier = Modifier.height(90.dp)
 
 
             )
         },
         bottomBar = {
-
             NavigationBar(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(height = 120.dp) // Ajusta la altura si es necesario, 50dp es un poco pequeño
-                    .padding(0.dp),
 
-                ) {
+
+            ) {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
+
                 items.forEach { item ->
                     NavigationBarItem(
                         modifier = (Modifier.height(height = 20.dp)),
@@ -166,7 +190,24 @@ fun MainScreen() {
                     )
                 }
             }
-        }
+        },
+        floatingActionButton = {
+
+            if (authViewModel.currentUser?.rol == Rol.ADMIN) {
+                FloatingActionButton(
+                    onClick = {},
+                    contentColor = Color.White,
+                    shape = FloatingActionButtonDefaults.largeShape,
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.AdminPanelSettings, // puedes cambiarlo por otro
+                        contentDescription = "Panel Admin",
+                    )
+                }
+            }
+
+        },
+        floatingActionButtonPosition = FabPosition.End
     ) { innerPadding ->
 
         NavHost(
@@ -182,22 +223,24 @@ fun MainScreen() {
                 val eventoViewModel: EventoViewModel = viewModel()
                 EventoScreen(viewModel = eventoViewModel, navController = navController)
             }
-
-            composable("buscar") {
-                val busquedaViewModel: BusquedaViewModel = viewModel()
-                BusquedaScreen(viewModel = busquedaViewModel, navController = navController)
-            }
-
-            composable("categorias") {
-                SimpleScreen("Pantalla Categorías")
-            }
-
             composable(
                 "evento_info/{eventoId}",
                 arguments = listOf(navArgument("eventoId") { type = NavType.LongType })
             ) { backStackEntry ->
                 val eventoId = backStackEntry.arguments?.getLong("eventoId") ?: 0L
                 EventoInfo(eventoId = eventoId)
+            }
+
+            composable("buscar") {
+                val busquedaViewModel: BusquedaViewModel = viewModel()
+                BusquedaScreen(viewModel = busquedaViewModel, navController = navController)
+            }
+
+            composable("carrito") {
+                SimpleScreen("Pantalla Carrito")
+            }
+            composable("tickets") {
+                SimpleScreen("Pantalla Tickets")
             }
 
             composable("usuario") {
@@ -207,7 +250,6 @@ fun MainScreen() {
                     onRegisterClick = { navController.navigate("register") }
                 )
             }
-
             composable("login") {
                 LoginScreen(
                     authViewModel = authViewModel,
@@ -217,7 +259,6 @@ fun MainScreen() {
                     onGoToRegister = { navController.navigate("register") }
                 )
             }
-
             composable("register") {
                 RegisterScreen(
                     authViewModel = authViewModel,

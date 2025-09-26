@@ -3,6 +3,7 @@ package com.example.appmovilshowpass.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -44,13 +45,13 @@ fun SearchBarBusqueda(
     var busquedaRealizada by remember { mutableStateOf(false) } // nuevo estado
     val eventos by viewModel.eventos.collectAsState()
 
-    Box(
+    Column(
         modifier =
             Modifier
                 .fillMaxSize()
                 .padding(10.dp)
-    ) {
-        // Barra siempre encima, alineada arriba
+    )
+    {
         DockedSearchBar(
             inputField = {
                 InputField(
@@ -69,9 +70,8 @@ fun SearchBarBusqueda(
             onExpandedChange = { expanded = it },
             modifier = Modifier
                 .fillMaxWidth()
-                .align(Alignment.TopCenter)
-                .padding(top = 5.dp),
-            shape = RoundedCornerShape(10.dp),
+                .padding(top = 0.dp),
+            shape = RoundedCornerShape(5.dp),
             content = {}
         )
 
@@ -79,7 +79,7 @@ fun SearchBarBusqueda(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 72.dp)
+                .padding(top = 5.dp)
         ) {
             item {
                 if (busquedaRealizada && eventos.isEmpty()) {
@@ -87,16 +87,17 @@ fun SearchBarBusqueda(
                         text = "No se han encontrado eventos con ese nombre",
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(20.dp)
+                            .padding(0.dp)
                     )
                 }
             }
             items(eventos, key = { it.id }) { evento ->
-
                 EventoCardHorizontal(evento = evento, modifier = Modifier.clickable {
                     navController.navigate("evento_info/${evento.id}")
                 })
             }
         }
     }
+
+
 }

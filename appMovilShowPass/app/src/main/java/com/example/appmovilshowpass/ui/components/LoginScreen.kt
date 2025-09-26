@@ -57,12 +57,10 @@ fun LoginScreen(
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(Modifier.height(16.dp))
-
         Button(
             onClick = {
                 if (email.isBlank() || password.isBlank()) {
                     Toast.makeText(context, "Completa todos los campos", Toast.LENGTH_SHORT).show()
-                    return@Button
                 }
                 authViewModel.login(email.trim(), password.trim())
             },
@@ -75,6 +73,10 @@ fun LoginScreen(
         ) {
             if (loading) CircularProgressIndicator(modifier = Modifier.size(20.dp)) else Text("Entrar")
         }
+        error?.let {
+            Spacer(Modifier.height(8.dp))
+            Text(it, color = MaterialTheme.colorScheme.error)
+        }
 
         Spacer(Modifier.height(8.dp))
 <<<<<<< HEAD
@@ -85,9 +87,5 @@ fun LoginScreen(
         }
 >>>>>>> origin/marcos
 
-        error?.let {
-            Spacer(Modifier.height(8.dp))
-            Text(it, color = MaterialTheme.colorScheme.error)
-        }
     }
 }

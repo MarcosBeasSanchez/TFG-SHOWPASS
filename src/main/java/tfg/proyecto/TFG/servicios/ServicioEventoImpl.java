@@ -81,7 +81,7 @@ public class ServicioEventoImpl implements IServicioEvento{
 	}
 
 	@Override
-	public List obtenerPorCategoria(Categoria categoria) {
+	public List<DTOeventoBajada> obtenerPorCategoria(Categoria categoria) {
 		// TODO Auto-generated method stub
 		
 	    return  dtoConverter.mapAll((List<Evento>) eventoDAO.findByCategoria(categoria), DTOeventoBajada.class);
@@ -92,6 +92,11 @@ public class ServicioEventoImpl implements IServicioEvento{
 		List<Evento>eventosFiltrados= eventoDAO.findByNombreContainingIgnoreCase(nombre);
 		
 		return dtoConverter.mapAll(eventosFiltrados, DTOeventoBajada.class);
+	}
+
+	@Override
+	public DTOeventoBajada obtnerPorElId(Long id) {
+		return dtoConverter.map(eventoDAO.findById(id),DTOeventoBajada.class);
 	}
 	
 	

@@ -1,14 +1,46 @@
 package com.example.appmovilshowpass.ui.components
 
 import AuthViewModel
+import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.Key
+import androidx.compose.material.icons.outlined.Login
+import androidx.compose.material.icons.outlined.Logout
+import androidx.compose.material.icons.outlined.NoAccounts
+import androidx.compose.material.icons.outlined.PersonAdd
 import androidx.compose.material3.*
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import kotlinx.coroutines.launch
 
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UsuarioScreen(
     authViewModel: AuthViewModel,
@@ -16,32 +48,239 @@ fun UsuarioScreen(
     onRegisterClick: () -> Unit
 ) {
     val user = authViewModel.currentUser
+    val scrollState = rememberScrollState() // para scroll
+    var isRefreshing by remember { mutableStateOf(false) } //Estado de refresco
+    val scope = rememberCoroutineScope() //Corrutina para refresco
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        if (user != null) {
-            Text("Bienvenido, ${user.nombre}", style = MaterialTheme.typography.headlineMedium)
-            Spacer(Modifier.height(12.dp))
-            Text("Email: ${user.email ?: "—"}", style = MaterialTheme.typography.bodyMedium)
-            Spacer(Modifier.height(20.dp))
-            Button(onClick = { authViewModel.logout() }, modifier = Modifier.fillMaxWidth()) {
-                Text("Cerrar sesión")
-            }
-        } else {
-            Text("No has iniciado sesión", style = MaterialTheme.typography.headlineMedium)
-            Spacer(Modifier.height(16.dp))
-            Button(onClick = onLoginClick, modifier = Modifier.fillMaxWidth()) {
-                Text("Iniciar sesión")
-            }
-            Spacer(Modifier.height(8.dp))
-            FilledTonalButton (onClick = onRegisterClick, modifier = Modifier.fillMaxWidth()) {
-                Text("Crear cuenta")
+
+    if (user != null) {
+        // Cuando hay usuario logueado
+        PullToRefreshBox(
+            isRefreshing = isRefreshing,
+            onRefresh = {
+                scope.launch {
+                    isRefreshing = true
+                    authViewModel.login(user.email, user.password ?: "") { success ->
+                        isRefreshing = false
+                    }
+                }
+            },
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState) // habilita scroll
+                    .padding(vertical = 10.dp, horizontal = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                // Avatar
+                if (user.foto.isNotEmpty()) {
+                    AsyncImage(
+                        model = user.foto,
+                        contentDescription = "Avatar",
+                        modifier = Modifier
+                            .size(96.dp)
+                            .padding(4.dp)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Outlined.AccountCircle,
+                        contentDescription = "Avatar",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(96.dp)
+                    )
+                }
+
+
+                Spacer(Modifier.height(12.dp))
+
+                Text(
+                    text = "Bienvenido, ${user.nombre}",
+                    style = MaterialTheme.typography.headlineSmall
+                )
+
+                Spacer(Modifier.height(20.dp))
+
+                // Datos Personales
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Text("Datos Personales", style = MaterialTheme.typography.titleMedium)
+                        HorizontalDivider(
+                            Modifier.padding(vertical = 8.dp),
+                            DividerDefaults.Thickness,
+                            Color.Gray
+                        )
+                        InfoRow("Nombre", user.nombre)
+                        InfoRow("Email", user.email)
+                        InfoRow("Fecha de nacimiento", user.fechaNacimiento.toString())
+                        InfoRow("Rol", user.rol.toString())
+                        InfoRow(
+                            "Contraseña",
+                            if (user.password.isNullOrEmpty()) "—" else user.password
+                        )
+                        InfoRow("Cuenta Activa", if (user.activo) "Sí" else "No")
+                    }
+                }
+
+                Spacer(Modifier.height(16.dp))
+
+                // Datos Tarjeta
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Log.d("UsuarioScreen", "Usuario: ${user}")
+
+                        Text("Tarjeta Bancaria", style = MaterialTheme.typography.titleMedium)
+                        HorizontalDivider(
+                            Modifier.padding(vertical = 8.dp),
+                            DividerDefaults.Thickness,
+                            Color.Gray
+                        )
+                        InfoRow("Titular", user.cuenta?.nombreTitular ?: "—")
+                        InfoRow("Nº Tarjeta", user.cuenta?.nTarjeta ?: "—")
+                        InfoRow("Fecha Caducidad", (user.cuenta?.fechaCaducidad ?: "—").toString())
+                        InfoRow("CVV", user.cuenta?.cvv ?: "—")
+                        InfoRow("Saldo", user.cuenta?.saldo?.toString() ?: "—")
+                    }
+                }
+
+                Spacer(Modifier.height(24.dp))
+
+                // Botones de acción (editar perfil, cerrar sesión)
+                OutlinedButton(
+                    onClick = { /* editar */ },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text("Editar Perfil")
+                    Icon(
+                        imageVector = Icons.Outlined.Edit,
+                        contentDescription = "Editar Perfil",
+                        modifier = Modifier.padding(start = 4.dp)
+                    )
+                }
+                Spacer(Modifier.height(12.dp))
+                Button(
+                    onClick = { authViewModel.logout() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                ) {
+                    Text("Cerrar sesión", color = Color.White)
+                    Icon(
+                        imageVector = Icons.Filled.Logout,
+                        contentDescription = "Logout",
+                        modifier = Modifier.padding(start = 4.dp)
+                    )
+                }
             }
         }
+    } else {
+        // Cuando NO hay usuario logueado
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(24.dp)
+                .background(MaterialTheme.colorScheme.background),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Icono decorativo
+            Icon(
+                imageVector = Icons.Outlined.Key,
+                contentDescription = "Usuario",
+                modifier = Modifier.size(96.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+
+            Text(
+                buildAnnotatedString {
+                    append("Bienvenido a ")
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Black)) {
+                        append("SHOWPASS")
+                    }
+                },
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            Spacer(Modifier.height(12.dp))
+
+            Text(
+                "No has iniciado sesión.\nInicia sesión o crea una cuenta para continuar.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onBackground,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(Modifier.height(32.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Button(
+                    onClick = onLoginClick,
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(50.dp),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text("Iniciar sesión")
+                    Icon(
+                        imageVector = Icons.Outlined.Login,
+                        contentDescription = "Iniciar sesión",
+                        modifier = Modifier.padding(start = 4.dp)
+                    )
+                }
+                FilledTonalButton(
+                    onClick = onRegisterClick,
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(50.dp),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text("Crear cuenta")
+                    Icon(
+                        imageVector = Icons.Outlined.PersonAdd,
+                        contentDescription = "Crear cuenta",
+                        modifier = Modifier.padding(start = 4.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun InfoRow(label: String, value: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(label, style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+        Text(value, style = MaterialTheme.typography.bodyMedium)
     }
 }
