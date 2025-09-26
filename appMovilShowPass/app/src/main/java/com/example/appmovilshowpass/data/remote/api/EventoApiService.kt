@@ -17,9 +17,10 @@ interface EventoApiService {
     suspend fun obtenerTodosEventos(): List<DTOeventoBajada>
 
     @GET("tfg/evento/filterByNombre") // buscar evento por nombre
-    suspend fun obtenerEventoPorNombre(
-        @Query("nombre") nombre: String
-    ): List<DTOeventoBajada>
+    suspend fun obtenerEventoPorNombre(@Query("nombre") nombre: String): List<DTOeventoBajada>
+
+    @GET("tfg/evento/findById") // buscar evento por id
+    suspend fun findById(@Query("id") id: Long): DTOeventoBajada
 
     @POST("/tfg/usuario/login")
     suspend fun login(@Body request: Login): Usuario

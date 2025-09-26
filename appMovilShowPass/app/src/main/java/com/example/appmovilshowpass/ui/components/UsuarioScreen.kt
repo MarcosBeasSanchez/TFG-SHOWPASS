@@ -39,7 +39,7 @@ fun UsuarioScreen(
                 Text("Iniciar sesión")
             }
             Spacer(Modifier.height(8.dp))
-            OutlinedButton(onClick = onRegisterClick, modifier = Modifier.fillMaxWidth()) {
+            FilledTonalButton (onClick = onRegisterClick, modifier = Modifier.fillMaxWidth()) {
                 Text("Crear cuenta")
             }
         }

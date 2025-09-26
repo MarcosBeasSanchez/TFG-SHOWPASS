@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import java.text.SimpleDateFormat
@@ -31,7 +32,15 @@ fun RegisterScreen(
     // detectar registro exitoso -> navegar
     LaunchedEffect(authViewModel.currentUser) {
         authViewModel.currentUser?.let { user ->
+<<<<<<< HEAD
             Toast.makeText(context, "Usuario ${user.nombre} registrado / logueado", Toast.LENGTH_LONG).show()
+=======
+            Toast.makeText(
+                context,
+                "Usuario ${user.nombre} registrado / logueado",
+                Toast.LENGTH_LONG
+            ).show()
+>>>>>>> origin/marcos
             onRegisterSuccess()
         }
     }
@@ -57,11 +66,34 @@ fun RegisterScreen(
         Text("Registro", style = MaterialTheme.typography.headlineMedium)
         Spacer(Modifier.height(16.dp))
 
+<<<<<<< HEAD
         OutlinedTextField(value = nombre, onValueChange = { nombre = it }, label = { Text("Nombre") }, modifier = Modifier.fillMaxWidth())
         Spacer(Modifier.height(8.dp))
         OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text("Correo") }, modifier = Modifier.fillMaxWidth())
         Spacer(Modifier.height(8.dp))
         OutlinedTextField(value = password, onValueChange = { password = it }, label = { Text("Contraseña") }, modifier = Modifier.fillMaxWidth())
+=======
+        OutlinedTextField(
+            value = nombre,
+            onValueChange = { nombre = it },
+            label = { Text("Nombre") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(Modifier.height(8.dp))
+        OutlinedTextField(
+            value = email,
+            onValueChange = { email = it },
+            label = { Text("Correo") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(Modifier.height(8.dp))
+        OutlinedTextField(
+            value = password,
+            onValueChange = { password = it },
+            label = { Text("Contraseña") },
+            modifier = Modifier.fillMaxWidth()
+        )
+>>>>>>> origin/marcos
         Spacer(Modifier.height(8.dp))
         OutlinedTextField(
             value = fechaNacimiento,
@@ -82,7 +114,16 @@ fun RegisterScreen(
                     Toast.makeText(context, "Completa todos los campos", Toast.LENGTH_SHORT).show()
                     return@Button
                 }
+<<<<<<< HEAD
                 authViewModel.register(nombre.trim(), email.trim(), password.trim(), fechaNacimiento)
+=======
+                authViewModel.register(
+                    nombre.trim(),
+                    email.trim(),
+                    password.trim(),
+                    fechaNacimiento
+                )
+>>>>>>> origin/marcos
             },
             modifier = Modifier.fillMaxWidth(),
             enabled = !loading
@@ -91,7 +132,16 @@ fun RegisterScreen(
         }
 
         Spacer(Modifier.height(8.dp))
+<<<<<<< HEAD
         TextButton(onClick = onGoToLogin) { Text("¿Ya tienes cuenta? Inicia sesión") }
+=======
+        TextButton(onClick = onGoToLogin) {
+            Text(
+                "¿Ya tienes cuenta? Inicia sesión",
+                color = Color.Gray
+            )
+        }
+>>>>>>> origin/marcos
 
         error?.let {
             Spacer(Modifier.height(8.dp))

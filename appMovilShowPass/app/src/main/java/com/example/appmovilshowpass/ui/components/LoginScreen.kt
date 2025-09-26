@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -65,6 +66,10 @@ fun LoginScreen(
                 }
                 authViewModel.login(email.trim(), password.trim())
             },
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/marcos
             modifier = Modifier.fillMaxWidth(),
             enabled = !loading
         ) {
@@ -72,7 +77,13 @@ fun LoginScreen(
         }
 
         Spacer(Modifier.height(8.dp))
+<<<<<<< HEAD
         TextButton(onClick = onGoToRegister) { Text("¿No tienes cuenta? Regístrate") }
+=======
+        TextButton(onClick = onGoToRegister) {
+            Text("¿No tienes cuenta? Regístrate", color = Color.Gray)
+        }
+>>>>>>> origin/marcos
 
         error?.let {
             Spacer(Modifier.height(8.dp))
