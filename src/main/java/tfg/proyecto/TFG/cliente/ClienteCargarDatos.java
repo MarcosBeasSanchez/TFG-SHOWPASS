@@ -72,7 +72,6 @@ public class ClienteCargarDatos implements CommandLineRunner {
 					.nombre("usuarioAdmin")
 					.email("admin@mail.com")
 					.password("1234")
-					.foto("https://i.pinimg.com/736x/d9/d8/8e/d9d88e3d1f74e2b8ced3df051cecb81d.jpg")
 					.fechaNacimiento(LocalDate.now().minusYears(25))
 					.rol(Rol.ADMIN)
 					.cuenta(c1)
