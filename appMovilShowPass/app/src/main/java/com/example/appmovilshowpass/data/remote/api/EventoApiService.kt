@@ -32,7 +32,7 @@ interface EventoApiService {
     suspend fun login(@Body request: Login): DTOusuarioLoginBajada
 
     @POST("/tfg/usuario/register")
-    suspend fun register(@Body request: Register): Usuario
+    suspend fun register(@Body request: Register): DTOusuarioBajada
 
 }
 

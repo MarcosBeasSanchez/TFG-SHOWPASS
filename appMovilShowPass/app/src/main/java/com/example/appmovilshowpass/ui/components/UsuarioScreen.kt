@@ -39,6 +39,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,10 +49,12 @@ fun UsuarioScreen(
     onLoginClick: () -> Unit,
     onRegisterClick: () -> Unit
 ) {
-    val user = authViewModel.currentUser
+    val user = authViewModel.currentUser // detecta cambios en currentUser si hay un usuario logueado o no
     val scrollState = rememberScrollState() // para scroll
     var isRefreshing by remember { mutableStateOf(false) } //Estado de refresco
     val scope = rememberCoroutineScope() //Corrutina para refresco
+    val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy") // Formateador para fecha de caducidad
+
 
 
     if (user != null) {
@@ -124,10 +128,7 @@ fun UsuarioScreen(
                         InfoRow("Email", user.email)
                         InfoRow("Fecha de nacimiento", user.fechaNacimiento.toString())
                         InfoRow("Rol", user.rol.toString())
-                        InfoRow(
-                            "Contraseña",
-                            if (user.password.isNullOrEmpty()) "—" else user.password
-                        )
+                        InfoRow("Contraseña", if (user.password.isNullOrEmpty()) "—" else "••••••••")
                         InfoRow("Cuenta Activa", if (user.activo) "Sí" else "No")
                     }
                 }
@@ -152,11 +153,14 @@ fun UsuarioScreen(
                             DividerDefaults.Thickness,
                             Color.Gray
                         )
-                        InfoRow("Titular", user.cuenta?.nombreTitular ?: "—")
-                        InfoRow("Nº Tarjeta", user.cuenta?.nTarjeta ?: "—")
-                        InfoRow("Fecha Caducidad", (user.cuenta?.fechaCaducidad ?: "—").toString())
-                        InfoRow("CVV", user.cuenta?.cvv ?: "—")
-                        InfoRow("Saldo", user.cuenta?.saldo?.toString() ?: "—")
+                        InfoRow("Titular", if (user.cuenta?.nombreTitular.isNullOrEmpty()) "—" else user.cuenta.nombreTitular)
+                        InfoRow("Nº Tarjeta", if(user.cuenta?.nTarjeta.isNullOrEmpty()) "—" else user.cuenta.nTarjeta)
+                        val fechaCaducidadTexto = user.cuenta?.fechaCaducidad?.let { fecha ->
+                            if (fecha.isEqual(LocalDate.now())) "—" else fecha.format(formatter)
+                        } ?: "—"
+                        InfoRow("Fecha Caducidad", fechaCaducidadTexto)
+                        InfoRow("CVV", if(user.cuenta?.cvv.isNullOrEmpty()) "—" else user.cuenta.cvv)
+                        InfoRow("Saldo", user.cuenta?.saldo?.let { String.format("%.2f€", it) } ?: "—") //formato 2 decimales
                     }
                 }
 
@@ -190,7 +194,8 @@ fun UsuarioScreen(
                     Icon(
                         imageVector = Icons.Filled.Logout,
                         contentDescription = "Logout",
-                        modifier = Modifier.padding(start = 4.dp)
+                        modifier = Modifier.padding(start = 4.dp),
+                        tint = Color.White
                     )
                 }
             }

@@ -64,7 +64,6 @@ fun LoginScreen(
                 }
                 authViewModel.login(email.trim(), password.trim())
             },
-
             modifier = Modifier.fillMaxWidth(),
             enabled = !loading
         ) {

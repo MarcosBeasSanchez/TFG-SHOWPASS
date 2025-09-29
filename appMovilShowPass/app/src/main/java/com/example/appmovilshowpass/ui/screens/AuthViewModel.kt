@@ -5,12 +5,14 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.appmovilshowpass.data.remote.api.RetrofitClient
+import com.example.appmovilshowpass.data.remote.dto.DTOusuarioBajada
 import com.example.appmovilshowpass.data.remote.dto.DTOusuarioLoginBajada
 import com.example.appmovilshowpass.data.remote.dto.toUsuario
 import com.example.appmovilshowpass.model.Login
 import com.example.appmovilshowpass.model.Register
 import com.example.appmovilshowpass.model.Usuario
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 class AuthViewModel : ViewModel() {
 
@@ -48,30 +50,26 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    fun register(
-        nombre: String,
-        email: String,
-        password: String,
-        fechaNacimiento: String,
-        onComplete: (Boolean) -> Unit = {}
-    ) {
+    fun register(nombre: String, email: String, password: String, fechaNacimiento: String, onComplete: (Boolean) -> Unit = {}) {
         loading = true
         error = null
         viewModelScope.launch {
             try {
-                val user: Usuario = RetrofitClient.eventoApiService.register(
+                Log.d("Registro", "Registro: $nombre, $email, $password, $fechaNacimiento")
+                val dto: DTOusuarioBajada = RetrofitClient.eventoApiService.register(
                     Register(
                         nombre,
                         email,
                         password,
-                        fechaNacimiento
+                        LocalDate.parse(fechaNacimiento).toString()
                     )
+
                 )
-                // Decide si quieres auto-login tras registrar; aquí lo hago:
-                currentUser = user
+                currentUser = dto.toUsuario() //parseo dto a usuario
                 loading = false
                 onComplete(true)
             } catch (e: Exception) {
+                Log.e("Registro", "Error en register", e)
                 error = e.message ?: "Error de conexión"
                 loading = false
                 onComplete(false)

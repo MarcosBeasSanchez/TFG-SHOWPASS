@@ -1,5 +1,7 @@
 package tfg.proyecto.TFG.servicios;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -147,7 +149,15 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 		usuario.setFoto("https://i.pinimg.com/736x/d9/d8/8e/d9d88e3d1f74e2b8ced3df051cecb81d.jpg"); //foto por defecto
 		usuario.setActivo(true); // activo por defecto
 		usuario.setRol(Rol.CLIENTE); // Cliente por defecto
-		usuario.setTarjeta(new TarjetaBancaria());
+		
+		// Valores por defecto de la tarjeta
+	    TarjetaBancaria tarjeta = new TarjetaBancaria();
+	    tarjeta.setNombreTitular("");
+	    tarjeta.setNTarjeta("");
+	    tarjeta.setFechaCaducidad(LocalDate.now()); //caduca hoy
+	    tarjeta.setCvv("");
+	    tarjeta.setSaldo(BigDecimal.ZERO);
+		usuario.setTarjeta(tarjeta);
 		repoUsuario.save(usuario);
 
 		dtoBajada = dtoConverter.map(usuario, DTOusuarioBajada.class);

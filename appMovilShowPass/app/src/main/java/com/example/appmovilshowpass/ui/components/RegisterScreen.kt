@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import java.text.SimpleDateFormat
+import java.time.LocalDate
 import java.util.*
 
 @Composable
@@ -95,7 +96,11 @@ fun RegisterScreen(
                 }
             }
         )
-        Spacer(Modifier.height(16.dp))
+        error?.let {
+            Spacer(Modifier.height(8.dp))
+            Text(it, color = MaterialTheme.colorScheme.error)
+        }
+        Spacer(Modifier.height(8.dp))
         Button(
             onClick = {
                 if (nombre.isBlank() || email.isBlank() || password.isBlank()) {
@@ -106,7 +111,7 @@ fun RegisterScreen(
                     nombre.trim(),
                     email.trim(),
                     password.trim(),
-                    fechaNacimiento
+                    LocalDate.parse(fechaNacimiento).toString()
                 )
             },
             modifier = Modifier.fillMaxWidth(),
@@ -123,9 +128,6 @@ fun RegisterScreen(
             )
         }
 
-        error?.let {
-            Spacer(Modifier.height(8.dp))
-            Text(it, color = MaterialTheme.colorScheme.error)
-        }
+
     }
 }

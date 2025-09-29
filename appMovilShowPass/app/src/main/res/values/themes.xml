@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.AppMovilShowpass" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.AppMovilShowpass" parent="android:Theme.Material.Light.NoActionBar">
+        <!-- Color de la barra de navegación -->
+        <item name="android:navigationBarColor">@color/navigation_bar_color</item>
+    </style>
 </resources>
+

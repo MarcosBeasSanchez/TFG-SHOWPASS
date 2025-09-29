@@ -3,6 +3,7 @@ package com.example.appmovilshowpass
 import AuthViewModel
 import android.content.pm.ActivityInfo
 import android.os.Bundle
+import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -91,6 +92,7 @@ class MainActivity : ComponentActivity() {
                         }
                     )
                 }
+
                 //  pantalla principal
                 MainScreen()
             }

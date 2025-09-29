@@ -9,4 +9,8 @@
     <color name="white">#FFFFFFFF</color>
     <color name="azul">#162556</color>
     <color name="gris">#1e2939</color>
+    <!-- Para modo oscuro -->
+    <color name="navigation_bar_color">#121212</color> <!-- coincide con DarkColorScheme.background -->
+    <!-- Para modo claro -->
+    <!-- <color name="navigation_bar_color">#FFFBFE</color>  -->
 </resources>
