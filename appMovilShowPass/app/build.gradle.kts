@@ -69,6 +69,8 @@ dependencies {
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.33.2-alpha")
     //Iconos
     implementation("androidx.compose.material:material-icons-extended")
+    implementation(libs.material3)
+    implementation(libs.androidx.compose.foundation.layout)
 
 
 

@@ -14,8 +14,6 @@ import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Key
 import androidx.compose.material.icons.outlined.Login
-import androidx.compose.material.icons.outlined.Logout
-import androidx.compose.material.icons.outlined.NoAccounts
 import androidx.compose.material.icons.outlined.PersonAdd
 import androidx.compose.material3.*
 import androidx.compose.material3.HorizontalDivider
@@ -47,7 +45,8 @@ import java.time.format.DateTimeFormatter
 fun UsuarioScreen(
     authViewModel: AuthViewModel,
     onLoginClick: () -> Unit,
-    onRegisterClick: () -> Unit
+    onRegisterClick: () -> Unit,
+    onEditClick: () -> Unit
 ) {
     val user = authViewModel.currentUser // detecta cambios en currentUser si hay un usuario logueado o no
     val scrollState = rememberScrollState() // para scroll
@@ -168,7 +167,7 @@ fun UsuarioScreen(
 
                 // Botones de acción (editar perfil, cerrar sesión)
                 OutlinedButton(
-                    onClick = { /* editar */ },
+                    onClick = { onEditClick()},
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),

@@ -131,4 +131,14 @@ public class ControlUsuario {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+    
+    @PutMapping("quitarReport")
+    public ResponseEntity<DTOUsuarioReportado> quitarReport(@RequestParam   String email) {
+        DTOUsuarioReportado dto = daoUsuario.quitarReport(email);
+        if (dto != null) {
+        	return new ResponseEntity<>(dto, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 }

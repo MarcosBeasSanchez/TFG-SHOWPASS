@@ -5,6 +5,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.appmovilshowpass.data.remote.api.RetrofitClient
+import com.example.appmovilshowpass.data.remote.dto.DTOtarjetaBancariaBajada
 import com.example.appmovilshowpass.data.remote.dto.DTOusuarioBajada
 import com.example.appmovilshowpass.data.remote.dto.DTOusuarioLoginBajada
 import com.example.appmovilshowpass.data.remote.dto.toUsuario
@@ -80,4 +81,44 @@ class AuthViewModel : ViewModel() {
     fun logout() {
         currentUser = null
     }
+
+
+    fun updateUser(usuario: Usuario, onComplete: (Boolean) -> Unit = {}) {
+        loading = true
+        error = null
+        viewModelScope.launch {
+            try {
+                // Convertimos Usuario -> DTOusuarioUpdate
+                val dto = DTOusuarioBajada(
+                    nombre = usuario.nombre,
+                    email = usuario.email,
+                    fechaNacimiento = usuario.fechaNacimiento.toString(),
+                    foto = usuario.foto,
+                    dtoTarjetaBancariaBajada = usuario.cuenta?.let {
+                        DTOtarjetaBancariaBajada(
+                            nombreTitular = it.nombreTitular,
+                            nTarjeta = it.nTarjeta,
+                            fechaCaducidad = it.fechaCaducidad.toString(),
+                            cvv = it.cvv,
+                            saldo = it.saldo
+                        )
+                    }
+                )
+
+                // Llamamos al endpoint
+                val updatedDto = RetrofitClient.eventoApiService.updateUser(dto, usuario.id)
+
+                // Actualizamos usuario en ViewModel
+                currentUser = updatedDto.toUsuario()
+                loading = false
+                onComplete(true)
+            } catch (e: Exception) {
+                Log.e("UpdateUser", "Error en updateUser", e)
+                error = e.message ?: "Error de conexión"
+                loading = false
+                onComplete(false)
+            }
+        }
+    }
+
 }

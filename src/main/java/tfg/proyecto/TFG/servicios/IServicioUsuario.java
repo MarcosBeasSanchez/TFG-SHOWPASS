@@ -27,5 +27,6 @@ public interface IServicioUsuario {
 	DTOUsuarioReportado findByEmail(String email);
 	List<DTOUsuarioReportado>findAllReportados();
 	DTOUsuarioReportado  reportarUsuario(String email);
+	DTOUsuarioReportado  quitarReport(String email);
 	
 }

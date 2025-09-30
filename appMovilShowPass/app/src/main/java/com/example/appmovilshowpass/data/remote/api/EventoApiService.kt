@@ -5,13 +5,16 @@ import retrofit2.http.GET
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import com.example.appmovilshowpass.data.local.BASE_URL //
+import com.example.appmovilshowpass.data.remote.dto.DTOUsuarioReportado
 import com.example.appmovilshowpass.data.remote.dto.DTOusuarioBajada
 import com.example.appmovilshowpass.data.remote.dto.DTOusuarioLoginBajada
 import com.example.appmovilshowpass.model.Login
 import com.example.appmovilshowpass.model.Register
-import com.example.appmovilshowpass.model.Usuario
+import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -34,6 +37,23 @@ interface EventoApiService {
     @POST("/tfg/usuario/register")
     suspend fun register(@Body request: Register): DTOusuarioBajada
 
+    @POST("/tfg/usuario/update/{id}")
+    suspend fun updateUser(@Body usuario: DTOusuarioBajada, @Path("id") id: Long): DTOusuarioBajada
+
+    @PUT("tfg/usuario/reportar")
+    suspend fun reportUser(@Query("email") email: String): DTOUsuarioReportado
+
+    @GET("tfg/usuario/findByEmail")
+    suspend fun findUserByEmail(@Query("email") email: String): DTOUsuarioReportado
+
+    @GET("tfg/usuario/findAllReportados")
+    suspend fun findAllReportados(): List<DTOUsuarioReportado>
+
+    @DELETE("tfg/evento/delete/{id}")
+    suspend fun deleteEvento(@Path("id") id: Long): Response<Unit>
+
+    @PUT("tfg/usuario/quitarReport")
+    suspend fun removeReport(@Query("email") email: String): DTOUsuarioReportado
 }
 
 

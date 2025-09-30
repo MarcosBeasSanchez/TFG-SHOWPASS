@@ -246,4 +246,21 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 	        return dto;
 	}
 
+	@Override
+	public DTOUsuarioReportado quitarReport(String email) {
+		// TODO Auto-generated method stub
+		Usuario 
+		usuario = repoUsuario.findByEmail(email);
+        if (usuario == null) {
+            return null;
+        }
+
+        usuario.setReportado(false);
+        repoUsuario.save(usuario);
+
+        DTOUsuarioReportado dto = dtoConverter.map(usuario, DTOUsuarioReportado.class);
+        
+        return dto;
+	}
+
 }
