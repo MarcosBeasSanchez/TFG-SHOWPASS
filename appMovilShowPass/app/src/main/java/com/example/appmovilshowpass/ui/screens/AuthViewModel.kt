@@ -8,6 +8,7 @@ import com.example.appmovilshowpass.data.remote.api.RetrofitClient
 import com.example.appmovilshowpass.data.remote.dto.DTOtarjetaBancariaBajada
 import com.example.appmovilshowpass.data.remote.dto.DTOusuarioBajada
 import com.example.appmovilshowpass.data.remote.dto.DTOusuarioLoginBajada
+import com.example.appmovilshowpass.data.remote.dto.DTOusuarioModificarSubida
 import com.example.appmovilshowpass.data.remote.dto.toUsuario
 import com.example.appmovilshowpass.model.Login
 import com.example.appmovilshowpass.model.Register
@@ -89,11 +90,13 @@ class AuthViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 // Convertimos Usuario -> DTOusuarioUpdate
-                val dto = DTOusuarioBajada(
+                val dto = DTOusuarioModificarSubida(
                     nombre = usuario.nombre,
                     email = usuario.email,
+                    password = usuario.password,
                     fechaNacimiento = usuario.fechaNacimiento.toString(),
                     foto = usuario.foto,
+                    rol = usuario.rol,
                     dtoTarjetaBancariaBajada = usuario.cuenta?.let {
                         DTOtarjetaBancariaBajada(
                             nombreTitular = it.nombreTitular,
@@ -102,7 +105,8 @@ class AuthViewModel : ViewModel() {
                             cvv = it.cvv,
                             saldo = it.saldo
                         )
-                    }
+                    },
+                    activo = usuario.activo
                 )
 
                 // Llamamos al endpoint

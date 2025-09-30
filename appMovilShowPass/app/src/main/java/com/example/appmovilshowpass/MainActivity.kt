@@ -10,6 +10,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.*
@@ -122,7 +123,8 @@ fun MainScreen() {
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Black,
                             fontStyle = FontStyle.Normal,
-                            color = Color.White
+                            color = Color.White,
+                            modifier = Modifier.clickable(){ navController.navigate("eventos") }
                         )
                         Icon(
                             imageVector = Icons.Outlined.LocalActivity,
@@ -134,9 +136,7 @@ fun MainScreen() {
                 actions = {
                     IconButton(
                         modifier = Modifier.fillMaxHeight(),
-                        onClick = {
-                            navController.navigate("usuario")
-                        }
+                        onClick = {navController.navigate("usuario")}
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.Person,
@@ -149,8 +149,6 @@ fun MainScreen() {
                     containerColor = DarkBlue
                 ),
                 modifier = Modifier.height(90.dp)
-
-
             )
         },
         bottomBar = {
@@ -198,10 +196,10 @@ fun MainScreen() {
         NavHost(
             navController = navController,
             startDestination = "eventos",
-            enterTransition = { fadeIn(animationSpec = tween(1000)) },
-            exitTransition = { fadeOut(animationSpec = tween(1000)) },
-            popEnterTransition = { fadeIn(animationSpec = tween(1000)) },
-            popExitTransition = { fadeOut(animationSpec = tween(1000)) },
+            enterTransition = { fadeIn(animationSpec = tween(500)) },
+            exitTransition = { fadeOut(animationSpec = tween(500)) },
+            popEnterTransition = { fadeIn(animationSpec = tween(500)) },
+            popExitTransition = { fadeOut(animationSpec = tween(500)) },
             modifier = Modifier.padding(innerPadding)
         ) {
             composable("eventos") {

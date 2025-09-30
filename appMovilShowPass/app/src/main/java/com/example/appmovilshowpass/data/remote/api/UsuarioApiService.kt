@@ -1,6 +1,5 @@
 package com.example.appmovilshowpass.data.remote.api
 
-import com.example.appmovilshowpass.data.remote.dto.DTOeventoBajada
 import retrofit2.http.GET
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -19,18 +18,7 @@ import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
-interface EventoApiService {
-    @GET("tfg/evento/findAll") // buscar todos los eventos
-    suspend fun obtenerTodosEventos(): List<DTOeventoBajada>
-
-    @GET("tfg/evento/filterByNombre") // buscar evento por nombre
-    suspend fun obtenerEventoPorNombre(@Query("nombre") nombre: String): List<DTOeventoBajada>
-
-    @GET("tfg/evento/findById") // buscar evento por id
-    suspend fun findById(@Query("id") id: Long): DTOeventoBajada
-
-    @GET("tfg/evento/findByCategoria/{categoria}")
-    suspend fun findByCategoria(@Path("categoria") categoria: String): List<DTOeventoBajada>
+interface UsuarioApiService {
 
     @POST("/tfg/usuario/login")
     suspend fun login(@Body request: Login): DTOusuarioLoginBajada
@@ -50,11 +38,7 @@ interface EventoApiService {
     @GET("tfg/usuario/findAllReportados")
     suspend fun findAllReportados(): List<DTOUsuarioReportado>
 
-    @DELETE("tfg/evento/delete/{id}")
-    suspend fun deleteEvento(@Path("id") id: Long): Response<Unit>
-
     @PUT("tfg/usuario/quitarReport")
     suspend fun removeReport(@Query("email") email: String): DTOUsuarioReportado
+
 }
-
-

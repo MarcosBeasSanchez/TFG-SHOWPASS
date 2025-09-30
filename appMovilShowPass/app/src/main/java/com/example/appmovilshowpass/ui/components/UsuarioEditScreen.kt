@@ -1,6 +1,8 @@
 package com.example.appmovilshowpass.ui.components
 
 import AuthViewModel
+import android.app.DatePickerDialog
+import android.content.Context
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -8,26 +10,35 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.CreditCard
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -38,6 +49,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -49,8 +61,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import java.math.BigDecimal
+import java.time.LocalDate
+import java.util.Calendar
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,18 +86,24 @@ fun UsuarioEditScreen(
 
     var nombre by remember { mutableStateOf(user.nombre) }
     var email by remember { mutableStateOf(user.email) }
+    var password by remember { mutableStateOf("") } // No mostrar la contraseña actual
     var fechaNacimiento by remember { mutableStateOf(user.fechaNacimiento.toString()) }
+    var rol by remember { mutableStateOf(user.rol) }
 
     var nombreTitular by remember { mutableStateOf(user.cuenta?.nombreTitular ?: "") }
     var nTarjeta by remember { mutableStateOf(user.cuenta?.nTarjeta ?: "") }
     var fechaCaducidad by remember { mutableStateOf(user.cuenta?.fechaCaducidad.toString()) }
     var cvv by remember { mutableStateOf(user.cuenta?.cvv ?: "") }
+    var saldo by remember { mutableStateOf(user.cuenta?.saldo ?: 0.0) }
+
 
     var isSaving by remember { mutableStateOf(false) }
     var updateFailed by remember { mutableStateOf(false) } // Estado para errores
     val snackbarHostState = remember { SnackbarHostState() }
 
     var foto by remember { mutableStateOf(user.foto?: "") }
+    var activo by remember { mutableStateOf(user.activo) }
+    val context = LocalContext.current
 
 
     val launcher = rememberLauncherForActivityResult(
@@ -94,16 +122,6 @@ fun UsuarioEditScreen(
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        topBar = {
-            TopAppBar(
-                title = { Text("Editar Perfil") },
-                navigationIcon = {
-                    IconButton(onClick = onCancel) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
-                    }
-                }
-            )
-        },
         bottomBar = {
             Button(
                 onClick = {
@@ -111,14 +129,19 @@ fun UsuarioEditScreen(
                     val updatedUser = user.copy(
                         nombre = nombre,
                         email = email,
-                        fechaNacimiento = java.time.LocalDate.parse(fechaNacimiento),
+                        password = if (password.isNotBlank()) password else user.password, // vacio si no hay cambio
+                        fechaNacimiento = LocalDate.parse(fechaNacimiento),
                         foto = foto,
                         cuenta = user.cuenta?.copy(
                             nombreTitular = nombreTitular,
                             nTarjeta = nTarjeta,
-                            fechaCaducidad = java.time.LocalDate.parse(fechaCaducidad),
-                            cvv = cvv
-                        )
+                            fechaCaducidad = LocalDate.parse(fechaCaducidad),
+                            cvv = cvv,
+                            saldo = saldo as BigDecimal
+                        ),
+                        rol = rol,
+                        activo = activo,
+
                     )
                     authViewModel.updateUser(updatedUser) { success ->
                         isSaving = false
@@ -142,7 +165,11 @@ fun UsuarioEditScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ){
             // --- FOTO DE PERFIL ---
-            Box(contentAlignment = Alignment.BottomEnd) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                contentAlignment = Alignment.Center) {
                 if (foto != null) {
                     AsyncImage(
                         model = foto,
@@ -168,7 +195,7 @@ fun UsuarioEditScreen(
                 IconButton(
                     onClick = { launcher.launch("image/*") },
                     modifier = Modifier
-                        .offset(x = (-8).dp, y = (-8).dp)
+                        .offset(x = (30).dp, y = (45).dp)
                         .background(MaterialTheme.colorScheme.primary, CircleShape)
                         .size(32.dp)
                 ) {
@@ -202,12 +229,28 @@ fun UsuarioEditScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
                     OutlinedTextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        label = { Text("Contraseña") },
+                        leadingIcon = { Icon(Icons.Default.Password, contentDescription = null) },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        visualTransformation = PasswordVisualTransformation(), // 🔑 Aquí se oculta el texto
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                    )
+                    OutlinedTextField(
                         value = fechaNacimiento,
                         onValueChange = { fechaNacimiento = it },
                         label = { Text("Fecha de nacimiento (YYYY-MM-DD)") },
                         leadingIcon = { Icon(Icons.Default.CalendarToday, contentDescription = null) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        trailingIcon = {
+                            IconButton(onClick = { DatePicker(context,{ fechaNacimiento = it }) }) {
+                                Icon(Icons.Default.DateRange, contentDescription = "Seleccionar fecha")
+                            }
+                        }
                     )
                 }
             }
@@ -230,7 +273,8 @@ fun UsuarioEditScreen(
                     )
                     OutlinedTextField(
                         value = nTarjeta,
-                        onValueChange = { nTarjeta = it },
+                        onValueChange = {if (it.length <= 16) { nTarjeta = it }}, // Máximo 16 dígitos
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         label = { Text("Número de tarjeta") },
                         leadingIcon = { Icon(Icons.Default.CreditCard, contentDescription = null) },
                         singleLine = true,
@@ -240,21 +284,44 @@ fun UsuarioEditScreen(
                         value = fechaCaducidad,
                         onValueChange = { fechaCaducidad = it },
                         label = { Text("Fecha de caducidad (YYYY-MM-DD)") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         leadingIcon = { Icon(Icons.Default.CalendarToday, contentDescription = null) },
                         singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        trailingIcon = {
+                            IconButton(onClick = { DatePicker(context,{ fechaCaducidad = it }) }) {
+                                Icon(Icons.Default.DateRange, contentDescription = "Seleccionar fecha")
+                            }
+                        }
                     )
                     OutlinedTextField(
                         value = cvv,
-                        onValueChange = { cvv = it },
+                        onValueChange = {if (it.length <= 4) { cvv = it }}, // Máximo 4 dígitos
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         label = { Text("CVV") },
                         leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
+
                 }
             }
         }
     }
+
+}
+
+fun DatePicker(context : Context, onDateSelected: (String) -> Unit) {
+    val calendar = Calendar.getInstance()
+    val datePicker = DatePickerDialog(
+        context,
+        { _, y, m, d ->
+            val fecha = String.format("%04d-%02d-%02d", y, m + 1, d)
+            onDateSelected(fecha)
+        },
+        calendar.get(Calendar.YEAR),
+        calendar.get(Calendar.MONTH),
+        calendar.get(Calendar.DAY_OF_MONTH)
+    ).show()
 }
 

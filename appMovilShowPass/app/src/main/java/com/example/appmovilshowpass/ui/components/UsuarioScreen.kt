@@ -154,10 +154,7 @@ fun UsuarioScreen(
                         )
                         InfoRow("Titular", if (user.cuenta?.nombreTitular.isNullOrEmpty()) "—" else user.cuenta.nombreTitular)
                         InfoRow("Nº Tarjeta", if(user.cuenta?.nTarjeta.isNullOrEmpty()) "—" else user.cuenta.nTarjeta)
-                        val fechaCaducidadTexto = user.cuenta?.fechaCaducidad?.let { fecha ->
-                            if (fecha.isEqual(LocalDate.now())) "—" else fecha.format(formatter)
-                        } ?: "—"
-                        InfoRow("Fecha Caducidad", fechaCaducidadTexto)
+                        InfoRow("Fecha Caducidad", if(user.cuenta?.fechaCaducidad == null ) "—" else user.cuenta.fechaCaducidad.format(formatter))
                         InfoRow("CVV", if(user.cuenta?.cvv.isNullOrEmpty()) "—" else user.cuenta.cvv)
                         InfoRow("Saldo", user.cuenta?.saldo?.let { String.format("%.2f€", it) } ?: "—") //formato 2 decimales
                     }
