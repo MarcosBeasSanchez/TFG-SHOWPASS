@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -41,6 +42,7 @@ import com.example.appmovilshowpass.model.BottomNavItem
 import com.example.appmovilshowpass.model.Rol
 import com.example.appmovilshowpass.ui.components.AdminFab
 import com.example.appmovilshowpass.ui.components.BusquedaScreen
+import com.example.appmovilshowpass.ui.components.CarritoScreen
 import com.example.appmovilshowpass.ui.components.EventAdminScreen
 import com.example.appmovilshowpass.ui.components.EventoInfo
 import com.example.appmovilshowpass.ui.components.SimpleScreen
@@ -51,6 +53,7 @@ import com.example.appmovilshowpass.ui.components.UsuarioEditScreen
 import com.example.appmovilshowpass.ui.components.UsuarioScreen
 import com.example.appmovilshowpass.ui.components.UsuariosReportScreen
 import com.example.appmovilshowpass.ui.screens.BusquedaViewModel
+import com.example.appmovilshowpass.ui.screens.CarritoViewModel
 import com.example.appmovilshowpass.ui.screens.EventoViewModel
 import com.example.appmovilshowpass.ui.theme.AppMovilShowpassTheme
 import com.example.appmovilshowpass.ui.theme.DarkBlue
@@ -99,6 +102,13 @@ fun MainScreen() {
 
     // AuthViewModel global para toda la pantalla (una sola instancia)
     val authViewModel: AuthViewModel = viewModel()
+
+    val context = LocalContext.current
+
+    // Cargar la foto guardada en DataStore al iniciar
+    LaunchedEffect(Unit) {
+        authViewModel.loadUserPhoto(context)
+    }
 
     val items = listOf(
         //BottomNavItem("Inicio", Icons.Default.Home, "inicio"),
@@ -211,7 +221,10 @@ fun MainScreen() {
                 arguments = listOf(navArgument("eventoId") { type = NavType.LongType })
             ) { backStackEntry ->
                 val eventoId = backStackEntry.arguments?.getLong("eventoId") ?: 0L
-                EventoInfo(eventoId = eventoId)
+                EventoInfo(
+                    eventoId = eventoId,
+                    authViewModel = authViewModel
+                )
             }
 
             composable("buscar") {
@@ -220,10 +233,23 @@ fun MainScreen() {
             }
 
             composable("carrito") {
-                SimpleScreen("Pantalla Carrito")
+                val carritoViewModel: CarritoViewModel = viewModel()
+
+                // Asegúrate de que el usuario esté logueado
+                val usuarioId = authViewModel.currentUser?.id ?: 0L
+
+                CarritoScreen(
+                    carritoViewModel = carritoViewModel,
+                    usuarioId = usuarioId,
+                    onCompraFinalizada = {
+                        navController.navigate("compra_realizada") {
+                            popUpTo("carrito") { inclusive = true }
+                        }
+                    }
+                )
             }
             composable("tickets") {
-                SimpleScreen("Pantalla Tickets")
+                SimpleScreen("Tickets")
             }
 
             composable("usuario") {
