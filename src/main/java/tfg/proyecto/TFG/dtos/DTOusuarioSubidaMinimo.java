@@ -18,6 +18,7 @@ public class DTOusuarioSubidaMinimo {
 	private String email;
 	private String password;
 	private LocalDate fechaNacimiento;
+	private Rol rol;
 
 
 }

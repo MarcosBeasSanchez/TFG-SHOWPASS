@@ -1,4 +1,4 @@
-package com.example.appmovilshowpass.ui.components
+package com.example.appmovilshowpass.ui.screens
 
 import AuthViewModel
 import android.app.DatePickerDialog
@@ -10,14 +10,10 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,8 +21,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.DateRange
@@ -38,7 +32,6 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -48,8 +41,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -62,13 +53,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -79,7 +66,7 @@ import java.util.Calendar
 @Composable
 fun UsuarioEditScreen(
     authViewModel: AuthViewModel,
-    onSaveSuccess: () ->  Unit,
+    onSaveSuccess: () -> Unit,
     onCancel: () -> Unit
 ) {
     val user = authViewModel.currentUser ?: return
@@ -91,7 +78,7 @@ fun UsuarioEditScreen(
     var rol by remember { mutableStateOf(user.rol) }
 
     var nombreTitular by remember { mutableStateOf(user.cuenta?.nombreTitular ?: "") }
-    var nTarjeta by remember { mutableStateOf(user.cuenta?.nTarjeta ?: "") }
+    var ntarjeta by remember { mutableStateOf(user.cuenta?.ntarjeta ?: "") }
     var fechaCaducidad by remember { mutableStateOf(user.cuenta?.fechaCaducidad.toString()) }
     var cvv by remember { mutableStateOf(user.cuenta?.cvv ?: "") }
     var saldo by remember { mutableStateOf(user.cuenta?.saldo ?: 0.0) }
@@ -101,11 +88,9 @@ fun UsuarioEditScreen(
     var updateFailed by remember { mutableStateOf(false) } // Estado para errores
     val snackbarHostState = remember { SnackbarHostState() }
 
-    var foto by remember { mutableStateOf(user.foto?: "") }
+    var foto by remember { mutableStateOf(user.foto ?: "") }
     var activo by remember { mutableStateOf(user.activo) }
     val context = LocalContext.current
-
-
 
 
     val launcher = rememberLauncherForActivityResult(
@@ -136,7 +121,7 @@ fun UsuarioEditScreen(
                         foto = foto,
                         cuenta = user.cuenta?.copy(
                             nombreTitular = nombreTitular,
-                            nTarjeta = nTarjeta,
+                            ntarjeta = ntarjeta,
                             fechaCaducidad = LocalDate.parse(fechaCaducidad),
                             cvv = cvv,
                             saldo = saldo as BigDecimal
@@ -144,7 +129,7 @@ fun UsuarioEditScreen(
                         rol = rol,
                         activo = activo,
 
-                    )
+                        )
                     authViewModel.updateUser(context, updatedUser) { success ->
                         isSaving = false
                         if (success) {
@@ -169,13 +154,14 @@ fun UsuarioEditScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
-        ){
+        ) {
             // --- FOTO DE PERFIL ---
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp),
-                contentAlignment = Alignment.Center) {
+                contentAlignment = Alignment.Center
+            ) {
                 if (foto != null) {
                     AsyncImage(
                         model = foto,
@@ -205,7 +191,11 @@ fun UsuarioEditScreen(
                         .background(MaterialTheme.colorScheme.primary, CircleShape)
                         .size(32.dp)
                 ) {
-                    Icon(Icons.Default.Edit, contentDescription = "Cambiar foto", tint = Color.White)
+                    Icon(
+                        Icons.Default.Edit,
+                        contentDescription = "Cambiar foto",
+                        tint = Color.White
+                    )
                 }
             }
 
@@ -215,9 +205,14 @@ fun UsuarioEditScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface)
+
             ) {
-                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
                     OutlinedTextField(
                         value = nombre,
                         onValueChange = { nombre = it },
@@ -248,13 +243,25 @@ fun UsuarioEditScreen(
                         value = fechaNacimiento,
                         onValueChange = { fechaNacimiento = it },
                         label = { Text("Fecha de nacimiento (YYYY-MM-DD)") },
-                        leadingIcon = { Icon(Icons.Default.CalendarToday, contentDescription = null) },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Default.CalendarToday,
+                                contentDescription = null
+                            )
+                        },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                         trailingIcon = {
-                            IconButton(onClick = { DatePicker(context,{ fechaNacimiento = it }) }) {
-                                Icon(Icons.Default.DateRange, contentDescription = "Seleccionar fecha")
+                            IconButton(onClick = {
+                                DatePicker(
+                                    context,
+                                    { fechaNacimiento = it })
+                            }) {
+                                Icon(
+                                    Icons.Default.DateRange,
+                                    contentDescription = "Seleccionar fecha"
+                                )
                             }
                         }
                     )
@@ -266,9 +273,13 @@ fun UsuarioEditScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface)
             ) {
-                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
                     OutlinedTextField(
                         value = nombreTitular,
                         onValueChange = { nombreTitular = it },
@@ -278,8 +289,12 @@ fun UsuarioEditScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
                     OutlinedTextField(
-                        value = nTarjeta,
-                        onValueChange = {if (it.length <= 16) { nTarjeta = it }}, // Máximo 16 dígitos
+                        value = ntarjeta,
+                        onValueChange = {
+                            if (it.length <= 16) {
+                                ntarjeta = it
+                            }
+                        }, // Máximo 16 dígitos
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         label = { Text("Número de tarjeta") },
                         leadingIcon = { Icon(Icons.Default.CreditCard, contentDescription = null) },
@@ -291,18 +306,30 @@ fun UsuarioEditScreen(
                         onValueChange = { fechaCaducidad = it },
                         label = { Text("Fecha de caducidad (YYYY-MM-DD)") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        leadingIcon = { Icon(Icons.Default.CalendarToday, contentDescription = null) },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Default.CalendarToday,
+                                contentDescription = null
+                            )
+                        },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                         trailingIcon = {
-                            IconButton(onClick = { DatePicker(context,{ fechaCaducidad = it }) }) {
-                                Icon(Icons.Default.DateRange, contentDescription = "Seleccionar fecha")
+                            IconButton(onClick = { DatePicker(context, { fechaCaducidad = it }) }) {
+                                Icon(
+                                    Icons.Default.DateRange,
+                                    contentDescription = "Seleccionar fecha"
+                                )
                             }
                         }
                     )
                     OutlinedTextField(
                         value = cvv,
-                        onValueChange = {if (it.length <= 4) { cvv = it }}, // Máximo 4 dígitos
+                        onValueChange = {
+                            if (it.length <= 4) {
+                                cvv = it
+                            }
+                        }, // Máximo 4 dígitos
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         label = { Text("CVV") },
                         leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
@@ -317,7 +344,7 @@ fun UsuarioEditScreen(
 
 }
 
-fun DatePicker(context : Context, onDateSelected: (String) -> Unit) {
+fun DatePicker(context: Context, onDateSelected: (String) -> Unit) {
     val calendar = Calendar.getInstance()
     val datePicker = DatePickerDialog(
         context,

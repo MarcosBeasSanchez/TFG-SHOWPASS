@@ -1,3 +1,4 @@
+import { set } from "@cloudinary/url-gen/actions/variable";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 
@@ -7,6 +8,7 @@ export default function VentanaPrincipal() {
   const [busqueda, setBusqueda] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
 
   const mostrarBuscador = !["/login", "/register"].includes(location.pathname);
 
@@ -39,19 +41,23 @@ export default function VentanaPrincipal() {
         const res = await fetch("http://localhost:8080/tfg/evento/findAll");
         const data = await res.json();
         setEntradas(data);
-
         // Mezclar los eventos aleatoriamente solo una vez
         setEntradasAleatorias([...data].sort(() => Math.random() - 0.5));
       } catch (err) {
         console.error("Error cargando eventos:", err);
+      } finally { 
+        setLoading(false);
       }
     };
-
     fetchEventos();
   }, []);
 
   const primerEvento = entradasAleatorias[0];
   const restoEventos = entradasAleatorias.slice(1);
+
+  if (loading) {
+    return <p className="text-center mt-10 text-gray-500">Cargando eventos...</p>;
+  }
 
   return (
     <div>
@@ -76,7 +82,6 @@ export default function VentanaPrincipal() {
           </div>
         </div>
       )}
-
       {primerEvento && (
         <div className="grid place-items-center p-5 sm:p-10">
           <h1 className="text-2xl font-bold mb-4 text-gray-600 oscuroTextoGris">PRÓXIMOS EVENTOS</h1>

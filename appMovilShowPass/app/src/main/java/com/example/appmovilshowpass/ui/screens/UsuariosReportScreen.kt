@@ -1,4 +1,4 @@
-package com.example.appmovilshowpass.ui.components
+package com.example.appmovilshowpass.ui.screens
 
 import AuthViewModel
 import androidx.compose.foundation.layout.Column

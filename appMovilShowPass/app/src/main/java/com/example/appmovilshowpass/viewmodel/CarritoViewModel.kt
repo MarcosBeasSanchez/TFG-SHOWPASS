@@ -1,13 +1,13 @@
-package com.example.appmovilshowpass.ui.screens
+package com.example.appmovilshowpass.viewmodel
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.appmovilshowpass.data.local.generarTicketPdf
 import com.example.appmovilshowpass.data.remote.api.RetrofitClient
 import com.example.appmovilshowpass.data.remote.dto.toCarrito
 import com.example.appmovilshowpass.model.Carrito
 import com.example.appmovilshowpass.model.Evento
+import com.example.appmovilshowpass.utils.generarTicketPdf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch

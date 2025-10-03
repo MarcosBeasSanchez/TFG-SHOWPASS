@@ -22,7 +22,7 @@ fun DTOtarjetaBancariaBajada.toTarjetaBancaria(): TarjetaBancaria {
         fechaCaducidad = if (this.fechaCaducidad.isNotBlank()) LocalDate.parse(this.fechaCaducidad) else LocalDate.now(),
         cvv = this.cvv ?: "",
         saldo = this.saldo ?: BigDecimal.ZERO,
-        nTarjeta = this.nTarjeta ?: ""
+        ntarjeta = this.nTarjeta ?: ""
     )
 
 }

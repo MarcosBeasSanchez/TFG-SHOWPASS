@@ -1,4 +1,4 @@
-package com.example.appmovilshowpass.ui.components
+package com.example.appmovilshowpass.ui.screens
 
 import AuthViewModel
 import android.util.Log
@@ -38,7 +38,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,15 +55,15 @@ fun UsuarioScreen(
     val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy") // Formateador para fecha de caducidad
     val context = LocalContext.current
 
-
+    // Cuando hay usuario logueado
     if (user != null) {
-        // Cuando hay usuario logueado
+
         PullToRefreshBox(
             isRefreshing = isRefreshing,
             onRefresh = {
                 scope.launch {
                     isRefreshing = true
-                    authViewModel.login( context,user.email, user.password ?: "") { success ->
+                    authViewModel.login(context, user.email, user.password ?: "") { success ->
                         isRefreshing = false
                     }
                 }
@@ -112,7 +111,7 @@ fun UsuarioScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        containerColor = MaterialTheme.colorScheme.surface
                     )
                 ) {
                     Column(
@@ -128,7 +127,10 @@ fun UsuarioScreen(
                         InfoRow("Email", user.email)
                         InfoRow("Fecha de nacimiento", user.fechaNacimiento.toString())
                         InfoRow("Rol", user.rol.toString())
-                        InfoRow("Contraseña", if (user.password.isNullOrEmpty()) "—" else "••••••••")
+                        InfoRow(
+                            "Contraseña",
+                            if (user.password.isNullOrEmpty()) "—" else "••••••••"
+                        )
                         InfoRow("Cuenta Activa", if (user.activo) "Sí" else "No")
                     }
                 }
@@ -139,7 +141,7 @@ fun UsuarioScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        containerColor = MaterialTheme.colorScheme.surface
                     )
                 ) {
                     Column(
@@ -153,11 +155,28 @@ fun UsuarioScreen(
                             DividerDefaults.Thickness,
                             Color.Gray
                         )
-                        InfoRow("Titular", if (user.cuenta?.nombreTitular.isNullOrEmpty()) "—" else user.cuenta.nombreTitular)
-                        InfoRow("Nº Tarjeta", if(user.cuenta?.nTarjeta.isNullOrEmpty()) "—" else user.cuenta.nTarjeta)
-                        InfoRow("Fecha Caducidad", if(user.cuenta?.fechaCaducidad == null ) "—" else user.cuenta.fechaCaducidad.format(formatter))
-                        InfoRow("CVV", if(user.cuenta?.cvv.isNullOrEmpty()) "—" else user.cuenta.cvv)
-                        InfoRow("Saldo", user.cuenta?.saldo?.let { String.format("%.2f€", it) } ?: "—") //formato 2 decimales
+                        InfoRow(
+                            "Titular",
+                            if (user.cuenta?.nombreTitular.isNullOrEmpty()) "—" else user.cuenta.nombreTitular
+                        )
+                        InfoRow(
+                            "Nº Tarjeta",
+                            if (user.cuenta?.ntarjeta.isNullOrEmpty()) "—" else user.cuenta.ntarjeta
+                        )
+                        InfoRow(
+                            "Fecha Caducidad",
+                            if (user.cuenta?.fechaCaducidad == null) "—" else user.cuenta.fechaCaducidad.format(
+                                formatter
+                            )
+                        )
+                        InfoRow(
+                            "CVV",
+                            if (user.cuenta?.cvv.isNullOrEmpty()) "—" else user.cuenta.cvv
+                        )
+                        InfoRow(
+                            "Saldo",
+                            user.cuenta?.saldo?.let { String.format("%.2f€", it) }
+                                ?: "—") //formato 2 decimales
                     }
                 }
 
@@ -165,7 +184,7 @@ fun UsuarioScreen(
 
                 // Botones de acción (editar perfil, cerrar sesión)
                 OutlinedButton(
-                    onClick = { onEditClick()},
+                    onClick = { onEditClick() },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),

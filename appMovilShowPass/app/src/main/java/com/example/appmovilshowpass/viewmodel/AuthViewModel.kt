@@ -9,7 +9,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.appmovilshowpass.data.local.UserPreferencesKeys
 import com.example.appmovilshowpass.data.local.dataStore
 import com.example.appmovilshowpass.data.remote.api.RetrofitClient
-import com.example.appmovilshowpass.data.remote.dto.DTOtarjetaBancariaBajada
 import com.example.appmovilshowpass.data.remote.dto.DTOusuarioBajada
 import com.example.appmovilshowpass.data.remote.dto.DTOusuarioLoginBajada
 import com.example.appmovilshowpass.data.remote.dto.DTOusuarioModificarSubida
@@ -35,12 +34,18 @@ class AuthViewModel : ViewModel() {
     var error by mutableStateOf<String?>(null)
         private set
 
-    fun login(context: Context,email: String, password: String, onComplete: (Boolean) -> Unit = {}) {
+    fun login(
+        context: Context,
+        email: String,
+        password: String,
+        onComplete: (Boolean) -> Unit = {}
+    ) {
         loading = true
         error = null
         viewModelScope.launch {
             try {
-                val dto: DTOusuarioLoginBajada = RetrofitClient.eventoApiService.login(Login(email, password))
+                val dto: DTOusuarioLoginBajada =
+                    RetrofitClient.eventoApiService.login(Login(email, password))
                 if (!dto.exito) {
                     Log.d("Login", "Error de login: ${dto.mensaje}")
                     throw Exception(dto.mensaje)
@@ -78,20 +83,27 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    fun register(nombre: String, email: String, password: String, fechaNacimiento: String, onComplete: (Boolean) -> Unit = {}) {
+    fun register(
+        nombre: String,
+        email: String,
+        password: String,
+        fechaNacimiento: String,
+        rol: String,
+        onComplete: (Boolean) -> Unit = {}
+    ) {
         loading = true
         error = null
         viewModelScope.launch {
             try {
-                Log.d("Registro", "Registro: $nombre, $email, $password, $fechaNacimiento")
+                Log.d("Registro", "Registro: $nombre, $email, $password, $fechaNacimiento, $rol")
                 val dto: DTOusuarioBajada = RetrofitClient.eventoApiService.register(
                     Register(
                         nombre,
                         email,
                         password,
-                        LocalDate.parse(fechaNacimiento).toString()
+                        LocalDate.parse(fechaNacimiento).toString(),
+                        rol
                     )
-
                 )
                 currentUser = dto.toUsuario() //parseo dto a usuario
                 loading = false
@@ -110,7 +122,7 @@ class AuthViewModel : ViewModel() {
     }
 
 
-    fun updateUser( context: Context, usuario: Usuario, onComplete: (Boolean) -> Unit = {}) {
+    fun updateUser(context: Context, usuario: Usuario, onComplete: (Boolean) -> Unit = {}) {
         loading = true
         error = null
         viewModelScope.launch {

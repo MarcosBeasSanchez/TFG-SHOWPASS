@@ -35,11 +35,11 @@ export default function CategoriaEventos() {
   }, [nombre]);
 
   if (loading) {
-    return <p className="text-center mt-10">Cargando eventos...</p>;
+    return <p className="text-center mt-10 text-gray-500">Cargando eventos...</p>;
   }
 
   if (eventos.length === 0) {
-    return <p className="text-center mt-10">No hay eventos en la categoría <strong>{nombre}</strong>.</p>;
+    return <p className="text-center mt-10 text-gray-500">No hay eventos en la categoría <strong>{nombre}</strong>.</p>;
   }
 
   return (

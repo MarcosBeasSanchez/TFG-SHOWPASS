@@ -5,11 +5,12 @@ export default function AuthForm({ type, onSubmit }) {
   const [password, setPassword] = useState("");
   const [nombre, setName] = useState("");
   const [fechaNacimiento, setBirthDate] = useState("");
+  const [rol, setRol] = useState(); // valor por defecto
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (type === "register") {
-      onSubmit({ nombre, email, password, fechaNacimiento });
+      onSubmit({ nombre, email, password, fechaNacimiento, rol });
     } else {
       onSubmit({ email, password });
     }
@@ -63,16 +64,30 @@ export default function AuthForm({ type, onSubmit }) {
         />
         {/* Fecha de nacimiento */}
         {type === "register" && (
-          <input
-            type="date"
+          <> 
+            {/* Fecha de nacimiento */}
+            <input
+              type="date"
+              value={fechaNacimiento}
+              onChange={(e) => setBirthDate(e.target.value)}
+              className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 placeholder-gray-400 text-gray-500"
+              required
+            />
 
-            value={fechaNacimiento}
-            onChange={(e) => setBirthDate(e.target.value)}
-            className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 placeholder-gray-400 text-gray-500"
-            required
-          />
-
+            {/* Rol */}
+            <select
+              value={rol}
+              onChange={(e) => setRol(e.target.value)}
+              required
+              className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 placeholder-gray-400 text-gray-500"
+            >
+              <option value="CLIENTE">CLIENTE</option>
+              <option value="VENDEDOR">VENDEDOR</option>
+            </select>
+          </>
         )}
+
+
 
         <button
           type="submit"

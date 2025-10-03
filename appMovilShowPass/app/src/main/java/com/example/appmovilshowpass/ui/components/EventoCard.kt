@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.appmovilshowpass.model.Evento
+import com.example.appmovilshowpass.utils.formatearFecha
 
 @Composable
 fun EventoCard(evento: Evento, navController: NavController) {
@@ -42,65 +43,69 @@ fun EventoCard(evento: Evento, navController: NavController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 5.dp)
+            .padding(vertical = 12.dp)
             .clickable {
                 navController.navigate("evento_info/${evento.id}")
             },
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        shape = RoundedCornerShape(5.dp)
+        shape = RoundedCornerShape(5.dp),
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface)
 
     )
     {
-        Column(modifier = Modifier.padding(vertical = 16.dp, horizontal = 12.dp)) {
-            Text(evento.nombre, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-            Text(evento.localizacion, fontSize = 16.sp)
-            Spacer(modifier = Modifier.height(8.dp))
+        Column(modifier = Modifier.padding(vertical = 0.dp, horizontal = 0.dp)) {
             if (evento.imagen.isNotEmpty()) {
                 Image(
                     painter = rememberAsyncImagePainter(evento.imagen),
                     contentDescription = evento.nombre,
                     modifier = Modifier
+                        .padding(0.dp)
                         .fillMaxSize()
                         .height(200.dp)
-                        .clip(RoundedCornerShape(5.dp)),
+                        .clip(RoundedCornerShape(0.dp)),
                     contentScale = ContentScale.Crop
                 )
             }
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                evento.descripcion,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Light,
-                maxLines = 12,
-                letterSpacing = 0.25.sp,
-                lineHeight = 20.sp,
-                overflow = TextOverflow.Ellipsis
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(),
-                contentAlignment = Alignment.CenterEnd
-            ) {
+            Column(modifier = Modifier.padding(vertical = 16.dp, horizontal = 12.dp)) {
+                Text(evento.nombre, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text(evento.localizacion, fontSize = 16.sp)
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "PVP: ${evento.precio}€",
-                    style = TextStyle(
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Normal,
-                        color = Color.White
-                    ),
-                    modifier = Modifier
-                        .background(
-                            color = MaterialTheme.colorScheme.primaryContainer,
-                            shape = RoundedCornerShape(5.dp)
-                        )
-                        .padding(horizontal = 8.dp, vertical = 8.dp)
-
+                    "Inicio Evento: " + formatearFecha(evento.inicioEvento),
+                    fontSize = 14.sp
                 )
-            }
+                Text(
+                    "Final Evento: " + formatearFecha(evento.finEvento),
+                    fontSize = 14.sp
+                )
+                Text(
+                    "Invitados: " + evento.invitados.joinToString(", ") { it.nombre },
+                    fontSize = 14.sp
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(),
+                    contentAlignment = Alignment.CenterEnd
+                ) {
+                    Text(
+                        text = "PVP: ${evento.precio}€",
+                        style = TextStyle(
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Normal,
+                            color = Color.White
+                        ),
+                        modifier = Modifier
+                            .background(
+                                color = MaterialTheme.colorScheme.primaryContainer,
+                                shape = RoundedCornerShape(5.dp)
+                            )
+                            .padding(horizontal = 8.dp, vertical = 8.dp)
 
+                    )
+                }
+            }
         }
     }
 }

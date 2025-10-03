@@ -1,4 +1,4 @@
-package com.example.appmovilshowpass.ui.components
+package com.example.appmovilshowpass.ui.screens
 
 import AuthViewModel
 import android.app.DatePickerDialog
@@ -12,10 +12,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.util.*
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(
     authViewModel: AuthViewModel,
@@ -30,17 +30,9 @@ fun RegisterScreen(
     val loading = authViewModel.loading
     val error = authViewModel.error
 
-    // detectar registro exitoso -> navegar
-    LaunchedEffect(authViewModel.currentUser) {
-        authViewModel.currentUser?.let { user ->
-            Toast.makeText(
-                context,
-                "Usuario ${user.nombre} registrado / logueado",
-                Toast.LENGTH_LONG
-            ).show()
-            onRegisterSuccess()
-        }
-    }
+    val roles = listOf("CLIENTE", "VENDEDOR")
+    var expanded by remember { mutableStateOf(false) }
+    var rolSeleccionado by remember { mutableStateOf("CLIENTE") } // valor por defecto
 
     // date picker
     val calendar = Calendar.getInstance()
@@ -70,6 +62,7 @@ fun RegisterScreen(
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(Modifier.height(8.dp))
+
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
@@ -77,6 +70,7 @@ fun RegisterScreen(
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(Modifier.height(8.dp))
+
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
@@ -84,6 +78,7 @@ fun RegisterScreen(
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(Modifier.height(8.dp))
+
         OutlinedTextField(
             value = fechaNacimiento,
             onValueChange = {},
@@ -96,14 +91,52 @@ fun RegisterScreen(
                 }
             }
         )
+        Spacer(Modifier.height(8.dp))
+
+        // 👉 Selector de rol con ExposedDropdownMenuBox
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = !expanded }
+        ) {
+            OutlinedTextField(
+                value = rolSeleccionado,
+                onValueChange = {},
+                readOnly = true,
+                label = { Text("Rol") },
+                trailingIcon = {
+                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                },
+                modifier = Modifier
+                    .menuAnchor() // NECESARIO
+                    .fillMaxWidth()
+            )
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                roles.forEach { rol ->
+                    DropdownMenuItem(
+                        text = { Text(rol) },
+                        onClick = {
+                            rolSeleccionado = rol
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
+
+        Spacer(Modifier.height(16.dp))
+
         error?.let {
-            Spacer(Modifier.height(8.dp))
             Text(it, color = MaterialTheme.colorScheme.error)
         }
+
         Spacer(Modifier.height(8.dp))
+
         Button(
             onClick = {
-                if (nombre.isBlank() || email.isBlank() || password.isBlank()) {
+                if (nombre.isBlank() || email.isBlank() || password.isBlank() || fechaNacimiento.isBlank()) {
                     Toast.makeText(context, "Completa todos los campos", Toast.LENGTH_SHORT).show()
                     return@Button
                 }
@@ -111,23 +144,43 @@ fun RegisterScreen(
                     nombre.trim(),
                     email.trim(),
                     password.trim(),
-                    LocalDate.parse(fechaNacimiento).toString()
-                )
+                    LocalDate.parse(fechaNacimiento).toString(),
+                    rolSeleccionado
+                ) { registroExitoso ->
+
+                    if (registroExitoso) {
+                        authViewModel.login(
+                            context, email.trim(), password.trim()
+                        ) { loginExitoso ->
+                            if (loginExitoso) {
+                                onRegisterSuccess() // navegar a la app solo si login fue exitoso
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    "Error al iniciar sesión",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                    } else {
+                        Toast.makeText(context, "Error al registrar", Toast.LENGTH_SHORT).show()
+                    }
+                }
             },
             modifier = Modifier.fillMaxWidth(),
             enabled = !loading
         ) {
-            if (loading) CircularProgressIndicator(modifier = Modifier.size(20.dp)) else Text("Registrarse")
+            if (loading) {
+                CircularProgressIndicator(modifier = Modifier.size(20.dp))
+            } else {
+                Text("Registrarse")
+            }
         }
 
         Spacer(Modifier.height(8.dp))
+
         TextButton(onClick = onGoToLogin) {
-            Text(
-                "¿Ya tienes cuenta? Inicia sesión",
-                color = Color.Gray
-            )
+            Text("¿Ya tienes cuenta? Inicia sesión", color = Color.Gray)
         }
-
-
     }
 }

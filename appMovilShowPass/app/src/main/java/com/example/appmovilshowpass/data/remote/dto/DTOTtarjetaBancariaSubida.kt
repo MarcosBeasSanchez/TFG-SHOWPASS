@@ -8,7 +8,7 @@ data class DTOtarjetaBancariaSubida(
     val fechaCaducidad: String = "",
     val cvv: String = "",
     val saldo: BigDecimal = BigDecimal.ZERO,
-    val nTarjeta: String = ""
+    val ntarjeta: String = ""
 )
 
 
@@ -18,6 +18,6 @@ fun TarjetaBancaria.toDTOsubida(): DTOtarjetaBancariaSubida {
         fechaCaducidad = this.fechaCaducidad.toString(), // "YYYY-MM-DD"
         cvv = this.cvv,
         saldo = this.saldo,
-        nTarjeta = this.nTarjeta
+        ntarjeta = this.ntarjeta
     )
 }

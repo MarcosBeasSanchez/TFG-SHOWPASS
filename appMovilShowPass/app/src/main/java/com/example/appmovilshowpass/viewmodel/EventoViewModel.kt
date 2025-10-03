@@ -1,11 +1,10 @@
-package com.example.appmovilshowpass.ui.screens
+package com.example.appmovilshowpass.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.appmovilshowpass.data.remote.api.RetrofitClient
 import com.example.appmovilshowpass.data.remote.dto.toEvento
-import com.example.appmovilshowpass.model.Categoria
 import com.example.appmovilshowpass.model.Evento
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow

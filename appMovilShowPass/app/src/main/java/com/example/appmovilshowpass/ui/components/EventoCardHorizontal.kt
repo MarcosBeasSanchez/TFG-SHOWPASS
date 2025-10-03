@@ -43,6 +43,7 @@ fun EventoCardHorizontal(evento: Evento, modifier: Modifier = Modifier) {
             .padding(vertical = 5.dp),
         shape = RoundedCornerShape(5.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface)
     ) {
         Text(
             evento.nombre,
@@ -51,7 +52,6 @@ fun EventoCardHorizontal(evento: Evento, modifier: Modifier = Modifier) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(12.dp)
-
         )
 
         Row(

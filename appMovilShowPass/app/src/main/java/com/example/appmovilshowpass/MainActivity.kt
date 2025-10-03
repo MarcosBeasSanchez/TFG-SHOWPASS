@@ -41,20 +41,20 @@ import androidx.navigation.navArgument
 import com.example.appmovilshowpass.model.BottomNavItem
 import com.example.appmovilshowpass.model.Rol
 import com.example.appmovilshowpass.ui.components.AdminFab
-import com.example.appmovilshowpass.ui.components.BusquedaScreen
-import com.example.appmovilshowpass.ui.components.CarritoScreen
-import com.example.appmovilshowpass.ui.components.EventAdminScreen
-import com.example.appmovilshowpass.ui.components.EventoInfo
-import com.example.appmovilshowpass.ui.components.SimpleScreen
-import com.example.appmovilshowpass.ui.components.EventoScreen
-import com.example.appmovilshowpass.ui.components.LoginScreen
-import com.example.appmovilshowpass.ui.components.RegisterScreen
-import com.example.appmovilshowpass.ui.components.UsuarioEditScreen
-import com.example.appmovilshowpass.ui.components.UsuarioScreen
-import com.example.appmovilshowpass.ui.components.UsuariosReportScreen
-import com.example.appmovilshowpass.ui.screens.BusquedaViewModel
-import com.example.appmovilshowpass.ui.screens.CarritoViewModel
-import com.example.appmovilshowpass.ui.screens.EventoViewModel
+import com.example.appmovilshowpass.ui.screens.BusquedaScreen
+import com.example.appmovilshowpass.ui.screens.CarritoScreen
+import com.example.appmovilshowpass.ui.screens.EventAdminScreen
+import com.example.appmovilshowpass.ui.screens.EventoInfo
+import com.example.appmovilshowpass.ui.screens.SimpleScreen
+import com.example.appmovilshowpass.ui.screens.EventoScreen
+import com.example.appmovilshowpass.ui.screens.LoginScreen
+import com.example.appmovilshowpass.ui.screens.RegisterScreen
+import com.example.appmovilshowpass.ui.screens.UsuarioEditScreen
+import com.example.appmovilshowpass.ui.screens.UsuarioScreen
+import com.example.appmovilshowpass.ui.screens.UsuariosReportScreen
+import com.example.appmovilshowpass.viewmodel.BusquedaViewModel
+import com.example.appmovilshowpass.viewmodel.CarritoViewModel
+import com.example.appmovilshowpass.viewmodel.EventoViewModel
 import com.example.appmovilshowpass.ui.theme.AppMovilShowpassTheme
 import com.example.appmovilshowpass.ui.theme.DarkBlue
 
@@ -134,7 +134,7 @@ fun MainScreen() {
                             fontWeight = FontWeight.Black,
                             fontStyle = FontStyle.Normal,
                             color = Color.White,
-                            modifier = Modifier.clickable(){ navController.navigate("eventos") }
+                            modifier = Modifier.clickable() { navController.navigate("eventos") }
                         )
                         Icon(
                             imageVector = Icons.Outlined.LocalActivity,
@@ -146,7 +146,7 @@ fun MainScreen() {
                 actions = {
                     IconButton(
                         modifier = Modifier.fillMaxHeight(),
-                        onClick = {navController.navigate("usuario")}
+                        onClick = { navController.navigate("usuario") }
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.Person,
@@ -164,9 +164,9 @@ fun MainScreen() {
         bottomBar = {
             NavigationBar(
                 modifier = Modifier
-                    .fillMaxWidth()
-
-
+                    .fillMaxWidth(),
+                containerColor = MaterialTheme.colorScheme.surface, // o primaryContainer
+                contentColor = MaterialTheme.colorScheme.onSurface  // color del icono/texto
             ) {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
@@ -290,7 +290,7 @@ fun MainScreen() {
                 )
             }
             composable("admin_usuarios") {
-                UsuariosReportScreen (
+                UsuariosReportScreen(
                     authViewModel = authViewModel,
                     onBack = { navController.popBackStack() }
                 )

@@ -148,7 +148,7 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 		usuario.setPassword(passwordEncoder.encode(usuario.getPassword())); // hashear contraseña
 		usuario.setFoto("https://i.pinimg.com/736x/d9/d8/8e/d9d88e3d1f74e2b8ced3df051cecb81d.jpg"); //foto por defecto
 		usuario.setActivo(true); // activo por defecto
-		usuario.setRol(Rol.CLIENTE); // Cliente por defecto
+		usuario.setRol(usuario.getRol());
 		
 		// Valores por defecto de la tarjeta
 	    TarjetaBancaria tarjeta = new TarjetaBancaria();

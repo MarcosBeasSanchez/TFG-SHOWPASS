@@ -1,7 +1,8 @@
-package com.example.appmovilshowpass.ui.components
+package com.example.appmovilshowpass.ui.screens
 
 import AuthViewModel
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -26,14 +27,17 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.appmovilshowpass.data.remote.api.RetrofitClient
 import com.example.appmovilshowpass.data.remote.dto.toEvento
 import com.example.appmovilshowpass.model.Evento
-import com.example.appmovilshowpass.ui.screens.CarritoViewModel
+import com.example.appmovilshowpass.ui.components.BotonesComprarTicket
 import com.example.appmovilshowpass.utils.formatearFecha
+import com.example.appmovilshowpass.viewmodel.CarritoViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EventoInfo(eventoId: Long,  authViewModel: AuthViewModel,
-               carritoViewModel: CarritoViewModel = viewModel()) {
+fun EventoInfo(
+    eventoId: Long, authViewModel: AuthViewModel,
+    carritoViewModel: CarritoViewModel = viewModel()
+) {
     val context = LocalContext.current
     var evento by remember { mutableStateOf<Evento?>(null) }
     val scrollState = rememberScrollState()
@@ -62,8 +66,8 @@ fun EventoInfo(eventoId: Long,  authViewModel: AuthViewModel,
         evento?.let { e ->
             Column(
                 modifier = Modifier
-                    .padding(padding)
-                    .verticalScroll(scrollState)
+                    .padding(0.dp, 0.dp, 0.dp, 0.dp)
+                    .verticalScroll(scrollState).background(MaterialTheme.colorScheme.surface)
             ) {
                 if (e.imagen.isNotEmpty()) {
                     Image(
@@ -164,7 +168,9 @@ fun EventoInfo(eventoId: Long,  authViewModel: AuthViewModel,
                                     modifier = Modifier
                                         .width(170.dp)
                                         .height(220.dp)
-                                        .padding(4.dp)
+                                        .padding(4.dp),
+                                    colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceVariant)
+
                                 ) {
                                     Column(
                                         modifier = Modifier
@@ -190,7 +196,9 @@ fun EventoInfo(eventoId: Long,  authViewModel: AuthViewModel,
                                             text = "${invitado.nombre} ${invitado.apellidos}",
                                             fontSize = 14.sp,
                                             fontWeight = FontWeight.Bold,
-                                            textAlign = TextAlign.Center
+                                            textAlign = TextAlign.Center,
+                                            maxLines = 2,
+                                            lineHeight = 14.sp,
                                         )
 
                                         Spacer(modifier = Modifier.height(6.dp))
@@ -230,6 +238,7 @@ fun EventoInfo(eventoId: Long,  authViewModel: AuthViewModel,
                                 }
                             }
                         )
+                        Spacer(modifier = Modifier.height(60.dp))
                     } else {
                         //  Usuario NO logueado → mostramos aviso
                         Button(
