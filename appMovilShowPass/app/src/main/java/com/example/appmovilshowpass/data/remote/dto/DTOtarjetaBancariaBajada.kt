@@ -18,11 +18,11 @@ data class DTOtarjetaBancariaBajada(
 fun DTOtarjetaBancariaBajada.toTarjetaBancaria(): TarjetaBancaria {
     return TarjetaBancaria(
         id = this.id,
-        nombreTitular = this.nombreTitular,
-        fechaCaducidad = LocalDate.parse(this.fechaCaducidad),
-        cvv = this.cvv,
-        saldo = this.saldo,
-        nTarjeta = this.nTarjeta
+        nombreTitular = this.nombreTitular ?: "",
+        fechaCaducidad = if (this.fechaCaducidad.isNotBlank()) LocalDate.parse(this.fechaCaducidad) else LocalDate.now(),
+        cvv = this.cvv ?: "",
+        saldo = this.saldo ?: BigDecimal.ZERO,
+        nTarjeta = this.nTarjeta ?: ""
     )
 
 }

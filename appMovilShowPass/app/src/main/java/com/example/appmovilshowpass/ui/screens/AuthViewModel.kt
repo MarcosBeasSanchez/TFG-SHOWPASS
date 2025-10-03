@@ -1,18 +1,25 @@
+import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.appmovilshowpass.data.local.UserPreferencesKeys
+import com.example.appmovilshowpass.data.local.dataStore
 import com.example.appmovilshowpass.data.remote.api.RetrofitClient
 import com.example.appmovilshowpass.data.remote.dto.DTOtarjetaBancariaBajada
 import com.example.appmovilshowpass.data.remote.dto.DTOusuarioBajada
 import com.example.appmovilshowpass.data.remote.dto.DTOusuarioLoginBajada
 import com.example.appmovilshowpass.data.remote.dto.DTOusuarioModificarSubida
+import com.example.appmovilshowpass.data.remote.dto.toDTOsubida
 import com.example.appmovilshowpass.data.remote.dto.toUsuario
 import com.example.appmovilshowpass.model.Login
 import com.example.appmovilshowpass.model.Register
 import com.example.appmovilshowpass.model.Usuario
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -28,7 +35,7 @@ class AuthViewModel : ViewModel() {
     var error by mutableStateOf<String?>(null)
         private set
 
-    fun login(email: String, password: String, onComplete: (Boolean) -> Unit = {}) {
+    fun login(context: Context,email: String, password: String, onComplete: (Boolean) -> Unit = {}) {
         loading = true
         error = null
         viewModelScope.launch {
@@ -40,7 +47,26 @@ class AuthViewModel : ViewModel() {
                 } else {
                     Log.d("Login", "Login: ${dto.mensaje}")
                     Log.d("Usuario", "Usuario: ${dto.dtousuarioBajada}")
-                    currentUser = dto.dtousuarioBajada?.toUsuario();
+
+                    var user = dto.dtousuarioBajada?.toUsuario()
+
+                    // 🔹 Recuperamos la foto guardada si el backend no envió nada
+                    val fotoGuardada = context.dataStore.data
+                        .map { prefs -> prefs[UserPreferencesKeys.USER_PHOTO] }
+                        .firstOrNull()
+
+                    if (user != null) {
+                        if (user.foto.isEmpty() && !fotoGuardada.isNullOrEmpty()) {
+                            user = user.copy(foto = fotoGuardada)
+                        }
+
+                        // Guardamos la foto (si existe) en DataStore
+                        if (user.foto.isNotEmpty()) {
+                            saveUserPhoto(context, user.foto)
+                        }
+                    }
+
+                    currentUser = user
                     loading = false
                     onComplete(true)
                 }
@@ -84,7 +110,7 @@ class AuthViewModel : ViewModel() {
     }
 
 
-    fun updateUser(usuario: Usuario, onComplete: (Boolean) -> Unit = {}) {
+    fun updateUser( context: Context, usuario: Usuario, onComplete: (Boolean) -> Unit = {}) {
         loading = true
         error = null
         viewModelScope.launch {
@@ -97,15 +123,7 @@ class AuthViewModel : ViewModel() {
                     fechaNacimiento = usuario.fechaNacimiento.toString(),
                     foto = usuario.foto,
                     rol = usuario.rol,
-                    dtoTarjetaBancariaBajada = usuario.cuenta?.let {
-                        DTOtarjetaBancariaBajada(
-                            nombreTitular = it.nombreTitular,
-                            nTarjeta = it.nTarjeta,
-                            fechaCaducidad = it.fechaCaducidad.toString(),
-                            cvv = it.cvv,
-                            saldo = it.saldo
-                        )
-                    },
+                    cuenta = usuario.cuenta?.toDTOsubida(),
                     activo = usuario.activo
                 )
 
@@ -114,6 +132,12 @@ class AuthViewModel : ViewModel() {
 
                 // Actualizamos usuario en ViewModel
                 currentUser = updatedDto.toUsuario()
+
+                // Guardamos la foto en DataStore
+                currentUser?.foto?.let { foto ->
+                    saveUserPhoto(context, foto)
+                }
+
                 loading = false
                 onComplete(true)
             } catch (e: Exception) {
@@ -124,5 +148,26 @@ class AuthViewModel : ViewModel() {
             }
         }
     }
+
+    fun saveUserPhoto(context: Context, fotoUrl: String) {
+        viewModelScope.launch {
+            context.dataStore.edit { prefs ->
+                prefs[UserPreferencesKeys.USER_PHOTO] = fotoUrl
+            }
+        }
+    }
+
+    fun loadUserPhoto(context: Context) {
+        viewModelScope.launch {
+            val fotoUrl = context.dataStore.data
+                .map { prefs -> prefs[UserPreferencesKeys.USER_PHOTO] }
+                .firstOrNull()
+
+            if (!fotoUrl.isNullOrEmpty()) {
+                currentUser = currentUser?.copy(foto = fotoUrl)
+            }
+        }
+    }
+
 
 }

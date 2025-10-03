@@ -1,19 +1,15 @@
 package tfg.proyecto.TFG.servicios;
 
-import java.time.LocalDateTime;
 import java.util.Iterator;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import tfg.proyecto.TFG.config.DtoConverter;
 import tfg.proyecto.TFG.dtos.DTOCarritoBajada;
-import tfg.proyecto.TFG.dtos.DTOCarritoSubida;
 import tfg.proyecto.TFG.dtos.DTOticketSubida;
 import tfg.proyecto.TFG.modelo.Carrito;
 import tfg.proyecto.TFG.modelo.Evento;
-import tfg.proyecto.TFG.modelo.Ticket;
 import tfg.proyecto.TFG.modelo.Usuario;
 import tfg.proyecto.TFG.repositorio.RepositorioCarrito;
 import tfg.proyecto.TFG.repositorio.RepositorioEvento;

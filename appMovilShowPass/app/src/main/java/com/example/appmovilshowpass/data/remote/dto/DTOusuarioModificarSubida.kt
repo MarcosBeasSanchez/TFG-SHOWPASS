@@ -14,22 +14,8 @@ data class DTOusuarioModificarSubida (
     val foto: String = "",
     val rol: Rol,
     @SerializedName("cuenta") // El campo en el JSON es "cuenta"
-    val dtoTarjetaBancariaBajada: DTOtarjetaBancariaBajada? = null,
+    val cuenta: DTOtarjetaBancariaSubida? = null,
     val activo: Boolean = true,
     val reportado: Boolean = false
 )
 
-fun DTOusuarioModificarSubida.toUsuario(): Usuario {
-    return Usuario(
-        id = this.id,
-        nombre = this.nombre,
-        email = this.email,
-        password = this.password,
-        fechaNacimiento = LocalDate.parse(this.fechaNacimiento),
-        foto = this.foto?:"",
-        rol = this.rol,
-        cuenta = this.dtoTarjetaBancariaBajada?.toTarjetaBancaria(),
-        activo = this.activo,
-        reportado = this.reportado
-    )
-}

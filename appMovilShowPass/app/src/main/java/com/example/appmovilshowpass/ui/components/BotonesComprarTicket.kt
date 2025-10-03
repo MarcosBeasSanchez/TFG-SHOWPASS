@@ -1,7 +1,5 @@
 package com.example.appmovilshowpass.ui.components
 
-import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.CircleShape
@@ -13,14 +11,20 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.appmovilshowpass.ui.screens.CarritoViewModel
 
 @Composable
-fun BotonesComprarTicket() {
+fun BotonesComprarTicket(
+    usuarioId: Long,
+    eventoId: Long,
+    carritoViewModel: CarritoViewModel,
+    onAdded: (Int) -> Unit // 👈 callback que recibe la cantidad añadida
+) {
     val context = LocalContext.current
     var cantidad by remember { mutableStateOf(1) }
 
@@ -31,6 +35,7 @@ fun BotonesComprarTicket() {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        // Botón restar
         IconButton(
             onClick = { if (cantidad > 1) cantidad-- },
             modifier = Modifier
@@ -40,16 +45,16 @@ fun BotonesComprarTicket() {
             Icon(imageVector = Icons.Default.Remove, contentDescription = "Restar")
         }
 
+        // Botón agregar al carrito
         FilledTonalButton(
             onClick = {
-                Toast.makeText(
-                    context,
-                    "Agregaste $cantidad tickets al carrito",
-                    Toast.LENGTH_SHORT
-                ).show()
+                repeat(cantidad) {
+                    carritoViewModel.agregarEvento(usuarioId, eventoId)
+                }
+                onAdded(cantidad) // 👈 se ejecuta el callback con la cantidad añadida
             },
             modifier = Modifier
-                .weight(1f) // ocupa to-do el espacio restante
+                .weight(1f)
                 .height(48.dp)
         ) {
             Text(
@@ -60,6 +65,7 @@ fun BotonesComprarTicket() {
             )
         }
 
+        // Botón sumar
         IconButton(
             onClick = { cantidad++ },
             modifier = Modifier
@@ -69,5 +75,4 @@ fun BotonesComprarTicket() {
             Icon(imageVector = Icons.Default.Add, contentDescription = "Sumar")
         }
     }
-
 }

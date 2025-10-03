@@ -25,6 +25,7 @@ fun LoginScreen(
     val loading = authViewModel.loading
     val error = authViewModel.error
 
+
     // Si currentUser cambia a no-null, navegamos de vuelta (side-effect)
     LaunchedEffect(authViewModel.currentUser) {
         authViewModel.currentUser?.let { user ->
@@ -62,7 +63,7 @@ fun LoginScreen(
                 if (email.isBlank() || password.isBlank()) {
                     Toast.makeText(context, "Completa todos los campos", Toast.LENGTH_SHORT).show()
                 }
-                authViewModel.login(email.trim(), password.trim())
+                authViewModel.login(context, email.trim(), password.trim())
             },
             modifier = Modifier.fillMaxWidth(),
             enabled = !loading

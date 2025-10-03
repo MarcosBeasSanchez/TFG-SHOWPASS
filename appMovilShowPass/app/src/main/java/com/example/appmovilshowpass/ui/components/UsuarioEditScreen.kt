@@ -106,6 +106,8 @@ fun UsuarioEditScreen(
     val context = LocalContext.current
 
 
+
+
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
@@ -143,9 +145,13 @@ fun UsuarioEditScreen(
                         activo = activo,
 
                     )
-                    authViewModel.updateUser(updatedUser) { success ->
+                    authViewModel.updateUser(context, updatedUser) { success ->
                         isSaving = false
-                        if (success) onSaveSuccess() else updateFailed = true
+                        if (success) {
+                            onSaveSuccess()
+                        } else {
+                            updateFailed = true
+                        }
                     }
                 },
                 enabled = !isSaving,
