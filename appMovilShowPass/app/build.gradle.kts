@@ -72,6 +72,7 @@ dependencies {
     implementation(libs.material3)
     implementation(libs.androidx.compose.foundation.layout)
     implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.compose.runtime.saveable)
 
 
 

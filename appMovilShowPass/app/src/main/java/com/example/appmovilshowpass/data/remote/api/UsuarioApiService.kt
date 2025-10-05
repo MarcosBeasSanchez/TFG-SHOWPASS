@@ -41,4 +41,7 @@ interface UsuarioApiService {
     @PUT("tfg/usuario/quitarReport")
     suspend fun removeReport(@Query("email") email: String): DTOUsuarioReportado
 
+    @DELETE("tfg/usuario/delete/{id}")
+    suspend fun deleteUser(@Path("id") id: Long): Int
+
 }

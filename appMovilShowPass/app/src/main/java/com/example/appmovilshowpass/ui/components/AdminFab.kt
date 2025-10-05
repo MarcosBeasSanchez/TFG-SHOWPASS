@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AdminPanelSettings
+import androidx.compose.material.icons.filled.DeleteSweep
+import androidx.compose.material.icons.filled.Report
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
@@ -26,7 +28,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun AdminFab(
     onUsersClick: () -> Unit,
-    onEventsClick: () -> Unit
+    onEventsClick: () -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -42,14 +44,26 @@ fun AdminFab(
             // Menú desplegable
             DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                 DropdownMenuItem(
-                    text = { Text("👥 Usuarios reportados") },
+                    text = { Text("Usuarios reportados") },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Report,
+                            contentDescription = null
+                        )
+                    },
                     onClick = {
                         expanded = false
                         onUsersClick()
                     }
                 )
                 DropdownMenuItem(
-                    text = { Text("📅 Eliminar eventos") },
+                    text = { Text("Eliminar eventos") },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.DeleteSweep,
+                            contentDescription = null
+                        )
+                    },
                     onClick = {
                         expanded = false
                         onEventsClick()
