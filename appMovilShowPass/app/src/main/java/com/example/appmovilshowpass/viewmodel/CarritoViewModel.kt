@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.appmovilshowpass.data.remote.api.RetrofitClient
+import com.example.appmovilshowpass.data.remote.dto.DTOTicketSubida
 import com.example.appmovilshowpass.data.remote.dto.toCarrito
 import com.example.appmovilshowpass.model.Carrito
 import com.example.appmovilshowpass.model.Evento
@@ -11,6 +12,8 @@ import com.example.appmovilshowpass.utils.generarTicketPdf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+
+
 
 class CarritoViewModel : ViewModel() {
 
@@ -68,51 +71,39 @@ class CarritoViewModel : ViewModel() {
     fun finalizarCompra(usuarioId: Long, onSuccess: () -> Unit) {
         viewModelScope.launch {
             try {
-                // ✅ Guardamos los eventos ANTES de vaciar el carrito
-                _eventosComprados.value = _carrito.value?.eventos ?: emptyList()
+                val eventos = _carrito.value?.eventos ?: emptyList()
+                _eventosComprados.value = eventos
 
+                // Llamamos al endpoint para finalizar el carrito
                 RetrofitClient.carritoApiService.finalizarCompra(usuarioId)
 
-                // Limpieza del carrito
+                //  Por cada evento, generamos su ticket
+                for (evento in eventos) {
+                    try {
+                        val dtoTicket = DTOTicketSubida(
+                            usuarioId = usuarioId,
+                            eventoId = evento.id,
+                            precio = evento.precio
+                        )
+                        RetrofitClient.ticketApiService.insertarTicket(dtoTicket)
+                        Log.d("CarritoVM", "🎟 Ticket generado para ${evento.nombre}")
+                    } catch (t: Throwable) {
+                        Log.e("CarritoVM", "❌ Error generando ticket: ${t.message}")
+                    }
+                }
+
+                // 3️⃣ Limpiamos carrito
                 _carrito.value = null
                 _total.value = 0.0
 
                 onSuccess()
+
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
 
-    fun generarYGuardarPdf(context: Context, eventos: List<Evento>) {
-        viewModelScope.launch {
-            try {
-                eventos.forEachIndexed { _, evento ->
-                    val pdfBase64 = generarTicketPdf(context, evento.nombre, "TICKET-${evento.id}")
-                    Log.d("CarritoViewModel", "PDF generado para ${evento.nombre}: $pdfBase64")
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
 
-    fun enviarTicketsPorEmail(context: Context, eventos: List<Evento>) {
-        viewModelScope.launch {
-            try {
-                eventos.forEach { evento ->
-                    val pdfBase64 = generarTicketPdf(context, evento.nombre, "TICKET-${evento.id}")
-                    val payload = mapOf(
-                        "email" to "usuario@correo.com", // ← cámbialo al email real del AuthViewModel
-                        "ticketId" to "TICKET-${evento.id}",
-                        "eventoNombre" to evento.nombre,
-                        "pdfBase64" to pdfBase64
-                    )
-                    RetrofitClient.carritoApiService.enviarPdfEmail(payload)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
+
 }

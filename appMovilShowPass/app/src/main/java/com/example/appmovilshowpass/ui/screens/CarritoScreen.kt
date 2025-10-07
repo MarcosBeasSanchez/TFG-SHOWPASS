@@ -121,6 +121,7 @@ fun CarritoScreen(
                             carritoViewModel.finalizarCompra(
                                 usuarioId,
                                 onCompraFinalizada
+
                             )
                         },
                         modifier = Modifier.fillMaxWidth(),

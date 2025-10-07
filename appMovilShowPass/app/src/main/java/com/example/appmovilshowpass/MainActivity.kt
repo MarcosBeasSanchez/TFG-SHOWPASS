@@ -49,6 +49,7 @@ import com.example.appmovilshowpass.ui.screens.SimpleScreen
 import com.example.appmovilshowpass.ui.screens.EventoScreen
 import com.example.appmovilshowpass.ui.screens.LoginScreen
 import com.example.appmovilshowpass.ui.screens.RegisterScreen
+import com.example.appmovilshowpass.ui.screens.TicketsScreen
 import com.example.appmovilshowpass.ui.screens.UsuarioEditScreen
 import com.example.appmovilshowpass.ui.screens.UsuarioScreen
 import com.example.appmovilshowpass.ui.screens.UsuariosReportScreen
@@ -57,6 +58,7 @@ import com.example.appmovilshowpass.viewmodel.CarritoViewModel
 import com.example.appmovilshowpass.viewmodel.EventoViewModel
 import com.example.appmovilshowpass.ui.theme.AppMovilShowpassTheme
 import com.example.appmovilshowpass.ui.theme.DarkBlue
+import com.example.appmovilshowpass.viewmodel.TicketViewModel
 
 
 class MainActivity : ComponentActivity() {
@@ -249,7 +251,13 @@ fun MainScreen() {
                 )
             }
             composable("tickets") {
-                SimpleScreen("Tickets")
+                val ticketViewModel: TicketViewModel = viewModel()
+
+                TicketsScreen(
+                    authViewModel = authViewModel,
+                    ticketViewModel = ticketViewModel,
+                    onBack = { navController.popBackStack() }
+                )
             }
 
             composable("usuario") {

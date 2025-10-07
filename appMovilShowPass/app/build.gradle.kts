@@ -91,5 +91,13 @@ dependencies {
     // Gson
     implementation("com.google.code.gson:gson:2.10.1")
 
+    // --- Para generar el PDF ---
+    implementation("com.itextpdf:itextg:5.5.10")
+    // versión compatible con Android
+    // --- Para generar el código QR ---
+    implementation("com.google.zxing:core:3.5.3")
+    implementation("com.google.zxing:android-core:3.3.0")
+
+
 
 }
