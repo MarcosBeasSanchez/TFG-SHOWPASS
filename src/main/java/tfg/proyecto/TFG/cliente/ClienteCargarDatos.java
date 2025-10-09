@@ -81,6 +81,7 @@ public class ClienteCargarDatos implements CommandLineRunner {
 					.nombre("usuarioVendedor")
 					.email("vendedor@mail.com")
 					.password("1234")
+					.fechaNacimiento(LocalDate.now().minusYears(20))				
 					.rol(Rol.VENDEDOR)
 					.cuenta(c1)
 					.activo(true)

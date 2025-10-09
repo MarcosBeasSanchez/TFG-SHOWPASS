@@ -30,6 +30,10 @@ fun formatearFecha(fecha: String, formato: String = "dd/MM/yyyy HH:mm"): String 
     }
 }
 
+fun formatearPrecio(precio: Double): String {
+    return String.format("%.2f", precio)
+}
+
 /**
  * Genera un PDF simple con la info de un ticket y lo devuelve como Base64 para enviar al backend.
  */

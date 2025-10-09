@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.example.appmovilshowpass.model.Evento
+import com.example.appmovilshowpass.utils.formatearPrecio
 
 @Composable
 fun EventoCardHorizontal(evento: Evento, modifier: Modifier = Modifier) {
@@ -103,7 +104,7 @@ fun EventoCardHorizontal(evento: Evento, modifier: Modifier = Modifier) {
             contentAlignment = Alignment.BottomEnd
         ) {
             Text(
-                text = "${evento.precio}€",
+                text = "${formatearPrecio(evento.precio)} €",
                 style = TextStyle(
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Normal,

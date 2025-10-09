@@ -46,7 +46,7 @@ fun BotonesComprarTicket(
         }
 
         // Botón agregar al carrito
-        FilledTonalButton(
+        OutlinedButton(
             onClick = {
                 repeat(cantidad) {
                     carritoViewModel.agregarEvento(usuarioId, eventoId)

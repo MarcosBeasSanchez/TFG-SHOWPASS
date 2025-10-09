@@ -41,6 +41,7 @@ import androidx.navigation.navArgument
 import com.example.appmovilshowpass.model.BottomNavItem
 import com.example.appmovilshowpass.model.Rol
 import com.example.appmovilshowpass.ui.components.AdminFab
+import com.example.appmovilshowpass.ui.components.VendedorFab
 import com.example.appmovilshowpass.ui.screens.BusquedaScreen
 import com.example.appmovilshowpass.ui.screens.CarritoScreen
 import com.example.appmovilshowpass.ui.screens.EventAdminScreen
@@ -201,6 +202,13 @@ fun MainScreen() {
                 )
             }
 
+            if (authViewModel.currentUser?.rol == Rol.VENDEDOR) {
+                VendedorFab(
+                    onCreateClick = { navController.navigate("vendedor_crear") },
+                    onEditClick = { navController.navigate("vendedor_editar") }
+                )
+            }
+
         },
         floatingActionButtonPosition = FabPosition.End
     ) { innerPadding ->
@@ -241,6 +249,7 @@ fun MainScreen() {
                 val usuarioId = authViewModel.currentUser?.id ?: 0L
 
                 CarritoScreen(
+                    navController=navController,
                     carritoViewModel = carritoViewModel,
                     usuarioId = usuarioId,
                     onCompraFinalizada = {
@@ -306,6 +315,16 @@ fun MainScreen() {
             composable("admin_eventos") {
                 EventAdminScreen(
                     onBack = { navController.popBackStack() }
+                )
+            }
+            composable("vendedor_crear") {
+                SimpleScreen(
+                    title = "Crear Evento",
+                )
+            }
+            composable("vendedor_editar") {
+                SimpleScreen(
+                    title = "Editar Mis Eventos",
                 )
             }
 

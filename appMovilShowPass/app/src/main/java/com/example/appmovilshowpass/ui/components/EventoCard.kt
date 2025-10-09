@@ -35,6 +35,7 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.appmovilshowpass.model.Evento
 import com.example.appmovilshowpass.utils.formatearFecha
+import com.example.appmovilshowpass.utils.formatearPrecio
 
 @Composable
 fun EventoCard(evento: Evento, navController: NavController) {
@@ -90,7 +91,7 @@ fun EventoCard(evento: Evento, navController: NavController) {
                     contentAlignment = Alignment.CenterEnd
                 ) {
                     Text(
-                        text = "PVP: ${evento.precio}€",
+                        text = "${formatearPrecio(evento.precio)}€",
                         style = TextStyle(
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Normal,

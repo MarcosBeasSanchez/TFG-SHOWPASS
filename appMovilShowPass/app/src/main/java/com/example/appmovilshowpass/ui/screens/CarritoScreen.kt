@@ -1,28 +1,57 @@
 package com.example.appmovilshowpass.ui.screens
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.*
+import androidx.compose.material.icons.filled.RemoveShoppingCart
+import androidx.compose.material.icons.filled.ShoppingCartCheckout
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.appmovilshowpass.utils.formatearPrecio
 import com.example.appmovilshowpass.viewmodel.CarritoViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CarritoScreen(
+    navController: NavController,
     carritoViewModel: CarritoViewModel,
     usuarioId: Long,
     onCompraFinalizada: () -> Unit
@@ -35,18 +64,109 @@ fun CarritoScreen(
         carritoViewModel.cargarCarrito(usuarioId)
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("🛒 Tu Carrito", fontWeight = FontWeight.Bold) }
-            )
-        }
-    ) { padding ->
-        Column(
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+
+        Row(
             modifier = Modifier
-                .padding(top = 100.dp)
-                .fillMaxSize()
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically // centra verticalmente los hijos
         ) {
+            Icon(
+                imageVector = Icons.Default.ShoppingCartCheckout,
+                contentDescription = "Carrito",
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .size(32.dp)
+                    .padding(end = 8.dp) // separa del texto
+            )
+            Text(
+                text = "Carrito de Compra",
+                fontWeight = FontWeight.Bold,
+                fontSize = 24.sp
+            )
+
+        }
+        if (carrito?.eventos.isNullOrEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Card(
+                    modifier = Modifier
+                        .size(400.dp)
+                        .padding(8.dp),
+                    shape = RoundedCornerShape(15.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(24.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.RemoveShoppingCart,
+                            contentDescription = "Carrito vacío",
+                            tint = Color.Gray,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        // Título principal
+                        Text(
+                            text = "Tu carrito está vacío",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp,
+                            style = MaterialTheme.typography.titleLarge,
+                            textAlign = TextAlign.Center,
+                            color = Color.Gray
+                        )
+
+                        //  Mensaje complementario
+                        Text(
+                            text = "¡Añade eventos para empezar tu compra!",
+                            style = MaterialTheme.typography.titleSmall,
+                            textAlign = TextAlign.Center,
+                            color = Color.Gray,
+                        )
+
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        coil.compose.AsyncImage(
+                            model = "https://i.giphy.com/giXLnhxp60zEEIkq8K.webp",
+                            contentDescription = "Carrito vacío animado",
+                            modifier = Modifier
+                                .size(200.dp)
+                                .padding(bottom = 16.dp)
+                        )
+
+                        //  Botón elegante
+                        OutlinedButton(
+                            onClick = { navController.navigate("eventos") },
+                            shape = RoundedCornerShape(16.dp),
+                            modifier = Modifier
+                                .height(48.dp)
+                                .width(180.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = MaterialTheme.colorScheme.primary
+                            )
+                        ) {
+                            Text("Ir a eventos")
+                        }
+                    }
+                }
+            }
+
+    } else {
             // 👉 Lista scrollable de eventos
             LazyColumn(
                 modifier = Modifier.weight(1f),
@@ -57,7 +177,8 @@ fun CarritoScreen(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         elevation = CardDefaults.cardElevation(4.dp),
-                        shape = RoundedCornerShape(5.dp)
+                        shape = RoundedCornerShape(5.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -79,7 +200,7 @@ fun CarritoScreen(
                                     style = MaterialTheme.typography.titleMedium
                                 )
                                 Text(
-                                    text = "${evento.precio} €",
+                                    text = "${formatearPrecio(evento.precio)} €",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.primary
                                 )
@@ -97,7 +218,6 @@ fun CarritoScreen(
                     }
                 }
             }
-
             // 👉 Footer fijo con total y botón pagar
             Surface(
                 tonalElevation = 6.dp,

@@ -22,6 +22,7 @@ import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.SearchBarColors
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SearchBarDefaults.InputField
@@ -47,6 +48,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.appmovilshowpass.model.Evento
 import com.example.appmovilshowpass.viewmodel.BusquedaViewModel
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -82,6 +85,17 @@ fun SearchBarBusqueda(
                     expanded = expanded,
                     onExpandedChange = { expanded = it },
                     placeholder = { Text("Buscar por nombre...") },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f),
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        cursorColor = MaterialTheme.colorScheme.primary,
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = Color.Gray,
+                        focusedPlaceholderColor = Color.Gray,
+                        unfocusedPlaceholderColor = Color.Gray,
+                    )
                 )
             },
             expanded = false,
@@ -90,6 +104,7 @@ fun SearchBarBusqueda(
                 .fillMaxWidth()
                 .padding(top = 0.dp),
             shape = RoundedCornerShape(5.dp),
+            colors = SearchBarDefaults.colors(containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
             content = {}
         )
 

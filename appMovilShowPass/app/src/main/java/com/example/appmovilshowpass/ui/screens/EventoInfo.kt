@@ -29,6 +29,7 @@ import com.example.appmovilshowpass.data.remote.dto.toEvento
 import com.example.appmovilshowpass.model.Evento
 import com.example.appmovilshowpass.ui.components.BotonesComprarTicket
 import com.example.appmovilshowpass.utils.formatearFecha
+import com.example.appmovilshowpass.utils.formatearPrecio
 import com.example.appmovilshowpass.viewmodel.CarritoViewModel
 import kotlinx.coroutines.launch
 
@@ -220,7 +221,8 @@ fun EventoInfo(
 
                     // Precio y botón de carrito
                     Text("Precio", fontSize = 18.sp, modifier = Modifier.padding(vertical = 6.dp))
-                    Text("${e.precio} €", fontSize = 16.sp)
+                    Text("${
+                        formatearPrecio(e.precio)} €", fontSize = 16.sp)
                     Spacer(modifier = Modifier.height(30.dp))
 
 
@@ -247,7 +249,7 @@ fun EventoInfo(
                                     snackbarHostState.showSnackbar("Debes iniciar sesión para comprar")
                                 }
                             },
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.wrapContentWidth().align(Alignment.CenterHorizontally)
                         ) {
                             Text("Inicia sesión para comprar")
                         }

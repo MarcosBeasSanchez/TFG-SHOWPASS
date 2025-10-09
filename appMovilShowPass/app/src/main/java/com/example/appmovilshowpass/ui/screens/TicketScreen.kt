@@ -3,18 +3,53 @@ package com.example.appmovilshowpass.ui.screens
 
 import AuthViewModel
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.PictureAsPdf
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.QrCode
+import androidx.compose.material.icons.filled.ShoppingCartCheckout
+import androidx.compose.material.icons.outlined.DeleteForever
+import androidx.compose.material.icons.outlined.PersonAdd
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -22,6 +57,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.example.appmovilshowpass.data.remote.dto.DTOTicketBajada
+import com.example.appmovilshowpass.utils.formatearFecha
+import com.example.appmovilshowpass.utils.formatearPrecio
 import com.example.appmovilshowpass.viewmodel.TicketViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -51,65 +88,69 @@ fun TicketsScreen(
         usuario?.id?.let { ticketViewModel.cargarTickets(it) }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("🎟 Mis Tickets", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.Default.PictureAsPdf, contentDescription = "Volver")
-                    }
-                }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.QrCode,
+                contentDescription = "Carrito",
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .size(32.dp)
+                    .padding(end = 8.dp)
+            )
+            Text(
+                text = "Tickets",
+                fontWeight = FontWeight.Bold,
+                fontSize = 24.sp
             )
         }
-    ) { padding ->
+
         if (tickets.isEmpty()) {
-            // 🕳 Caso en el que no hay tickets
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(padding),
+                    .padding(12.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text("Aún no tienes tickets", fontSize = 18.sp)
             }
         } else {
-            // 📋 Mostrar lista de tickets
-            Column(
+            LazyColumn(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
+                    .fillMaxWidth()
+                    .weight(1f),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    contentPadding = PaddingValues(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    items(tickets) { ticket ->
-                        TicketCard(
-                            ticket = ticket,
-                            onDownload = {
-                                ticketViewModel.generarPdfTicket(context, ticket)
-                            },
-                            onSendEmail = {
-                                usuario?.email?.let {
-                                    ticketViewModel.enviarTicketPorEmail(context, it, ticket)
-                                }
+                items(tickets) { ticket ->
+                    TicketCard(
+                        ticket = ticket,
+                        onDownload = { ticketViewModel.generarPdfTicket(context, ticket) },
+                        onSendEmail = {
+                            usuario?.email?.let {
+                                ticketViewModel.enviarTicketPorEmail(context, it, ticket)
                             }
-                        )
-                    }
+                        }
+                    )
                 }
-
-                // 🗑️ Botón para vaciar tickets
-                VaciarTicketsSection(
-                    onConfirmar = { ticketViewModel.vaciarTickets() }
-                )
             }
+
+            VaciarTicketsSection(
+                onConfirmar = { ticketViewModel.vaciarTickets() }
+            )
         }
     }
 }
+
 
 /**
  * Componente que representa visualmente un ticket individual.
@@ -135,7 +176,8 @@ fun TicketCard(
     Card(
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(6.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column(
             modifier = Modifier
@@ -157,8 +199,8 @@ fun TicketCard(
 
             // 📅 Información básica del evento
             Text(ticket.eventoNombre, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-            Text("Fecha: ${ticket.eventoInicio.take(16)}", fontSize = 14.sp)
-            Text("Precio: ${ticket.precio} €", fontSize = 14.sp)
+            Text("Fecha: ${formatearFecha(ticket.eventoInicio)}", fontSize = 14.sp)
+            Text("Precio: ${formatearPrecio(ticket.precio)} €", fontSize = 14.sp)
             Spacer(Modifier.height(10.dp))
 
             // 🧩 Botones de acción: Descargar / Enviar por correo
@@ -195,7 +237,7 @@ fun TicketCard(
                 }
 
                 // --- Enviar por correo ---
-                Button(
+                ElevatedButton(
                     onClick = {
                         if (!enviando) {
                             enviando = true
@@ -209,7 +251,7 @@ fun TicketCard(
                     },
                     enabled = !enviando,
                     modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+
                 ) {
                     if (enviando) {
                         CircularProgressIndicator(
@@ -265,11 +307,18 @@ fun VaciarTicketsSection(onConfirmar: () -> Unit) {
             .padding(horizontal = 16.dp, vertical = 20.dp),
         contentAlignment = Alignment.Center
     ) {
-        Button(
+        FilledTonalButton(
             onClick = { mostrarDialogo = true },
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
         ) {
             Text("Vaciar tickets", color = MaterialTheme.colorScheme.onError)
+            Icon(
+                imageVector = Icons.Outlined.DeleteForever,
+                contentDescription = "Borrar",
+                modifier = Modifier.padding(start = 4.dp),
+                tint = MaterialTheme.colorScheme.onError
+            )
+
         }
     }
 }
