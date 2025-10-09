@@ -12,6 +12,8 @@ export default function Login() {
 
       const result = await res.json();
 
+      console.log("Respuesta completa del backend (login):\n",JSON.stringify(result, null, 2));
+
       // Considera éxito solo si el backend indica exito o devuelve el usuario
       const isSuccess = res.ok && (result.exito === true || !!result.dtousuarioBajada);
 
@@ -27,7 +29,7 @@ export default function Login() {
       }
       //Mensaje
       alert(result.mensaje || "Login exitoso ✅");
-      
+
       console.log("Datos obtenidos del endpoint de login:", result);
 
       // Redirige solo cuando realmente hubo éxito

@@ -12,6 +12,7 @@ import BusquedaEventos from "./pages/Busqueda";
 import UserTickets from "./pages/Tickets.jsx";
 import { useEffect, useState } from "react";
 import AdminPanel from "./pages/AdminPanel";
+import VendedorPanel from "./pages/VendedorPanel";
 
 
 export default function App() {
@@ -32,16 +33,20 @@ export default function App() {
   }, [darkMode]);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem("user");
+    const savedUser = localStorage.getItem("user"); // Verifica que no sea "undefined" o "null"
     if (savedUser && savedUser !== "undefined" && savedUser !== "null") {
       try {
-        setUser(JSON.parse(savedUser));
+        const parsed = JSON.parse(savedUser);
+        setUser(parsed);
+        console.log("Usuario cargado desde localStorage:", parsed);
       } catch (e) {
+        console.error("Error al parsear usuario guardado:", e);
         setUser(null);
         localStorage.removeItem("user");
       }
     }
   }, []);
+
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -167,6 +172,18 @@ export default function App() {
                     </Link>
                   )}
 
+                  {user?.rol === "VENDEDOR" && (
+                    <Link
+                      to="/vendedor"
+                      className="flex w-full text-left items-center justify-items-center-safe px-2 py-2 hover:bg-gray-700"
+                    >
+                      <span className="material-symbols-outlined pr-2">
+                        add
+                      </span>
+                      Panel Vendedor
+                    </Link>
+                  )}
+
                   <Link
                     onClick={handleLogout}
                     className="flex w-full text-left items-center justify-items-center-safe px-2 py-2 bg-red-500 hover:bg-red-600"
@@ -219,7 +236,7 @@ export default function App() {
                       title={darkMode ? "Desactivar modo oscuro" : "Activar modo oscuro"}
                       onClick={() => setDarkMode((prev) => !prev)}
                     >
-                     {darkMode ? "light_mode" : "dark_mode"}
+                      {darkMode ? "light_mode" : "dark_mode"}
                     </span>
 
                   </>
@@ -239,16 +256,28 @@ export default function App() {
                     </Link>
 
                     {user?.rol === "ADMIN" && (
-                    <Link
-                      to="/admin"
-                      className="flex w-full text-left items-center justify-items-center-safe px-2 py-2 hover:bg-blue-800 rounded"
-                    >
-                      <span className="material-symbols-outlined pr-2">
-                        admin_panel_settings
-                      </span>
-                      Panel Admin
-                    </Link>
-                  )}
+                      <Link
+                        to="/admin"
+                        className="flex w-full text-left items-center justify-items-center-safe px-2 py-2 hover:bg-blue-800 rounded"
+                      >
+                        <span className="material-symbols-outlined pr-2">
+                          admin_panel_settings
+                        </span>
+                        Panel Admin
+                      </Link>
+                    )}
+
+                    {user?.rol === "VENDEDOR" && (
+                      <Link
+                        to="/vendedor"
+                        className="flex w-full text-left items-center justify-items-center-safe px-2 py-2 hover:bg-blue-800 rounded"
+                      >
+                        <span className="material-symbols-outlined pr-2">
+                          add
+                        </span>
+                        Panel Vendedor
+                      </Link>
+                    )}
 
                     <button className="flex items-center  px-2 py-2 gap-2 " onClick={() => setDarkMode((prev) => !prev)}>
                       <span className="material-symbols-outlined ">
@@ -285,6 +314,7 @@ export default function App() {
             <Route path="/tickets" element={<UserTickets />} />
             <Route path="/admin" element={<AdminPanel />} />
             <Route path="/categoria/:nombre" element={<CategoryEvents />} />
+            <Route path="/vendedor" element={<VendedorPanel />} />
           </Routes>
         </div>
 

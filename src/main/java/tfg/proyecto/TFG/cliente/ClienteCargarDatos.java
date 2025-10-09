@@ -44,7 +44,7 @@ public class ClienteCargarDatos implements CommandLineRunner {
 	public void run(String... args) throws Exception {
 		if (!datosCargados) {
 
-			DTOusuarioSubida u1,u2;
+			DTOusuarioSubida u1,u2,v3;
 			DTOtarjetaBancariaSubida c1;
 			DTOticketSubida t1,t2;
 
@@ -74,6 +74,14 @@ public class ClienteCargarDatos implements CommandLineRunner {
 					.password("1234")
 					.fechaNacimiento(LocalDate.now().minusYears(25))
 					.rol(Rol.ADMIN)
+					.cuenta(c1)
+					.activo(true)
+					.build();
+			v3 = DTOusuarioSubida.builder()
+					.nombre("usuarioVendedor")
+					.email("vendedor@mail.com")
+					.password("1234")
+					.rol(Rol.VENDEDOR)
 					.cuenta(c1)
 					.activo(true)
 					.build();
@@ -119,10 +127,12 @@ public class ClienteCargarDatos implements CommandLineRunner {
 
 			
 			DTOusuarioBajada usuarioBajada = daoUsuario.registerConDatos(u1); //registramos usuario con contraseña encriptada
-			DTOusuarioBajada adminBajada = daoUsuario.registerConDatos(u2); //registramos usuario con contraseña encriptada
-			 daoUsuario.registerConDatos(u3);
-			 daoUsuario.registerConDatos(u4);
-			 daoUsuario.registerConDatos(u5);
+			DTOusuarioBajada adminBajada = daoUsuario.registerConDatos(u2); //registramos admin con contraseña encriptada
+			daoUsuario.registerConDatos(v3); //registramos vendedor con contraseña encriptada
+			
+			daoUsuario.registerConDatos(u3);
+			daoUsuario.registerConDatos(u4);
+			daoUsuario.registerConDatos(u5);
 			 
 
 			DTOeventoSubida e1 = DTOeventoSubida.builder().nombre("Festival de Música Electrónica")

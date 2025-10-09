@@ -87,8 +87,6 @@ export default function AuthForm({ type, onSubmit }) {
           </>
         )}
 
-
-
         <button
           type="submit"
           className="w-50 mx-auto mt-5 block bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition "
