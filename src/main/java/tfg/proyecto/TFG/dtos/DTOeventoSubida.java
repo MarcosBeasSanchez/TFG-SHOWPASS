@@ -27,6 +27,7 @@ public class DTOeventoSubida {
 	@Singular
 	private List<String> carrusels; 
 	private double precio;
+	private int aforo;
 	private Categoria categoria;
 
 }

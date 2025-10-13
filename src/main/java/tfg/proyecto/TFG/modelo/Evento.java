@@ -42,8 +42,8 @@ public class Evento {
 	
 	@Singular
 	@ElementCollection // Para listas de objetos simples
-	@CollectionTable(name = "evento_invitados", 
-	joinColumns = @JoinColumn(name = "evento_id"))
+	@CollectionTable(name = "evento_invitados", //CREA TABLA EVENTO_INVITADOS
+	joinColumns = @JoinColumn(name = "evento_id")) //EVENTO_ID ES EL @ID DE LA TABLA
 	private List<Invitado> invitados;
 	
 	@Lob
@@ -57,6 +57,7 @@ public class Evento {
 	@Lob
 	private List<String> carrusels;
 	private double precio;
+	private int aforo;
 	@Enumerated(EnumType.STRING)
 	private Categoria categoria;
 

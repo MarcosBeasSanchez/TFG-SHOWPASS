@@ -131,8 +131,8 @@ export default function EventDetail() {
         style={{ position: "relative" }}
       >
         <div className="max-w-4xl mx-auto text-left ">
-          <h2 className="text-2xl font-semibold mb-3 claroEvento oscuroEvento">Datos del evento</h2>
-          <div className="flex flex-col md:flex-row md:justify-between mb-6 text-gray-800 text-lg py-8">
+          <h2 className="text-2xl font-semibold mb-0 claroEvento oscuroEvento">Datos del evento</h2>
+          <div className="flex flex-col md:flex-row md:justify-between mb-0 text-gray-800 text-lg py-8">
             <div className="bg-blue-100 oscuroBox p-1">
               <strong>Localización:</strong> {evento.localizacion}
             </div>
@@ -157,7 +157,7 @@ export default function EventDetail() {
             <div className="flex flex-col items-center">
               <div className="max-w-4xl mx-auto text-left">
                 <div className="mb-8">
-                  <div className="flex space-x-4 overflow-x-auto p-2">
+                  <div className="flex space-x-4 overflow-x-auto p-2 carrusel-sin-scrollbar">
                     {evento.carrusels.map((foto, index) => (
                       <img
                         key={index}
@@ -206,13 +206,24 @@ export default function EventDetail() {
             <div className="mb-6 text-gray-500 ">No hay invitados por ahora</div>
           )}
 
-          <h2 className="text-2xl font-semibold mb-3 claroEvento oscuroEvento">Precio</h2>
+          <h2 className="text-2xl font-semibold mb-3 claroEvento oscuroEvento">Aforo máximo</h2>
+          <p className="text-gray-700 font-bold md:text-left text-center claroEvento oscuroEvento">
+            {typeof evento.aforo === "number"
+              ? `${evento.aforo} personas`
+              : "Aforo no disponible"}
+          </p>
+
+
+
+          <h2 className="text-2xl font-semibold mb-3 mt-6 claroEvento oscuroEvento">Precio</h2>
           <p className="text-gray-700 font-bold md:text-left text-center claroEvento oscuroEvento">
             {typeof evento.precio === "number"
               ? `PVP: ${evento.precio.toFixed(2)} €`
               : "Precio no disponible"}
           </p>
 
+
+          {/* Botones cantidad + carrito */}
           <div className="flex md:justify-end justify-center items-center mt-3">
             <button
               type="button"

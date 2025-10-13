@@ -30,14 +30,14 @@ public class Carrito {
     private Long id;
 
     @OneToOne
-    @JoinColumn(name = "usuario_id")
+    @JoinColumn(name = "usuario_id") //FK del usuario
     private Usuario usuario;
 
     @ManyToMany
     @JoinTable(
-            name = "carrito_eventos",
-            joinColumns = @JoinColumn(name = "carrito_id"),
-            inverseJoinColumns = @JoinColumn(name = "evento_id")
+            name = "carrito_eventos", //CREA LA TABLA CARRITO_EVENTOS(tabla intermedia)
+            joinColumns = @JoinColumn(name = "carrito_id"), //Fk del ID carrito
+            inverseJoinColumns = @JoinColumn(name = "evento_id") //FK del ID del evento
     )
     private List<Evento> eventos;
 }

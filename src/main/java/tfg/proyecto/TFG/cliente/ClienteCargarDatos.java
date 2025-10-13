@@ -147,6 +147,7 @@ public class ClienteCargarDatos implements CommandLineRunner {
 			        .carrusel("https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1548&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 					.imagen("https://images.unsplash.com/photo-1630395822970-acd6a691d97e?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 					.precio(45.0)
+					.aforo(200)
 					.categoria(Categoria.MUSICA)
 					.invitados(List.of(DTOInvitado.builder().nombre("Carlos").apellidos("Gómez")
 							.fotoURL("https://tse3.mm.bing.net/th/id/OIP.J7mTXL5Pjfk7_ik14ZfQGgHaE8?pid=Api&P=0&h=180")
@@ -165,6 +166,7 @@ public class ClienteCargarDatos implements CommandLineRunner {
 			        .carrusel("https://images.unsplash.com/photo-1629276301687-be2af9fd6ba8?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 			        .carrusel("https://images.unsplash.com/photo-1613423085580-d1b9e13e27b8?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 			        .precio(50.0)
+			        .aforo(50)
 			        .categoria(Categoria.MUSICA)
 			        .invitados(List.of(DTOInvitado.builder().nombre("Miguel").apellidos("López").fotoURL(
 							"https://media.gamestop.com/i/gamestop/11121573_ALT02/PureArts-Cyberpunk2077-Johnny-Silverhand-with-the-RockerBoys-Guitar-Statue?fmt=auto")
@@ -186,6 +188,7 @@ public class ClienteCargarDatos implements CommandLineRunner {
 					.carrusel("https://plus.unsplash.com/premium_photo-1711987692262-0d3aca86fc1d?q=80&w=774&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 			        .carrusel("https://plus.unsplash.com/premium_photo-1706548911842-7162d4bd2c98?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 			        .precio(13.75)
+			        .aforo(10)
 			        .categoria(Categoria.ARTE)
 			        .invitados(List.of(DTOInvitado.builder().nombre("Ana").apellidos("García")
 							.fotoURL("https://tse2.mm.bing.net/th/id/OIP.eWcoK30BjXpz7CO3rkmaqgHaHa?pid=Api&P=0&h=180")
@@ -206,6 +209,7 @@ public class ClienteCargarDatos implements CommandLineRunner {
 			        .carrusel("https://images.unsplash.com/photo-1558008258-7ff8888b42b0?q=80&w=1631&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 					.imagen("https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 					.precio(25.5)
+					.aforo(175)
 					.categoria(Categoria.VIDEOJUEGOS)
 					.invitados(List.of(DTOInvitado.builder().nombre("Lucas").apellidos("Moreno")
 							.fotoURL("https://tse3.mm.bing.net/th/id/OIP.sSPR3mdA7rRLoQ9Y2MURkgAAAA?pid=Api&P=0&h=180")
@@ -223,6 +227,7 @@ public class ClienteCargarDatos implements CommandLineRunner {
 			        .carrusel("https://images.unsplash.com/photo-1581889470536-467bdbe30cd0?q=80&w=1564&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 					.imagen("https://images.unsplash.com/photo-1452626038306-9aae5e071dd3?q=80&w=1474&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 					.precio(10.5)
+					.aforo(200)
 					.categoria(Categoria.DEPORTES)
 					.invitados(List.of(DTOInvitado.builder().nombre("Elena").apellidos("Torres").fotoURL(
 							"https://i0.wp.com/www.soycorredora.com/wp-content/uploads/2017/08/Screen-Shot-2017-08-09-at-10.58.34-PM.png?fit=631%2C475&ssl=1")
@@ -241,6 +246,7 @@ public class ClienteCargarDatos implements CommandLineRunner {
 			        .carrusel("https://images.unsplash.com/photo-1600818596647-9d5318c20a8a?q=80&w=1584&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 			        .imagen("https://plus.unsplash.com/premium_photo-1664301432574-9b4e85c2b2d3?q=80&w=1471&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 					.precio(35.2)
+					.aforo(3)
 					.categoria(Categoria.DEPORTES)
 					.invitados(List.of(
 							DTOInvitado.builder().nombre("Sofía").apellidos("Jiménez")
@@ -261,6 +267,7 @@ public class ClienteCargarDatos implements CommandLineRunner {
 			        .carrusel("https://plus.unsplash.com/premium_photo-1713720662476-0bf9c2d59308?q=80&w=1402&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 					.imagen("https://images.unsplash.com/photo-1519682337058-a94d519337bc")
 					.precio(15.3)
+					.aforo(15)
 					.categoria(Categoria.OTROS)
 					.invitados(List.of(
 							DTOInvitado.builder().nombre("Isabel").apellidos("Allende")
@@ -282,6 +289,7 @@ public class ClienteCargarDatos implements CommandLineRunner {
 			        .carrusel("https://images.unsplash.com/photo-1622659097574-c814ee26068e?q=80&w=1382&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 					.imagen("https://images.unsplash.com/photo-1598880513655-d1c6d4b2dfbf?q=80&w=1548&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 					.precio(20.5)
+					.aforo(6)
 					.categoria(Categoria.DEPORTES)
 					.invitados(List.of(
 							DTOInvitado.builder().nombre("Andrés").apellidos("Iniesta")
@@ -302,6 +310,7 @@ public class ClienteCargarDatos implements CommandLineRunner {
 			        .carrusel("https://images.unsplash.com/photo-1582192730841-2a682d7375f9?q=80&w=1548&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 			        .carrusel("https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b?q=80&w=774&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 			        .precio(35.0)
+			        .aforo(85)
 			        .categoria(Categoria.VIDEOJUEGOS)
 			        .imagen("https://images.unsplash.com/photo-1519389950473-47ba0277781c")
 					.invitados(List.of(
@@ -324,6 +333,7 @@ public class ClienteCargarDatos implements CommandLineRunner {
 			        .carrusel("https://images.unsplash.com/photo-1578163678052-eef169544f75?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 			        .carrusel("https://plus.unsplash.com/premium_photo-1677609898243-63280b6c89a1?q=80&w=766&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 			        .precio(23.4)
+			        .aforo(25)
 			        .categoria(Categoria.ARTE)
 			        .imagen("https://images.unsplash.com/photo-1547891654-e66ed7ebb968?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 					.invitados(List.of(
@@ -348,6 +358,7 @@ public class ClienteCargarDatos implements CommandLineRunner {
 			        .carrusel("https://images.unsplash.com/photo-1484723091739-30a097e8f929?q=80&w=749&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 			        .imagen("https://plus.unsplash.com/premium_photo-1673108852141-e8c3c22a4a22?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 			        .precio(18.0)
+			        .aforo(8)
 			        .categoria(Categoria.OTROS)
 			        .invitados(List.of(
 			                DTOInvitado.builder().nombre("Ferran").apellidos("Adrià")
@@ -370,6 +381,7 @@ public class ClienteCargarDatos implements CommandLineRunner {
 			        .carrusel("https://images.unsplash.com/photo-1608170825938-a8ea0305d46c?q=80&w=1025&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 			        .imagen("https://plus.unsplash.com/premium_photo-1710522706751-c2f0c76cc5fd?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 			        .precio(25.0)
+			        .aforo(40)
 			        .categoria(Categoria.OTROS)
 			        .invitados(List.of(
 			                DTOInvitado.builder().nombre("Hideo").apellidos("Kojima")
@@ -394,6 +406,7 @@ public class ClienteCargarDatos implements CommandLineRunner {
 			        .carrusel("https://images.unsplash.com/photo-1511379938547-c1f69419868d")
 			        .imagen("https://images.unsplash.com/flagged/photo-1569231290150-9c6200705c5b?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 			        .precio(40.0)
+			        .aforo(30)
 			        .categoria(Categoria.MUSICA)
 			        .invitados(List.of(
 			                DTOInvitado.builder().nombre("Herbie").apellidos("Hancock")
@@ -415,6 +428,7 @@ public class ClienteCargarDatos implements CommandLineRunner {
 			        .carrusel("https://images.unsplash.com/photo-1548003693-b55d51032288?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 			        .imagen("https://images.unsplash.com/photo-1581850518616-bcb8077a2336?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 			        .precio(12.5)
+			        .aforo(10)
 			        .categoria(Categoria.ARTE)
 			        .invitados(List.of(
 			                DTOInvitado.builder().nombre("Bansky").apellidos("")
@@ -436,6 +450,7 @@ public class ClienteCargarDatos implements CommandLineRunner {
 			        .carrusel("https://images.unsplash.com/flagged/photo-1580051579393-2e94dd6f4789?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 			        .imagen("https://images.unsplash.com/photo-1574623452334-1e0ac2b3ccb4?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 			        .precio(25.0)
+			        .aforo(420)
 			        .categoria(Categoria.DEPORTES)
 			        .invitados(List.of(
 			                DTOInvitado.builder().nombre("Pau").apellidos("Gasol")
@@ -457,6 +472,7 @@ public class ClienteCargarDatos implements CommandLineRunner {
 			        .carrusel("https://i.blogs.es/2178b8/league-of-legends-worlds-03/1366_2000.jpg")
 			        .imagen("https://i.blogs.es/15f158/league-of-legends-worlds-02/1366_2000.jpg")
 			        .precio(45.0)
+			        .aforo(10)
 			        .categoria(Categoria.VIDEOJUEGOS)
 			        .invitados(List.of(
 			                DTOInvitado.builder().nombre("Carlos").apellidos("Ocelote Rodríguez")

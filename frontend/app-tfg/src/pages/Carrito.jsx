@@ -18,31 +18,41 @@ export default function ShoppingCart({ user }) {
   const usuarioId = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")).id : null;
 
   useEffect(() => {
-    if (!usuarioId) return;
+  // Recupera el usuario desde localStorage cada vez que el componente se monta
+  const userFromStorage = localStorage.getItem("user")
+    ? JSON.parse(localStorage.getItem("user"))
+    : null;
 
-    const fetchCarrito = async () => {
-      try {
-        setLoading(true);
-        const res = await fetch(`${config.apiBaseUrl}/tfg/carrito/${usuarioId}`);
-        if (!res.ok) throw new Error("No se pudo cargar el carrito");
-        console.log("Carrito:", res);
-        const data = await res.json();
-        setCarrito(data);
+  if (!userFromStorage || !userFromStorage.id) {
+    console.log("⚠️ No se encontró usuario en localStorage aún");
+    setLoading(false);
+    return;
+  }
 
-        // Calcular total
-        const totalRes = await fetch(`${config.apiBaseUrl}/tfg/carrito/total/${usuarioId}`);
-        const totalData = await totalRes.json();
-        setTotal(totalData);
-      } catch (err) {
-        console.error(err);
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const usuarioId = userFromStorage.id;
 
-    fetchCarrito();
-  }, [usuarioId]);
+  const fetchCarrito = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`${config.apiBaseUrl}/tfg/carrito/${usuarioId}`);
+      if (!res.ok) throw new Error("No se pudo cargar el carrito");
+      const data = await res.json();
+      setCarrito(data);
+
+      // Calcular total
+      const totalRes = await fetch(`${config.apiBaseUrl}/tfg/carrito/total/${usuarioId}`);
+      const totalData = await totalRes.json();
+      setTotal(totalData);
+    } catch (err) {
+      console.error(err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchCarrito();
+}, []);
 
   const eliminarEvento = async (eventoId) => {
     try {

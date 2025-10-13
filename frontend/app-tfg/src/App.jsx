@@ -110,7 +110,7 @@ export default function App() {
                 <Link to="/login" className=" text-sm font-medium p-1  hover:bg-blue-800 rounded" >LOGIN</Link>
                 <Link to="/register" className=" text-sm font-medium p-1  hover:bg-blue-800 rounded " >REGISTRO</Link>
                 <span
-                  className="material-symbols-outlined hover:bg-blue-800 rounded-full p-1 transition-colors cursor-pointer"
+                  className="material-symbols-outlined hover:bg-blue-800 rounded-full p-1 transition-colors duration-300  cursor-pointer"
                   title={darkMode ? "Desactivar modo oscuro" : "Activar modo oscuro"}
                   onClick={() => setDarkMode((prev) => !prev)}
                 >
@@ -350,7 +350,9 @@ export default function App() {
           {user?.foto ? (
             <img src={user.foto} alt="Foto perfil" className="w-10 h-10 rounded-full object-cover border hover:scale-105 transition" />
           ) : (
-            <span className="material-symbols-outlined" style={{ fontSize: "30px" }}>person</span>
+            <span
+              className="material-symbols-outlined hover:bg-blue-800 rounded-full p-1 transition-colors cursor-pointer"
+              style={{ fontSize: "30px" }}>person</span>
           )}
         </button>
         {open && (
