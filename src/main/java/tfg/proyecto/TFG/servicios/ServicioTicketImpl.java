@@ -110,6 +110,22 @@ public class ServicioTicketImpl implements IServicioTicket{
 		return ticketDAO.existsByCodigoQR(codigoQR); //devuelve si exsiste o no el codigo
 	}
 
+
+
+	@Override
+	public boolean eliminarTodosLosTicketsPorUsuario(Long usuarioId) {
+		// TODO Auto-generated method stub
+		
+		 List<Ticket> tickets = ticketDAO.findByUsuarioId(usuarioId);
+
+		    if (tickets.isEmpty()) {
+		        return false;
+		    }
+
+		    ticketDAO.deleteAll(tickets);
+		    return true;
+	}
+
 	
 
 }

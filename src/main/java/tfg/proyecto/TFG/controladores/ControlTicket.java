@@ -1,6 +1,8 @@
 package tfg.proyecto.TFG.controladores;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,16 +33,31 @@ public class ControlTicket {
 		DTOticketBajada ticket = daoTicket.insert(dto);
 		return new ResponseEntity<>(ticket, HttpStatus.OK);
 	}
-
+	
 	@DeleteMapping("delete/{id}")
-	public ResponseEntity<Void> eliminarTicket(@PathVariable Long id) {
-		boolean eliminado = daoTicket.delete(id);
-		
-		if (eliminado) {
-			return new ResponseEntity<>(HttpStatus.OK);
-		} else {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
+	public ResponseEntity<Map<String, Object>> eliminarTicket(@PathVariable Long id) {
+	    Map<String, Object> response = new HashMap<>();
+	    try {
+	        boolean eliminado = daoTicket.delete(id);
+
+	        if (eliminado) {
+	            response.put("mensaje", "Ticket eliminado correctamente.");
+	            response.put("status", "success");
+	            response.put("id", id);
+	        } else {
+	            response.put("mensaje", "No se encontró el ticket con id: " + id);
+	            response.put("status", "not_found");
+	        }
+
+	        // Siempre devolvemos HTTP 200 para que Retrofit no lo trate como error
+	        return ResponseEntity.ok(response);
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        response.put("mensaje", "Error interno al eliminar el ticket.");
+	        response.put("status", "error");
+	        return ResponseEntity.ok(response);
+	    }
 	}
 	
 	@GetMapping("findById/{id}")
@@ -71,5 +88,32 @@ public class ControlTicket {
         return new ResponseEntity<>(valido, HttpStatus.OK);
     }
 	
+	
+	@DeleteMapping("delete/all/{usuarioId}")
+	public ResponseEntity<Map<String, Object>> eliminarTodosLosTicketsPorUsuario(@PathVariable Long usuarioId) {		Map<String, Object> response = new HashMap<>();
+
+	    try {
+	        boolean eliminados = daoTicket.eliminarTodosLosTicketsPorUsuario(usuarioId);
+
+	        if (eliminados) {
+	            response.put("mensaje", "Todos los tickets fueron eliminados correctamente.");
+	            response.put("status", "success");
+	            return ResponseEntity.ok(response);
+	        } else {
+	            response.put("mensaje", "No se encontraron tickets para eliminar.");
+	            response.put("status", "empty");
+	            // Devolvemos OK también (200) para evitar que Retrofit lo marque como error
+	            return ResponseEntity.ok(response);
+	        }
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        response.put("mensaje", "Error interno al eliminar los tickets.");
+	        response.put("status", "error");
+	        // También mantenemos HTTP 200, pero informamos el error en el body
+	        return ResponseEntity.ok(response);
+	    }
+	 
+	}
 
 }

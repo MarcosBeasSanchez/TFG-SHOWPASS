@@ -74,6 +74,7 @@ class CarritoViewModel : ViewModel() {
                 val eventos = _carrito.value?.eventos ?: emptyList()
                 _eventosComprados.value = eventos
 
+<<<<<<< HEAD
                 // Llamamos al endpoint para finalizar el carrito
                 RetrofitClient.carritoApiService.finalizarCompra(usuarioId)
 
@@ -93,11 +94,20 @@ class CarritoViewModel : ViewModel() {
                 }
 
                 // 3️⃣ Limpiamos carrito
+=======
+                // Solo llamamos al backend
+                RetrofitClient.carritoApiService.finalizarCompra(usuarioId)
+
+                // Limpiar carrito
+>>>>>>> 82ef1b0 (Resolver conflicto: mantener TicketViewModel.kt desde mis cambios)
                 _carrito.value = null
                 _total.value = 0.0
 
                 onSuccess()
+<<<<<<< HEAD
 
+=======
+>>>>>>> 82ef1b0 (Resolver conflicto: mantener TicketViewModel.kt desde mis cambios)
             } catch (e: Exception) {
                 e.printStackTrace()
             }

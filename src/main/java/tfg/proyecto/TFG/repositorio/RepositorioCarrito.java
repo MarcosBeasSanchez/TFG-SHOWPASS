@@ -11,5 +11,5 @@ import tfg.proyecto.TFG.modelo.Usuario;
 @Repository
 public interface RepositorioCarrito extends CrudRepository<Carrito, Long>{
     Optional<Carrito> findByUsuario(Usuario usuario);
-
+    Optional<Carrito> findByUsuarioId(Long usuarioId); 
 }

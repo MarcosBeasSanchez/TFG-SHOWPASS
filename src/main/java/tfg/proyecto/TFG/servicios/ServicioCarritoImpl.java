@@ -34,17 +34,8 @@ public class ServicioCarritoImpl implements IServicioCarrito{
 	
 	 @Override
 	    public DTOCarritoBajada obtenerCarritoPorUsuario(Long usuarioId) {
-	        Usuario usuario = usuarioDAO.findById(usuarioId)
-	                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-
-	        Carrito carrito = carritoDAO.findByUsuario(usuario)
-	                .orElseGet(() -> {
-	                    Carrito nuevo = new Carrito();
-	                    nuevo.setUsuario(usuario);
-	                    return carritoDAO.save(nuevo);
-	                });
-
-	        return dtoConverter.map(carrito, DTOCarritoBajada.class);
+		  Carrito carrito = obtenerEntidadCarrito(usuarioId);
+		    return dtoConverter.map(carrito, DTOCarritoBajada.class);
 	    }
 
 	    @Override
@@ -111,16 +102,24 @@ public class ServicioCarritoImpl implements IServicioCarrito{
 	        return dtoConverter.map(carrito, DTOCarritoBajada.class);
 	    }
 
-	    // Método helper para obtener la entidad Carrito
+	 // Método helper para obtener la entidad Carrito de un usuario
 	    private Carrito obtenerEntidadCarrito(Long usuarioId) {
-	        Usuario usuario = usuarioDAO.findById(usuarioId)
-	                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-
-	        return carritoDAO.findByUsuario(usuario)
+	        // Busca directamente por el ID del usuario
+	        return carritoDAO.findByUsuarioId(usuarioId)
 	                .orElseGet(() -> {
+	                    Usuario usuario = usuarioDAO.findById(usuarioId)
+	                            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
 	                    Carrito nuevo = new Carrito();
 	                    nuevo.setUsuario(usuario);
-	                    return carritoDAO.save(nuevo);
+
+	                    try {
+	                        return carritoDAO.save(nuevo);
+	                    } catch (Exception e) {
+	                        // Si otro hilo o petición lo creó justo antes, recupéralo
+	                        return carritoDAO.findByUsuarioId(usuarioId)
+	                                .orElseThrow(() -> new RuntimeException("Error al crear o recuperar carrito"));
+	                    }
 	                });
 	    }
 
