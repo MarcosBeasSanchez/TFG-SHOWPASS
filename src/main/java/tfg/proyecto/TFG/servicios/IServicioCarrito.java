@@ -12,4 +12,5 @@ public interface IServicioCarrito {
 	DTOCarritoBajada vaciarCarrito(Long usuarioId);
 	double calcularTotal(Long usuarioId);
 	DTOCarritoBajada finalizarCompra(Long usuarioId);
+	DTOCarritoBajada actualizarCantidad(Long usuarioId, Long eventoId, int cantidad);
 }

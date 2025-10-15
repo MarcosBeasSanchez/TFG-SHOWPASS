@@ -1,9 +1,5 @@
 package tfg.proyecto.TFG.modelo;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -21,24 +17,22 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+
 @Entity
-public class TarjetaBancaria {
+public class CarritoItem {
 	
-	 @Id
-	    @GeneratedValue(strategy = GenerationType.IDENTITY)
-	    private Long id;
-
-	    private String nombreTitular;
-	    @Column(length = 16)
-	    private String nTarjeta;
-	    private LocalDate fechaCaducidad;
-	    @Column(length = 4)
-
-	    private String cvv;
-	    private BigDecimal saldo;
-
-	    @ManyToOne
-	    @JoinColumn(name = "usuario_id")
-	    private Usuario usuario;
-
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+	
+	private int cantidad;
+	private double precioUnitario; 
+	
+	@ManyToOne
+	@JoinColumn(name = "carrito_id")
+	private Carrito carrito;
+	
+	@ManyToOne
+	@JoinColumn(name = "evento_id")
+	private Evento evento;
 }

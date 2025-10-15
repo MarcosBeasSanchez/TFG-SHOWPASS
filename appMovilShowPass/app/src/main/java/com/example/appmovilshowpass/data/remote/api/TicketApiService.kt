@@ -4,10 +4,7 @@ import com.example.appmovilshowpass.data.remote.dto.DTOTicketBajada
 import com.example.appmovilshowpass.data.remote.dto.DTOTicketSubida
 import retrofit2.Response
 import retrofit2.http.Body
-<<<<<<< HEAD
-=======
 import retrofit2.http.DELETE
->>>>>>> 82ef1b0 (Resolver conflicto: mantener TicketViewModel.kt desde mis cambios)
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -23,14 +20,10 @@ interface TicketApiService {
 
     @POST("tfg/ticket/insert")
     suspend fun insertarTicket(@Body dto: DTOTicketSubida): DTOTicketBajada
-<<<<<<< HEAD
-=======
-
     @DELETE("tfg/ticket/delete/all/{usuarioId}")
     suspend fun  eliminarTodosLosTickets(@Path("usuarioId") usuarioId: Long): Response<Map<String, String>>
 
     @DELETE("tfg/ticket/delete/{id}")
     suspend fun eliminarTicket(@Path("id") id: Long): Response<Map<String, Any>>
 
->>>>>>> 82ef1b0 (Resolver conflicto: mantener TicketViewModel.kt desde mis cambios)
 }

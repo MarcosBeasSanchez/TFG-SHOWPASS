@@ -3,14 +3,9 @@ package com.example.appmovilshowpass.viewmodel
 import android.content.Context
 import android.os.Environment
 import android.util.Base64
-<<<<<<< HEAD
-import android.widget.Toast
-=======
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.ContentView
->>>>>>> 82ef1b0 (Resolver conflicto: mantener TicketViewModel.kt desde mis cambios)
-
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.appmovilshowpass.data.remote.api.RetrofitClient
@@ -119,14 +114,6 @@ class TicketViewModel: ViewModel() {
         }
     }
 
-<<<<<<< HEAD
-    fun vaciarTickets() {
-        viewModelScope.launch {
-            _tickets.value = emptyList()
-        }
-    }
-
-=======
     fun vaciarTickets( context: Context, usuarioId: Long) {
         viewModelScope.launch {
             try {
@@ -192,5 +179,5 @@ class TicketViewModel: ViewModel() {
             }
         }
     }
->>>>>>> 82ef1b0 (Resolver conflicto: mantener TicketViewModel.kt desde mis cambios)
+
 }

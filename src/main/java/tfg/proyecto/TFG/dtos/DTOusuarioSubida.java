@@ -20,6 +20,5 @@ public class DTOusuarioSubida {
 	private String foto;
 	private Rol rol;
 	private DTOtarjetaBancariaSubida cuenta;
-	private Boolean activo;
 	private Boolean reportado;
 }

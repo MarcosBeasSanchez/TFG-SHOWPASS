@@ -25,7 +25,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import tfg.proyecto.TFG.config.FileUtils;
-import tfg.proyecto.TFG.dtos.DTOInvitado;
+import tfg.proyecto.TFG.dtos.DTOInvitadoSubida;
 import tfg.proyecto.TFG.dtos.DTOeventoBajada;
 import tfg.proyecto.TFG.dtos.DTOeventoSubida;
 import tfg.proyecto.TFG.modelo.Categoria;
@@ -42,40 +42,59 @@ public class ControlEvento {
 	
 	@PostMapping("insert")
 	public ResponseEntity<DTOeventoBajada> insertarEvento(
-			@RequestParam String nombre,
+	        @RequestParam String nombre,
 	        @RequestParam String localizacion,
 	        @RequestParam String inicioEvento,
 	        @RequestParam String finEvento,
 	        @RequestParam String descripcion,
 	        @RequestParam double precio,
-	        @RequestParam Categoria categoria,
+	        @RequestParam String categoria,
 	        @RequestParam(value = "imagen", required = false) MultipartFile imagen,
-	        @RequestParam(value = "carrusels", required = false) List<MultipartFile> carrusels,
+	        @RequestParam(value = "carrusels", required = false) MultipartFile[] carrusels,
 	        @RequestParam(value = "invitados") String invitadosJson
-	) throws IOException {
+	) {
+	    try {
+	        // Convertir invitados JSON a lista
+	        ObjectMapper mapper = new ObjectMapper();
+	        List<DTOInvitadoSubida> invitados = mapper.readValue(invitadosJson, new TypeReference<>() {});
 
-	    ObjectMapper mapper = new ObjectMapper();
-	    List<DTOInvitado> invitados = mapper.readValue(invitadosJson, new TypeReference<List<DTOInvitado>>() {});
+	        DTOeventoSubida dto = new DTOeventoSubida();
+	        dto.setNombre(nombre);
+	        dto.setLocalizacion(localizacion);
+	        dto.setInicioEvento(LocalDateTime.parse(inicioEvento));
+	        dto.setFinEvento(LocalDateTime.parse(finEvento));
+	        dto.setDescripcion(descripcion);
+	        dto.setPrecio(precio);
+	        dto.setCategoria(Categoria.valueOf(categoria.toUpperCase()));
+	        dto.setInvitados(invitados);
 
-	    DTOeventoSubida dto = new DTOeventoSubida();
-	    dto.setNombre(nombre);
-	    dto.setLocalizacion(localizacion);
-	    dto.setInicioEvento(LocalDateTime.parse(inicioEvento));
-	    dto.setFinEvento(LocalDateTime.parse(finEvento));
-	    dto.setDescripcion(descripcion);
-	    dto.setPrecio(precio);
-	    dto.setCategoria(categoria);
-	    dto.setInvitados(invitados);
+	        // Imagen principal
+	        if (imagen != null && !imagen.isEmpty()) {
+	            dto.setImagen(FileUtils.convertirArchivoAString(imagen));
+	        }
 
-	    if (imagen != null) dto.setImagen(FileUtils.convertirArchivoAString(imagen));
-	    if (carrusels != null) {
-	        dto.setCarrusels(carrusels.stream()
-	            .map(FileUtils::convertirArchivoAString)
-	            .toList());
+	        // Carrusel
+	        if (carrusels != null && carrusels.length > 0) {
+	            List<String> carruselBase64 = Arrays.stream(carrusels)
+	                    .filter(file -> file != null && !file.isEmpty())
+	                    .map(file -> {
+	                        try {
+	                            return FileUtils.convertirArchivoAString(file);
+	                        } catch (IOException e) {
+	                            throw new RuntimeException("Error al procesar imagen del carrusel", e);
+	                        }
+	                    })
+	                    .toList();
+	            dto.setImagenesCarrusels(carruselBase64);
+	        }
+
+	        DTOeventoBajada evento = daoEvento.insert(dto);
+	        return new ResponseEntity<>(evento, HttpStatus.CREATED);
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 	    }
-
-	    DTOeventoBajada evento = daoEvento.insert(dto);
-	    return new ResponseEntity<>(evento, HttpStatus.OK);
 	}
 	
 	@GetMapping("findAll")
@@ -148,5 +167,10 @@ public class ControlEvento {
 	    } catch (RuntimeException e) {
 	        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	    }
+	}
+	
+	@GetMapping("findByVendedor/{idVendedor}")
+	public ResponseEntity<List<DTOeventoBajada>> findByVendedor(@PathVariable Long idVendedor) {
+	    return ResponseEntity.ok(daoEvento.obtenerPorVendedor(idVendedor));
 	}
 }

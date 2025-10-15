@@ -16,4 +16,6 @@ public interface RepositorioUsuario extends CrudRepository<Usuario, Long> {
     
     List<Usuario>findByReportadoTrue();
     
+    @Query("SELECT u FROM Usuario u WHERE u.rol = 'VENDEDOR'")
+    List<Usuario> findAllVendedores();
 }

@@ -5,9 +5,14 @@ import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,17 +27,22 @@ import lombok.NoArgsConstructor;
 @Entity
 public class Ticket {
 	@Id
-	@EqualsAndHashCode.Include
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-	private Long usuarioId; // Fk
-	private Long eventoId; // Fk
-	@Column(columnDefinition = "TEXT")
-	private String codigoQR; //generar un codigo QR al comprar
-	private LocalDateTime fechaCompra;
-	private double precio;
-	private String eventoNombre;
-    private String eventoImagen;
-    private LocalDateTime eventoInicio;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String codigoQR;
+    private LocalDateTime fechaCompra;
+    private double precioPagado;
+
+    @Enumerated(EnumType.STRING)
+    private EstadoTicket estado; // VÁLIDO, USADO, ANULADO
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id")
+    private Usuario usuario;
+
+    @ManyToOne
+    @JoinColumn(name = "evento_id")
+    private Evento evento;
 
 }

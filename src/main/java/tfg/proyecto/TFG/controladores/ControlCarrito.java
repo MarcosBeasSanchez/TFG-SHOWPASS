@@ -129,7 +129,7 @@ public class ControlCarrito {
 	            pdfFile
 	    );
 
-	    // ✅ Devolver respuesta en formato JSON correcto
+	    // Devolver respuesta en formato JSON correcto
 	    Map<String, String> response = new HashMap<>();
 	    response.put("mensaje", "Correo enviado correctamente");
 	    response.put("email", email);

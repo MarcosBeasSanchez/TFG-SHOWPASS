@@ -9,7 +9,9 @@ import android.util.Base64
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.icu.text.NumberFormat
 import android.util.Log
+import androidx.compose.ui.text.intl.Locale
 import com.itextpdf.text.*
 import com.itextpdf.text.pdf.PdfWriter
 import com.google.zxing.BarcodeFormat
@@ -182,4 +184,9 @@ private fun generarQR(texto: String): Bitmap {
         }
     }
     return bmp
+}
+
+fun formatearPrecio(precio: Double): String {
+    val formato = NumberFormat.getCurrencyInstance(java.util.Locale("es", "ES"))
+    return formato.format(precio)
 }

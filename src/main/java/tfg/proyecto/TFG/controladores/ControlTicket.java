@@ -1,11 +1,17 @@
 package tfg.proyecto.TFG.controladores;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -115,5 +121,39 @@ public class ControlTicket {
 	    }
 	 
 	}
+	
+	 /**
+     * Obtener ticket por id (DTO)
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<DTOticketBajada> obtenerTicket(@PathVariable Long id) {
+        DTOticketBajada ticket = daoTicket.findById(id);
+        return ResponseEntity.ok(ticket);
+    }
+
+    /**
+     * Obtener la imagen QR directamente (image/png)
+     */
+    @GetMapping("/{id}/qr")
+    public ResponseEntity<byte[]> obtenerQR(@PathVariable Long id) {
+        DTOticketBajada ticket = daoTicket.findById(id);
+
+        if (ticket.getCodigoQR() == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+
+        String rutaRelativa = ticket.getCodigoQR();
+        Path rutaAbsoluta = Paths.get(System.getProperty("user.dir") + rutaRelativa);
+
+        try {
+            byte[] imagen = Files.readAllBytes(rutaAbsoluta);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.IMAGE_PNG);
+            return new ResponseEntity<>(imagen, headers, HttpStatus.OK);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
 
 }
