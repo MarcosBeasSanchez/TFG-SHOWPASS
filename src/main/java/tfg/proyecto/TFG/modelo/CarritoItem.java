@@ -11,6 +11,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @Builder
@@ -30,9 +31,11 @@ public class CarritoItem {
 	
 	@ManyToOne
 	@JoinColumn(name = "carrito_id")
+	 @ToString.Exclude
 	private Carrito carrito;
 	
 	@ManyToOne
 	@JoinColumn(name = "evento_id")
+	 @ToString.Exclude
 	private Evento evento;
 }

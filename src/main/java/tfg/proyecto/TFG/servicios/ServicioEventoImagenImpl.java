@@ -42,7 +42,7 @@ public class ServicioEventoImagenImpl implements IServicioEventoImagen {
 	        // Guarda nuevas
 	        return imagenes.stream().map((dto) -> {
 	            try {
-	                String ruta = servicioImagen.guardarImagenBase64(dto.getImagenBase64(), "eventos/" + eventoId);
+	                String ruta = servicioImagen.guardarImagenBase64(dto.getUrl(), "eventos/" + eventoId);
 	                EventoImagen img = EventoImagen.builder()
 	                        .evento(evento)
 	                        .url(ruta)

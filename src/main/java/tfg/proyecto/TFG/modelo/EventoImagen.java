@@ -12,6 +12,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @Builder
@@ -30,5 +31,6 @@ public class EventoImagen {
 
 	 @ManyToOne(fetch = FetchType.LAZY)
 	 @JoinColumn(name = "evento_id")
+	 @ToString.Exclude
 	 private Evento evento;
 }

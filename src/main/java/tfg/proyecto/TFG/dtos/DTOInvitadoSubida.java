@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class DTOInvitadoSubida {
-    private String nombre;
+	private String nombre;
     private String apellidos;
-    private String descripcion;
-    private String fotoBase64; // imagen en base64 o null
+    private String fotoURL;
+    private String descripcion; 
 }

@@ -3,6 +3,8 @@ package tfg.proyecto.TFG.modelo;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,6 +23,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @Builder
@@ -51,11 +54,14 @@ public class Usuario {
     private TarjetaBancaria tarjeta;
 
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL)
+    @ToString.Exclude
     private Carrito carrito;
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private List<Ticket> tickets;
 
     @OneToMany(mappedBy = "vendedor", cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<Evento> eventosCreados;
 }

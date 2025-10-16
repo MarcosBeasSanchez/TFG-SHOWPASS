@@ -1,15 +1,11 @@
 package tfg.proyecto.TFG.modelo;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -26,6 +22,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.Singular;
+import lombok.ToString;
 
 @Data
 @Builder
@@ -58,15 +55,20 @@ public class Evento {
 
     @ManyToOne
     @JoinColumn(name = "vendedor_id")
+    @ToString.Exclude
     private Usuario vendedor;
 
     @OneToMany(mappedBy = "evento", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private List<Invitado> invitados;
-
+    
+    @Singular
     @OneToMany(mappedBy = "evento", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<EventoImagen> imagenes;
+    @ToString.Exclude
+    private List<EventoImagen> imagenesCarruselUrls;
 
     @OneToMany(mappedBy = "evento", cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<Ticket> tickets;
 
 	

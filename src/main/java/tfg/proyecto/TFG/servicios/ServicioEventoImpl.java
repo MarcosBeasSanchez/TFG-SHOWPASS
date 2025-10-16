@@ -57,7 +57,7 @@ public class ServicioEventoImpl implements IServicioEvento{
 	                .finEvento(dto.getFinEvento())
 	                .descripcion(dto.getDescripcion())
 	                .precio(dto.getPrecio())
-	                .aforoMax(dto.getAforo())
+	                .aforoMax(dto.getAforoMax())
 	                .categoria(dto.getCategoria())
 	                .vendedor(vendedor)
 	                .build();
@@ -75,10 +75,10 @@ public class ServicioEventoImpl implements IServicioEvento{
 	            Evento guardado = eventoDAO.save(evento);
 
 	            // 🔹 Guardar carrusel (si hay)
-	            if (dto.getImagenesCarrusels() != null && !dto.getImagenesCarrusels().isEmpty()) {
-	                List<DTOEventoImagenSubida> lista = dto.getImagenesCarrusels().stream()
+	            if (dto.getImagenesCarruselUrls() != null && !dto.getImagenesCarruselUrls().isEmpty()) {
+	                List<DTOEventoImagenSubida> lista = dto.getImagenesCarruselUrls().stream()
 	                        .map(img -> DTOEventoImagenSubida.builder()
-	                                .imagenBase64(img)
+	                                .url(img)
 	                                .build())
 	                        .collect(Collectors.toList());
 	                servicioEventoImagen.guardarCarrusel(guardado.getId(), lista);
@@ -123,7 +123,7 @@ public class ServicioEventoImpl implements IServicioEvento{
         evento.setFinEvento(dto.getFinEvento());
         evento.setDescripcion(dto.getDescripcion());
         evento.setPrecio(dto.getPrecio());
-        evento.setAforoMax(dto.getAforo());
+        evento.setAforoMax(dto.getAforoMax());
         evento.setCategoria(dto.getCategoria());
 
         try {
@@ -138,10 +138,10 @@ public class ServicioEventoImpl implements IServicioEvento{
             }
 
             // Carrusel (se reemplaza completamente)
-            if (dto.getImagenesCarrusels() != null && !dto.getImagenesCarrusels().isEmpty()) {
+            if (dto.getImagenesCarruselUrls() != null && !dto.getImagenesCarruselUrls().isEmpty()) {
                 servicioEventoImagen.eliminarCarrusel(id);
-                List<DTOEventoImagenSubida> lista = dto.getImagenesCarrusels().stream()
-                        .map(img -> DTOEventoImagenSubida.builder().imagenBase64(img).build())
+                List<DTOEventoImagenSubida> lista = dto.getImagenesCarruselUrls().stream()
+                        .map(img -> DTOEventoImagenSubida.builder().url(img).build())
                         .collect(Collectors.toList());
                 servicioEventoImagen.guardarCarrusel(id, lista);
             }

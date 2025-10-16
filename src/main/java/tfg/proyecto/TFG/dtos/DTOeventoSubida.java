@@ -16,24 +16,20 @@ import tfg.proyecto.TFG.modelo.Categoria;
 @AllArgsConstructor
 public class DTOeventoSubida {
 		
-		private Long id;
-	 	private String nombre;
+	 private String nombre;
 	    private String localizacion;
 	    private LocalDateTime inicioEvento;
 	    private LocalDateTime finEvento;
 	    private String descripcion;
 	    private double precio;
-	    private int aforo;
+	    private int aforoMax;
 	    private Categoria categoria;
 
-
-	    private String imagen; 
-	    
+	    private String imagen;
 	    @Singular
-	    private List<String> imagenesCarrusels;
-
-
+	    private List<String> imagenesCarruselUrls;
 	    private List<DTOInvitadoSubida> invitados;
+
 	    private Long vendedorId;
 
           

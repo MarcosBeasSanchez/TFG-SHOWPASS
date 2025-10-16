@@ -94,7 +94,7 @@ public class ServicioCarritoImpl implements IServicioCarrito{
 	                DTOticketSubida dtoTicket = DTOticketSubida.builder()
 	                        .usuarioId(usuarioId)
 	                        .eventoId(item.getEvento().getId())
-	                        .precio(item.getEvento().getPrecio())
+	                        .precioPagado(item.getEvento().getPrecio())
 	                        .build();
 	                servicioTicket.insert(dtoTicket);
 	            }

@@ -39,8 +39,8 @@ public class ServicioInvitadoImpl implements IServicioInvitado{
         return invitadosDto.stream().map(dto -> {
             try {
                 String rutaFoto = null;
-                if (dto.getFotoBase64() != null && dto.getFotoBase64().length() > 200) {
-                    rutaFoto = servicioImagen.guardarImagenBase64(dto.getFotoBase64(), "invitados/" + eventoId);
+                if (dto.getFotoURL() != null && dto.getFotoURL().length() > 200) {
+                    rutaFoto = servicioImagen.guardarImagenBase64(dto.getFotoURL(), "invitados/" + eventoId);
                 }
 
                 Invitado invitado = Invitado.builder()
@@ -58,7 +58,7 @@ public class ServicioInvitadoImpl implements IServicioInvitado{
                         .nombre(invitado.getNombre())
                         .apellidos(invitado.getApellidos())
                         .descripcion(invitado.getDescripcion())
-                        .fotoUrl(rutaFoto)
+                        .fotoURL(rutaFoto)
                         .build();
 
             } catch (IOException e) {
@@ -78,7 +78,7 @@ public class ServicioInvitadoImpl implements IServicioInvitado{
                         .nombre(inv.getNombre())
                         .apellidos(inv.getApellidos())
                         .descripcion(inv.getDescripcion())
-                        .fotoUrl(inv.getFotoURL())
+                        .fotoURL(inv.getFotoURL())
                         .build())
                 .collect(Collectors.toList());
     }

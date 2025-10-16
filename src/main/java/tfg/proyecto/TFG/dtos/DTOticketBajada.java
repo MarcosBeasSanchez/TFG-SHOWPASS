@@ -7,18 +7,20 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import tfg.proyecto.TFG.modelo.EstadoTicket;
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class DTOticketBajada {
 	private Long id;
-	private Long usuarioId; // Fk
-	private Long eventoId; // Fk
-	private String codigoQR;
-	private LocalDateTime fechaCompra; // guardar la fecha actual
-	private double precio;
-	private String eventoNombre;
-    private String eventoImagen;
-    private LocalDateTime eventoInicio;
+    private String codigoQR;
+    private LocalDateTime fechaCompra;
+    private double precioPagado;
+    private EstadoTicket estado;
+    private Long usuarioId;
+    private String nombreUsuario;
+    
+    private Long eventoId;
+    private String nombreEvento;
 }

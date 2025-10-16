@@ -14,12 +14,14 @@ import tfg.proyecto.TFG.modelo.Rol;
 @AllArgsConstructor
 public class DTOusuarioBajada {
 	private Long id;
-	private String nombre; 
-	private String email;
-	private LocalDate fechaNacimiento;
-	private String foto;
-	private Rol rol;
-	private DTOtarjetaBancariaBajada cuenta;
-	private Boolean activo;
+    private String nombre;
+    private String email;
+    private LocalDate fechaNacimiento;
+    private String foto;
+    private Rol rol;
+    private boolean reportado;
+
+    private Long tarjetaId;
+    private Long carritoId;
 
 }

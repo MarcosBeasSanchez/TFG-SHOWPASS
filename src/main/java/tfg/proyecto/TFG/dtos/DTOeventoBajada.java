@@ -31,6 +31,7 @@ public class DTOeventoBajada {
     private List<String> imagenesCarruselUrls;
 
     private List<DTOInvitadoBajada> invitados;
+    
     private Long vendedorId;
 
 

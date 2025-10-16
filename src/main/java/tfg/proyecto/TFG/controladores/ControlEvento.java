@@ -85,7 +85,7 @@ public class ControlEvento {
 	                        }
 	                    })
 	                    .toList();
-	            dto.setImagenesCarrusels(carruselBase64);
+	            dto.setImagenesCarruselUrls(carruselBase64);
 	        }
 
 	        DTOeventoBajada evento = daoEvento.insert(dto);

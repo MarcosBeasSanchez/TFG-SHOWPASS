@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class DTOEventoImagenSubida {
-    private String imagenBase64; // Imagen en Base64 o URL
+    private String url; 
 
 }

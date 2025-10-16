@@ -61,7 +61,7 @@ public class ServicioTicketImpl implements IServicioTicket{
 	        Ticket ticket = new Ticket();
 	        ticket.setUsuario(usuario);
 	        ticket.setEvento(evento);
-	        ticket.setPrecioPagado(dto.getPrecio());
+	        ticket.setPrecioPagado(dto.getPrecioPagado());
 	        ticket.setEstado(EstadoTicket.VALIDO);
 	        ticket.setFechaCompra(LocalDateTime.now());
 

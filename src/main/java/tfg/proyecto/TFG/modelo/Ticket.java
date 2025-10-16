@@ -1,9 +1,7 @@
 package tfg.proyecto.TFG.modelo;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -18,6 +16,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @Builder
@@ -38,11 +37,13 @@ public class Ticket {
     private EstadoTicket estado; // VÁLIDO, USADO, ANULADO
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
     @ManyToOne
     @JoinColumn(name = "evento_id")
+    @ToString.Exclude
     private Evento evento;
 
 }

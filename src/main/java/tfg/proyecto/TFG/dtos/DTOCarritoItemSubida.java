@@ -9,10 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class DTOInvitadoBajada {
-	private Long id;
-    private String nombre;
-    private String apellidos;
-    private String fotoURL;
-    private String descripcion;
+public class DTOCarritoItemSubida {
+    private Long eventoId;
+    private int cantidad;
 }
