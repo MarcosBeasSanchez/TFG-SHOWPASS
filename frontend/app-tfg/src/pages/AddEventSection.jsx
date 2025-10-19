@@ -103,6 +103,17 @@ const AddEventSection = () => {
 
         try {
             const payload = new FormData();
+
+            // ✅ Recupera el usuario logueado (ajusta la clave según tu localStorage)
+            const user = JSON.parse(localStorage.getItem("user")); // o "usuario", según cómo lo guardes
+            if (!user || !user.id) {
+                alert("No se encontró el ID del usuario (vendedor).");
+                return;
+            }
+
+            payload.append("vendedorId", user.id); // 👈 IMPORTANTE
+
+            // Resto de campos
             payload.append("nombre", formData.nombre);
             payload.append("localizacion", formData.localizacion);
             payload.append("inicioEvento", formData.inicioEvento);
@@ -110,17 +121,14 @@ const AddEventSection = () => {
             payload.append("descripcion", formData.descripcion);
             payload.append("precio", formData.precio);
             payload.append("categoria", formData.categoria);
-
             if (formData.imagen) payload.append("imagen", formData.imagen);
             formData.carrusels.forEach((file) => payload.append("carrusels", file));
             payload.append("invitados", JSON.stringify(formData.invitados));
 
             const res = await fetch(`${config.apiBaseUrl}/tfg/evento/insert`, {
                 method: "POST",
-                body: payload
+                body: payload,
             });
-
-            console.log(res);
 
             if (!res.ok) throw new Error("Error al crear evento");
 
@@ -135,7 +143,7 @@ const AddEventSection = () => {
                 categoria: "",
                 imagen: null,
                 carrusels: [],
-                invitados: []
+                invitados: [],
             });
 
             fetchEventos();
@@ -144,6 +152,7 @@ const AddEventSection = () => {
             setMessage("❌ Error al crear evento");
         }
     };
+
 
     const eliminarEvento = async (id) => {
         setMessage("");

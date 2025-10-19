@@ -18,6 +18,7 @@ const UserTickets = () => {
         const response = await fetch(`${config.apiBaseUrl}/tfg/ticket/findByUsuarioId/${userId}`);
         if (response.ok) {
           const data = await response.json();
+          console.log('Tickets recibidos del backend:', data);
           setTickets(data);
         } else {
 
@@ -57,8 +58,8 @@ const UserTickets = () => {
                   qr_code
                 </span>
                 <div>
-                  <p className="font-semibold text-blue-950 oscuroTextoGris">{ticket.eventoNombre}</p>
-                  <p className="text-gray-500">Precio: {ticket.precio?.toFixed(2) ?? "?"} €</p>
+                  <p className="font-semibold text-blue-950 oscuroTextoGris">{ticket.nombreEvento}</p>
+                  <p className="text-gray-500">Precio: {ticket.precioPagado?.toFixed(2) ?? "?"} €</p>
                   <p className="text-gray-500">Fecha Compra: {new Date(ticket.fechaCompra).toLocaleString()}</p>
                 </div>
               </div>

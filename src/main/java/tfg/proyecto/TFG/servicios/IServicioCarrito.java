@@ -7,9 +7,10 @@ import tfg.proyecto.TFG.dtos.DTOeventoSubida;
 public interface IServicioCarrito {
 	
 	DTOCarritoBajada obtenerCarritoPorUsuario(Long Id);
-	DTOCarritoBajada agregarEvento(Long usuarioId, Long eventoId);
+	DTOCarritoBajada agregarEventoPorCarrito(Long carritoId, Long eventoId, int cantidad);
 	DTOCarritoBajada eliminarEvento(Long usuarioId, Long eventoId);
 	DTOCarritoBajada vaciarCarrito(Long usuarioId);
 	double calcularTotal(Long usuarioId);
-	DTOCarritoBajada finalizarCompra(Long usuarioId);
+	DTOCarritoBajada actualizarCantidad(Long usuarioId, Long eventoId, int cantidad);
+	DTOCarritoBajada finalizarCompraPorCarrito(Long carritoId);
 }

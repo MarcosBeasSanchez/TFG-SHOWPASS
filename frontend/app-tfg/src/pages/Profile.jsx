@@ -1,37 +1,33 @@
 import React, { useEffect, useState } from 'react';
 import config from '../config/config';
 const Profile = () => {
-    const [user, setUser] = useState({ // Estado inicial del usuario
+    const [user, setUser] = useState({
         nombre: '',
         email: '',
         fechaNacimiento: '',
         password: '',
         foto: '',
         rol: '',
-        cuenta: {
-            nombreTitular: '',
-            fechaCaducidad: '',
-            cvv: '',
-            saldo: '',
-            ntarjeta: ''
-        },
+        reportado: '',
+        tarjetaId: '',
+        carritoId: '',
         activo: false
     });
+
+    const [cuenta, setCuenta] = useState(null);
     const [editing, setEditing] = useState(false);
     const [editingPassword, setEditingPassword] = useState(false);
+
     const handleEdit = () => setEditing(true);
     const handleEditPassword = () => setEditingPassword(true);
     const handleCancel = () => setEditing(false);
-    const handleChange = (e) => { // Manejar cambios en los inputs
+    const handleChange = (e) => {
         const { name, value } = e.target;
         if (name.startsWith('cuenta.')) {
             const field = name.split('.')[1];
-            setUser(prev => ({
+            setCuenta(prev => ({
                 ...prev,
-                cuenta: {
-                    ...prev.cuenta,
-                    [field]: value
-                }
+                [field]: value
             }));
         } else {
             setUser(prev => ({
@@ -40,17 +36,16 @@ const Profile = () => {
             }));
         }
     };
+
     const handleSave = async () => {
         setEditing(false);
         const userString = localStorage.getItem("user");
         if (!userString) return;
+
         const userObj = JSON.parse(userString);
         const userId = userObj.id;
 
-        // 👇 Copia el usuario actual
         const userToSend = { ...user };
-
-        // 👇 Si la contraseña está vacía, no la mandes
         if (!userToSend.password || userToSend.password.trim() === "") {
             delete userToSend.password;
         }
@@ -58,9 +53,7 @@ const Profile = () => {
         try {
             const response = await fetch(`${config.apiBaseUrl}/tfg/usuario/update/${userId}`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(userToSend)
             });
 
@@ -77,17 +70,38 @@ const Profile = () => {
         }
     };
 
-    useEffect(() => { // Cargar datos del usuario
-        const fetchUser = async () => {
-            const userString = localStorage.getItem("user");
-            if (!userString) return;
-            const userObj = JSON.parse(userString);
-            const userId = userObj.id;
-            const response = await fetch(`${config.apiBaseUrl}/tfg/usuario/findById/${userId}`);
-            const data = await response.json();
-            setUser(data); // Actualiza el estado con los datos del usuario
+    useEffect(() => {
+        const fetchUserAndCuenta = async () => {
+            try {
+                const userString = localStorage.getItem("user");
+                if (!userString) return;
+
+                const userObj = JSON.parse(userString);
+                const userId = userObj.id;
+
+                // 🔹 1. Obtener datos del usuario
+                const resUser = await fetch(`${config.apiBaseUrl}/tfg/usuario/findById/${userId}`);
+                const dataUser = await resUser.json();
+                console.log("Datos del usuario obtenidos:", dataUser);
+                setUser(dataUser);
+
+                // 🔹 2. Si tiene tarjetaId, obtener datos de la cuenta bancaria
+                if (dataUser.tarjetaId) {
+                    const resCuenta = await fetch(`${config.apiBaseUrl}/tfg/cuentaBancaria/findById/${dataUser.tarjetaId}`);
+                    if (resCuenta.ok) {
+                        const dataCuenta = await resCuenta.json();
+                        setCuenta(dataCuenta);
+                    } else {
+                        console.warn("No se pudo obtener la cuenta bancaria del usuario");
+                    }
+                }
+
+            } catch (error) {
+                console.error("Error cargando usuario o cuenta bancaria:", error);
+            }
         };
-        fetchUser();
+
+        fetchUserAndCuenta();
     }, []);
 
 
@@ -227,82 +241,91 @@ const Profile = () => {
                         </div>
                     </div>
 
+
+                    {/* Columna 2: Datos de la cuenta bancaria */}
                     <div className="flex-1 space-y-4">
                         <h3 className="text-xl font-semibold text-center text-gray-600 oscuroTextoGris mb-2">Tarjeta Bancaria</h3>
+
                         <div className="flex flex-col gap-2">
                             <label className="block text-gray-700 mb-1 oscuroTextoGris">Titular:</label>
                             {editing ? (
                                 <input
                                     type="text"
                                     name="cuenta.nombreTitular"
-                                    value={user.cuenta.nombreTitular ?? ""}
+                                    value={cuenta?.nombreTitular ?? ""}
                                     maxLength={255}
                                     onChange={handleChange}
-                                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black oscuroBox "
+                                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black oscuroBox"
                                 />
                             ) : (
-                                <span className="block p-3 bg-gray-100 rounded-lg text-black oscuroBox ">{user.cuenta.nombreTitular || <span>&nbsp;</span>}</span>
+                                <span className="block p-3 bg-gray-100 rounded-lg text-black oscuroBox">{cuenta?.nombreTitular || <span>&nbsp;</span>}</span>
                             )}
                         </div>
+
                         <div className="flex flex-col gap-2">
                             <label className="block text-gray-700 mb-1 oscuroTextoGris">Fecha caducidad:</label>
                             {editing ? (
                                 <input
                                     type="date"
                                     name="cuenta.fechaCaducidad"
-                                    value={user.cuenta.fechaCaducidad ?? ""}
+                                    value={cuenta?.fechaCaducidad ?? ""}
                                     onChange={handleChange}
                                     className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black oscuroBox"
                                 />
                             ) : (
-                                <span className="block p-3 bg-gray-100 rounded-lg text-black oscuroBox">{user.cuenta.fechaCaducidad || <span>&nbsp;</span>}</span>
+                                <span className="block p-3 bg-gray-100 rounded-lg text-black oscuroBox">{cuenta?.fechaCaducidad || <span>&nbsp;</span>}</span>
                             )}
                         </div>
+
                         <div className="flex flex-col gap-2">
                             <label className="block text-gray-700 mb-1 oscuroTextoGris">CVV:</label>
                             {editing ? (
                                 <input
                                     type="text"
                                     name="cuenta.cvv"
-                                    value={user.cuenta.cvv ?? ""}
+                                    value={cuenta?.cvv ?? ""}
                                     maxLength={4}
                                     onChange={handleChange}
                                     className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black oscuroBox"
                                 />
                             ) : (
-                                <span className="block p-3 bg-gray-100 rounded-lg text-black oscuroBox">{user.cuenta.cvv || <span>&nbsp;</span>}</span>
+                                <span className="block p-3 bg-gray-100 rounded-lg text-black oscuroBox">{cuenta?.cvv || <span>&nbsp;</span>}</span>
                             )}
                         </div>
+
                         <div className="flex flex-col gap-2">
                             <label className="block text-gray-700 mb-1 oscuroTextoGris">Saldo:</label>
                             {editing ? (
                                 <input
                                     type="number"
                                     name="cuenta.saldo"
-                                    value={user.cuenta.saldo ?? ""}
+                                    value={cuenta?.saldo ?? ""}
                                     onChange={handleChange}
                                     className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black oscuroBox"
                                 />
                             ) : (
-                                <span className="block p-3 bg-gray-100 rounded-lg text-black oscuroBox">{user.cuenta.saldo || <span>&nbsp;</span>}</span>
+                                <span className="block p-3 bg-gray-100 rounded-lg text-black oscuroBox">{cuenta?.saldo || <span>&nbsp;</span>}</span>
                             )}
                         </div>
+
                         <div className="flex flex-col gap-2">
-                            <label className="block text-gray-700 mb-1 oscuroTextoGris ">Nº Tarjeta:</label>
+                            <label className="block text-gray-700 mb-1 oscuroTextoGris">Nº Tarjeta:</label>
                             {editing ? (
                                 <input
                                     type="text"
                                     name="cuenta.ntarjeta"
-                                    value={user.cuenta.ntarjeta ?? ""}
+                                    value={cuenta?.ntarjeta ?? ""}
                                     maxLength={16}
                                     onChange={handleChange}
                                     className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black oscuroBox"
                                 />
                             ) : (
-                                <span className="block p-3 bg-gray-100 rounded-lg text-black oscuroBox">{user.cuenta.ntarjeta || <span>&nbsp;</span>}</span>
+                                <span className="block p-3 bg-gray-100 rounded-lg text-black oscuroBox">{cuenta?.ntarjeta || <span>&nbsp;</span>}</span>
                             )}
                         </div>
                     </div>
+
+
                 </div>
                 <div className="mt-6">
                     {editing ? (

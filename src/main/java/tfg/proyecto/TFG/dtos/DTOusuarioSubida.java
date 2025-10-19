@@ -13,13 +13,13 @@ import tfg.proyecto.TFG.modelo.Rol;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DTOusuarioSubida {
-	private String nombre; 
-	private String email;
-	private String password;
-	private LocalDate fechaNacimiento;
-	private String foto;
+	private String nombre;
+    private String email;
+    private String password;
+    private LocalDate fechaNacimiento;
+    private String foto;
 	private Rol rol;
 	private DTOtarjetaBancariaSubida cuenta;
-	private Boolean activo;
+	 
 	private Boolean reportado;
 }

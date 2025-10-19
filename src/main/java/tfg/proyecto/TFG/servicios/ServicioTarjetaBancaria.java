@@ -81,6 +81,4 @@ public class ServicioTarjetaBancaria implements IServicioTarjetaBancaria{
 	public List<DTOtarjetaBancariaBajada> listAllCuentasBancarias() {
 		return dtoConverter.mapAll((List<TarjetaBancaria>) repoCuentaBancaria.findAll(), DTOtarjetaBancariaBajada.class);
 	}
-
-
 }

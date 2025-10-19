@@ -8,11 +8,14 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @Builder
@@ -22,15 +25,22 @@ import lombok.NoArgsConstructor;
 @Entity
 public class TarjetaBancaria {
 	
-	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String nombreTitular;
-    @Column(length = 16)
-    private String nTarjeta;
-    private LocalDate fechaCaducidad;
-    @Column(length = 4)
-    private String cvv;  
-    private BigDecimal saldo;
+	 @Id
+	    @GeneratedValue(strategy = GenerationType.IDENTITY)
+	    private Long id;
+
+	    private String nombreTitular;
+	    @Column(length = 16)
+	    private String nTarjeta;
+	    private LocalDate fechaCaducidad;
+	    @Column(length = 4)
+
+	    private String cvv;
+	    private BigDecimal saldo;
+
+	    @ManyToOne
+	    @JoinColumn(name = "usuario_id")
+	    @ToString.Exclude
+	    private Usuario usuario;
 
 }

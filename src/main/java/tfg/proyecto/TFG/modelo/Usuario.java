@@ -1,6 +1,9 @@
 package tfg.proyecto.TFG.modelo;
 
 import java.time.LocalDate;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -13,12 +16,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @Builder
@@ -28,28 +33,35 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Usuario {
 	@Id
-	@EqualsAndHashCode.Include
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id; 
-	
-	private String nombre; //valores unicos e irrepetibles
-	@Column(unique = true)
-	private String email; //valores unicos e irrepetibles
-	
-	private String password; //dto lo devuelve sin la contraseña
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	private LocalDate fechaNacimiento;
-	
-	@Lob
-	private String foto;
-	
-	@Enumerated(EnumType.STRING)
-	private Rol rol; //admin o cliente
-	
-	@OneToOne(optional = true,cascade = CascadeType.ALL,fetch = FetchType.EAGER)
-	private TarjetaBancaria tarjeta;
-	
-	private Boolean activo;
-	
-	private Boolean reportado;
+    private String nombre;
+    @Column(unique = true)
+    private String email;
+    private String password;
+    private LocalDate fechaNacimiento;
+    private String foto;
+
+    @Enumerated(EnumType.STRING)
+    private Rol rol;  // CLIENTE, VENDEDOR, ADMIN
+
+    private boolean reportado;
+
+    // Relaciones
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "tarjeta_id")
+    private TarjetaBancaria tarjeta;
+
+    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL)
+    @ToString.Exclude
+    private Carrito carrito;
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    private List<Ticket> tickets;
+
+    @OneToMany(mappedBy = "vendedor", cascade = CascadeType.ALL)
+    @ToString.Exclude
+    private List<Evento> eventosCreados;
 }

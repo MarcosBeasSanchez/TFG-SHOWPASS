@@ -21,5 +21,5 @@ public class DTOusuarioModificarSubida {
 	private String foto;
 	private Rol rol;
 	private DTOtarjetaBancariaSubida cuenta;
-	private Boolean activo;
+	
 }

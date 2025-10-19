@@ -27,6 +27,7 @@ export default function EventDetail() {
         );
         if (!res.ok) throw new Error("Evento no encontrado");
         const data = await res.json();
+        console.log("Evento recibido del backend:", data);
         setEvento(data);
         setAnimate(true);
       } catch (err) {
@@ -50,32 +51,37 @@ export default function EventDetail() {
         .padStart(2, "0")}`;
   };
 
-  const handleEventoAlCarrito = async (cantidadSeleccionada) => {
-    const usuarioId = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")).id : null;
-    const eventoId = evento ? evento.id : null;
+const handleEventoAlCarrito = async (cantidadSeleccionada) => {
+  const user = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null;
+  const carritoId = user?.carritoId;
+  const eventoId = evento?.id;
 
-    try {
-      for (let i = 0; i < cantidadSeleccionada; i++) {
-        const res = await fetch(
-          `http://localhost:8080/tfg/carrito/agregar/${usuarioId}/${eventoId}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ cantidad: 1 }),
-          }
-        );
+  if (!carritoId || !eventoId) {
+    alert("No se pudo identificar el carrito o el evento");
+    return;
+  }
 
-        if (!res.ok) throw new Error("Error al agregar evento al carrito");
-        const data = await res.json();
-        console.log(`Carrito actualizado (${i + 1}/${cantidadSeleccionada}):`, data);
+  try {
+    const res = await fetch(
+      `http://localhost:8080/tfg/carrito/agregar/${carritoId}/${eventoId}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cantidad: cantidadSeleccionada }),
       }
-      alert(`Entrada agregada al carrito para: ${evento.nombre} (Cantidad: ${cantidadSeleccionada})`);
-    } catch (err) {
-      console.error(err);
-      alert("Hubo un error al agregar el evento al carrito ❌");
-      console.error("usuarioId:", usuarioId, " eventoId: ", eventoId);
-    }
-  };
+    );
+
+    if (!res.ok) throw new Error("Error al agregar evento al carrito");
+    const data = await res.json();
+    console.log("Carrito actualizado:", data);
+
+    alert(`Entrada agregada al carrito para: ${evento.nombre} (Cantidad: ${cantidadSeleccionada})`);
+  } catch (err) {
+    console.error(err);
+    alert("Hubo un error al agregar el evento al carrito ❌");
+  }
+};
+
 
   if (loading) return <p className="p-4 text-gray-800">Cargando evento...</p>;
   if (error) return <p className="p-4 text-red-500">Error: {error}</p>;
@@ -116,7 +122,7 @@ export default function EventDetail() {
     <div className="flex flex-col items-center">
       <div className="relative w-full">
         <img
-          src={getImageSrc(evento.imagen)}
+          src={getImageSrc(evento.imagenPrincipalUrl)}
           alt={evento.nombre}
           className="w-full h-120 object-cover"
         />
@@ -153,12 +159,12 @@ export default function EventDetail() {
           </div>
 
           {/* Carrusel de imágenes */}
-          {evento.carrusels && evento.carrusels.length > 0 ? (
+          {evento.imagenesCarruselUrls && evento.imagenesCarruselUrls.length > 0 ? (
             <div className="flex flex-col items-center">
               <div className="max-w-4xl mx-auto text-left">
                 <div className="mb-8">
                   <div className="flex space-x-4 overflow-x-auto p-2 carrusel-sin-scrollbar">
-                    {evento.carrusels.map((foto, index) => (
+                    {evento.imagenesCarruselUrls.map((foto, index) => (
                       <img
                         key={index}
                         src={getImageSrc(foto)}

@@ -1,5 +1,6 @@
 package tfg.proyecto.TFG.servicios;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -19,6 +20,8 @@ import tfg.proyecto.TFG.dtos.DTOusuarioLoginBajada;
 import tfg.proyecto.TFG.dtos.DTOusuarioModificarSubida;
 import tfg.proyecto.TFG.dtos.DTOusuarioSubida;
 import tfg.proyecto.TFG.dtos.DTOusuarioSubidaMinimo;
+import tfg.proyecto.TFG.modelo.Carrito;
+import tfg.proyecto.TFG.modelo.EstadoCarrito;
 import tfg.proyecto.TFG.modelo.Rol;
 import tfg.proyecto.TFG.modelo.TarjetaBancaria;
 import tfg.proyecto.TFG.modelo.Usuario;
@@ -40,97 +43,99 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 	RepositorioTicket repoTicket;
 	@Autowired
 	DtoConverter dtoConverter;
+	@Autowired
+	ServicioImagenImpl servicioImagen;
 
 	private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
 	@Override
-	public DTOusuarioBajada insert(DTOusuarioSubida usuarioDto) {
-		Usuario usuario;
-		DTOusuarioBajada dtoBajada;
-		
-		
-		if (usuarioDto.getRol() == null || usuarioDto.getRol().toString().isEmpty()) {
-		    usuarioDto.setRol(Rol.CLIENTE);
-		}
+    public DTOusuarioBajada insert(DTOusuarioSubida usuarioDto) {
+        // Rol por defecto
+        if (usuarioDto.getRol() == null) usuarioDto.setRol(Rol.CLIENTE);
 
+        Usuario usuario = dtoConverter.map(usuarioDto, Usuario.class);
 
-		usuario = dtoConverter.map(usuarioDto, Usuario.class);
-		
-		
-		repoUsuario.save(usuario);
+        // Foto opcional en Base64
+        try {
+            if (usuarioDto.getFoto() != null && usuarioDto.getFoto().length() > 200) {
+                String ruta = servicioImagen.guardarImagenBase64(usuarioDto.getFoto(), "usuarios");
+                usuario.setFoto(ruta);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Error guardando foto de usuario", e);
+        }
 
-		dtoBajada = dtoConverter.map(usuario, DTOusuarioBajada.class);
-		return dtoBajada;
-	}
+        // Hash de contraseña
+        if (usuario.getPassword() != null) {
+            usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
+            
+       
+            Carrito carrito = new Carrito();
+            carrito.setUsuario(usuario);
+            carrito.setEstado(EstadoCarrito.ACTIVO);
+            usuario.setCarrito(carrito);
+        }
+
+        repoUsuario.save(usuario);
+        return dtoConverter.map(usuario, DTOusuarioBajada.class);
+    }
 
 	@Override
-	public DTOusuarioBajada update(DTOusuarioModificarSubida usuarioDto) {
-	    DTOusuarioBajada dtoBajada;
+    public DTOusuarioBajada update(DTOusuarioModificarSubida usuarioDto) {
+        Usuario u = repoUsuario.findById(usuarioDto.getId())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-	    Optional<Usuario> optionalUsuario = repoUsuario.findById(usuarioDto.getId());
-	    if (optionalUsuario.isPresent()) {
-	        Usuario usuario = optionalUsuario.get();
+        // Campos editables
+        u.setNombre(usuarioDto.getNombre());
+        u.setEmail(usuarioDto.getEmail());
+        u.setFechaNacimiento(usuarioDto.getFechaNacimiento());
+    
+        if (usuarioDto.getRol() != null) u.setRol(usuarioDto.getRol());
 
-	        // 🔹 Actualizar solo los campos editables
-	        usuario.setNombre(usuarioDto.getNombre());
-	        usuario.setEmail(usuarioDto.getEmail());
-	        usuario.setFechaNacimiento(usuarioDto.getFechaNacimiento());
-	        usuario.setFoto(usuarioDto.getFoto());
-	        usuario.setRol(usuarioDto.getRol());
-	        usuario.setActivo(usuarioDto.getActivo());
+        // Foto (si viene base64 larga) o mantener existente si llega null/vacía
+        try {
+            String fotoIn = usuarioDto.getFoto();
+            if (fotoIn != null && fotoIn.length() > 200) {
+                String ruta = servicioImagen.guardarImagenBase64(fotoIn, "usuarios");
+                u.setFoto(ruta);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Error guardando foto de usuario", e);
+        }
 
-	        //  Contraseña: solo si se envía una nueva
-	        if (usuarioDto.getPassword() != null && !usuarioDto.getPassword().isBlank()) {
-	            usuario.setPassword(passwordEncoder.encode(usuarioDto.getPassword()));
-	        }
-	        //  Si password es null o vacío => se mantiene la que ya estaba en la BD
+        // Password solo si llega una nueva no vacía
+        if (usuarioDto.getPassword() != null && !usuarioDto.getPassword().isBlank()) {
+            u.setPassword(passwordEncoder.encode(usuarioDto.getPassword()));
+        }
 
-	        //  Tarjeta bancaria (puedes validar nulls aquí también)
-	        if (usuarioDto.getCuenta() != null) {
-	            if (usuario.getTarjeta() == null) {
-	                usuario.setTarjeta(new TarjetaBancaria());
-	            }
-	            usuario.getTarjeta().setNombreTitular(usuarioDto.getCuenta().getNombreTitular());
-	            usuario.getTarjeta().setFechaCaducidad(usuarioDto.getCuenta().getFechaCaducidad());
-	            usuario.getTarjeta().setCvv(usuarioDto.getCuenta().getCvv());
-	            usuario.getTarjeta().setSaldo(usuarioDto.getCuenta().getSaldo());
-	            usuario.getTarjeta().setNTarjeta(usuarioDto.getCuenta().getNTarjeta());
-	        }
+        // Tarjeta (si tu DTO trae sub-objeto)
+        if (usuarioDto.getCuenta() != null) {
+            if (u.getTarjeta() == null) u.setTarjeta(new TarjetaBancaria());
+            u.getTarjeta().setNombreTitular(usuarioDto.getCuenta().getNombreTitular());
+            u.getTarjeta().setNTarjeta(usuarioDto.getCuenta().getNTarjeta());
+            u.getTarjeta().setFechaCaducidad(usuarioDto.getCuenta().getFechaCaducidad());
+            u.getTarjeta().setCvv(usuarioDto.getCuenta().getCvv());
+            u.getTarjeta().setSaldo(usuarioDto.getCuenta().getSaldo());
+        }
 
-	        repoUsuario.save(usuario);
-	        dtoBajada = dtoConverter.map(usuario, DTOusuarioBajada.class);
-	    } else {
-	        dtoBajada = null;
+        repoUsuario.save(u);
+        return dtoConverter.map(u, DTOusuarioBajada.class);
+    }
+
+	 @Override
+	    public Integer deleteById(Long id) {
+	        if (!repoUsuario.existsById(id)) return 0;
+	        repoUsuario.deleteById(id);
+	        return 1;
 	    }
 
-	    return dtoBajada;
-	}
-
-	@Override
-	public Integer deleteById(Long id) {
-		Integer nfilas = 0;
-
-		if (repoUsuario.existsById(id)) {
-			repoUsuario.deleteById(id); // elimina el usuario tener cuidado con cuentaBancaria
-			nfilas = 1;
-		}
-		return nfilas;
-	}
-
 	// devuelve nulo si no lo encuentra
-	@Override
-	public DTOusuarioBajada findById(Long id) {
-		DTOusuarioBajada dtobajada;
-		Usuario usuario;
-
-		if (repoUsuario.existsById(id)) {
-			usuario = repoUsuario.findById(id).get();
-			dtobajada = dtoConverter.map(usuario, DTOusuarioBajada.class);
-		} else {
-			dtobajada = null;
-		}
-		return dtobajada;
-	}
+	 @Override
+	    public DTOusuarioBajada findById(Long id) {
+	        Usuario u = repoUsuario.findById(id)
+	                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+	        return dtoConverter.map(u, DTOusuarioBajada.class);
+	    }
 
 	@Override
 	public List<DTOusuarioBajada> findAllUsuarios() {
@@ -139,77 +144,45 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 	}
 
 	@Override
-	public DTOusuarioBajada register(DTOusuarioSubidaMinimo usuarioDto) {
-		Usuario usuario;
-		DTOusuarioBajada dtoBajada;
-
-		usuario = dtoConverter.map(usuarioDto, Usuario.class);
-
-		usuario.setPassword(passwordEncoder.encode(usuario.getPassword())); // hashear contraseña
-		usuario.setFoto("https://i.pinimg.com/736x/d9/d8/8e/d9d88e3d1f74e2b8ced3df051cecb81d.jpg"); //foto por defecto
-		usuario.setActivo(true); // activo por defecto
-		usuario.setRol(usuario.getRol());
-		
-		// Valores por defecto de la tarjeta
-	    TarjetaBancaria tarjeta = new TarjetaBancaria();
-	    tarjeta.setNombreTitular("");
-	    tarjeta.setNTarjeta("");
-	    tarjeta.setFechaCaducidad(LocalDate.now()); //caduca hoy
-	    tarjeta.setCvv("");
-	    tarjeta.setSaldo(BigDecimal.ZERO);
-		usuario.setTarjeta(tarjeta);
-		repoUsuario.save(usuario);
-
-		dtoBajada = dtoConverter.map(usuario, DTOusuarioBajada.class);
-
-		return dtoBajada;
-	}
-	@Override
-	public DTOusuarioBajada registerConDatos(DTOusuarioSubida usuarioDto) {
-		Usuario usuario;
-		DTOusuarioBajada dtoBajada;
-
-		usuario = dtoConverter.map(usuarioDto, Usuario.class);
-
-		usuario.setPassword(passwordEncoder.encode(usuario.getPassword())); // hashear contraseña
-		repoUsuario.save(usuario);
-
-		dtoBajada = dtoConverter.map(usuario, DTOusuarioBajada.class);
-
-		return dtoBajada;
-	}
+    public DTOusuarioBajada register(DTOusuarioSubidaMinimo usuarioDto) {
+        Usuario u = dtoConverter.map(usuarioDto, Usuario.class);
+        u.setPassword(passwordEncoder.encode(u.getPassword()));
+        
+        if (u.getRol() == null) u.setRol(Rol.CLIENTE);
+        if (u.getFoto() == null) {
+            u.setFoto("/uploads/defaults/user.png"); // foto por defecto
+        }
+        // Tarjeta por defecto vacía (opcional)
+        if (u.getTarjeta() == null) u.setTarjeta(new TarjetaBancaria());
+        repoUsuario.save(u);
+        return dtoConverter.map(u, DTOusuarioBajada.class);
+    }
+	
+	 @Override
+	    public DTOusuarioBajada registerConDatos(DTOusuarioSubida usuarioDto) {
+	        return insert(usuarioDto); // misma lógica de insert
+	    }
 
 	@Override //login que compara los hashes de las contraseñas y tmb los emails
-	public DTOusuarioLoginBajada login(DTOusuarioLogin dtologin) {
-		Usuario usuario;
-		DTOusuarioBajada dtoUsuario;
-		DTOusuarioLoginBajada dtoLoginBajada = new DTOusuarioLoginBajada();
+	public DTOusuarioLoginBajada login(DTOusuarioLogin dtoLogin) {
+        Usuario u = repoUsuario.findByEmail(dtoLogin.getEmail());
+        DTOusuarioLoginBajada out = new DTOusuarioLoginBajada();
 
-		usuario = repoUsuario.findByEmail(dtologin.getEmail());
+        if (u != null && passwordEncoder.matches(dtoLogin.getPassword(), u.getPassword())) {
+            DTOusuarioBajada dtoUser = dtoConverter.map(u, DTOusuarioBajada.class);
+            String token = JwtUtil.generateToken(u.getEmail());
 
-		if (usuario != null && passwordEncoder.matches(dtologin.getPassword(), usuario.getPassword())) {
+            out.setDtousuarioBajada(dtoUser);
+            out.setToken(token);
+            out.setExito(true);
+            out.setMensaje("Login correcto");
+        } else {
+            out.setExito(false);
+            out.setMensaje("Credenciales incorrectas");
+        }
+        return out;
+    }
 
-			dtoUsuario = dtoConverter.map(usuario, DTOusuarioBajada.class);
-			
-			// Generar token JWT
-	        String token = JwtUtil.generateToken(usuario.getEmail());
-			
-			dtoLoginBajada.setDtousuarioBajada(dtoUsuario);
-			dtoLoginBajada.setToken(token);
-			dtoLoginBajada.setExito(true);
-			dtoLoginBajada.setMensaje("Login " + dtoUsuario.getEmail() +" realizado correctamente" );
-			//FALTA POR HACER EL TOKEN
-			
-		}else {
-			dtoLoginBajada.setDtousuarioBajada(null);
-			dtoLoginBajada.setExito(false);
-			dtoLoginBajada.setMensaje("Error Login " );
-			
-		}
-		return dtoLoginBajada;
-
-		
-	}
 
 	@Override
 	public DTOUsuarioReportado findByEmail(String email) {

@@ -55,7 +55,7 @@ export default function CategoriaEventos() {
             className=" text-gray-700 rounded-xl shadow-md hover:shadow-lg transition "
           >
             <img
-              src={getImageSrc(evento.imagen)}
+              src={getImageSrc(evento.imagenPrincipalUrl)}
               alt={evento.nombre}
               className="w-full h-80 object-cover"
             />

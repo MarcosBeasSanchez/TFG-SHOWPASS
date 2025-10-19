@@ -16,43 +16,45 @@ export default function ShoppingCart({ user }) {
 
   //cogemos el id del usuario desde localStorage
   const usuarioId = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")).id : null;
+  const carritoId = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")).carritoId : null;
 
+
+  //recuperar el carrito del usuario
   useEffect(() => {
-  // Recupera el usuario desde localStorage cada vez que el componente se monta
-  const userFromStorage = localStorage.getItem("user")
-    ? JSON.parse(localStorage.getItem("user"))
-    : null;
+    const userFromStorage = localStorage.getItem("user")
+      ? JSON.parse(localStorage.getItem("user"))
+      : null;
 
-  if (!userFromStorage || !userFromStorage.id) {
-    console.log("⚠️ No se encontró usuario en localStorage aún");
-    setLoading(false);
-    return;
-  }
-
-  const usuarioId = userFromStorage.id;
-
-  const fetchCarrito = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch(`${config.apiBaseUrl}/tfg/carrito/${usuarioId}`);
-      if (!res.ok) throw new Error("No se pudo cargar el carrito");
-      const data = await res.json();
-      setCarrito(data);
-
-      // Calcular total
-      const totalRes = await fetch(`${config.apiBaseUrl}/tfg/carrito/total/${usuarioId}`);
-      const totalData = await totalRes.json();
-      setTotal(totalData);
-    } catch (err) {
-      console.error(err);
-      setError(err.message);
-    } finally {
+    if (!userFromStorage || !userFromStorage.carritoId) {
+      console.log("⚠️ No se encontró carritoId en el usuario");
       setLoading(false);
+      return;
     }
-  };
 
-  fetchCarrito();
-}, []);
+    const fetchCarrito = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(`${config.apiBaseUrl}/tfg/carrito/${carritoId}`);
+        if (!res.ok) throw new Error("No se pudo cargar el carrito");
+        const data = await res.json();
+
+        console.log("Carrito recibido del backend:", data);
+        setCarrito(data);
+
+        // Si quieres calcular el total también
+        const totalRes = await fetch(`${config.apiBaseUrl}/tfg/carrito/total/${carritoId}`);
+        const totalData = await totalRes.json();
+        setTotal(totalData);
+      } catch (err) {
+        console.error(err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCarrito();
+  }, []);
 
   const eliminarEvento = async (eventoId) => {
     try {
@@ -89,20 +91,21 @@ export default function ShoppingCart({ user }) {
 
   const finalizarCompra = async () => {
     try {
-      const res = await fetch(`${config.apiBaseUrl}/tfg/carrito/finalizar/${usuarioId}`,
-        {
-          method: "POST"
-        });
+      const res = await fetch(`${config.apiBaseUrl}/tfg/carrito/finalizar/${carritoId}`, {
+        method: "POST"
+      });
 
       if (!res.ok) throw new Error("Error al finalizar la compra");
 
+      // Actualizar el carrito tras la compra
       const ticketRes = await fetch(`${config.apiBaseUrl}/tfg/ticket/findByUsuarioId/${usuarioId}`)
       const tickts = await ticketRes.json();
 
       setTicketsComprados(tickts)
 
-      const total = tickts.reduce((acc, ticket) => acc + ticket.precio, 0);
-      setTotalCompra(total)
+      const total = tickts.reduce((acc, ticket) => acc + ticket.precioPagado, 0); 
+      setTotalCompra(total);
+      console.log("tickets comprados:", tickts);
 
 
       alert("Compra realizada con éxito!");
@@ -114,8 +117,8 @@ export default function ShoppingCart({ user }) {
 
   {/*if (loading) return <p className="p-4">Cargando carrito...</p>;*/ }
   if (error) return <p className="p-4 text-red-500">Error: {error}</p>;
-  
-  if (!carrito || carrito.eventos.length === 0)
+
+  if (!carrito || carrito.items.length === 0)
     return (
       <div className="flex flex-col items-center justify-center min-h-screen w-full px-4">
         <div className="bg-white shadow-lg rounded-lg p-6 sm:p-8 flex flex-col items-center w-full max-w-md oscuro">
@@ -142,23 +145,22 @@ export default function ShoppingCart({ user }) {
   return (
     <div className="max-w-5xl mx-auto p-6 md-6  ">
       <h1 className="text-3xl font-bold mb-6 text-blue-950 oscuroTextoGris" >Tu Carrito de Compras</h1>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
 
-
-        {carrito.eventos.map((evento, index) => (
-          <div key={`${evento.id}-${index}`} className="flex justify-between items-end-safe pr-5 gap-2 bg-white shadow border-gray-500 border-l-4 p-2 oscuro rounded">
+        {carrito.items.map((item, index) => (
+          <div key={`${item.id}-${index}`} className="flex justify-between items-end-safe pr-5 gap-2 bg-white shadow border-gray-500 border-l-4 p-2 oscuro rounded">
             <div className="flex items-center gap-4">
-              <img src={evento.imagen} alt={evento.nombre} className="w-30 h-30 object-cover" />
+              {/* No tienes imagen directamente, puedes poner un placeholder o hacer otra consulta */}
               <div className="flex-3">
-                <h2 className="text-xl font-semibold text-blue-950 oscuroTextoGris">{evento.nombre}</h2>
-                <p className="text-gray-500">{evento.localizacion}</p>
-                <p className="text-gray-500">{evento.precio.toFixed(2)} €</p>
+                <h2 className="text-xl font-semibold text-blue-950 oscuroTextoGris">{item.nombreEvento}</h2>
+                <p className="text-gray-500">Cantidad: {item.cantidad}</p>
+                <p className="text-gray-500">Precio unitario: {item.precioUnitario.toFixed(2)} €</p>
+                <p className="text-gray-500">Subtotal: {(item.precioUnitario * item.cantidad).toFixed(2)} €</p>
               </div>
             </div>
             <button
-              onClick={() => eliminarEvento(evento.id)}
-              className="bg-red-500 text-white px-2 py-1 text-xs rounded hover:bg-red-600 "
+              onClick={() => eliminarEvento(item.eventoId)}
+              className="bg-red-500 text-white px-2 py-1 text-xs rounded hover:bg-red-600"
             >
               Eliminar
             </button>
@@ -216,8 +218,8 @@ export default function ShoppingCart({ user }) {
                   </span>
 
                   <div>
-                    <p className="font-semibold text-blue-950 oscuroTextoGris">{ticket.eventoNombre}</p>
-                    <p className="text-gray-500">Precio: {ticket.precio.toFixed(2)} €</p>
+                    <p className="font-semibold text-blue-950 oscuroTextoGris">{ticket.nombreEvento}</p>
+                    <p className="text-gray-500">Precio: {ticket.precioPagado.toFixed(2)} €</p>
                     <p className="text-gray-500">Inicio del evento: {new Date(ticket.eventoInicio).toLocaleString()}</p>
                   </div>
                 </div>
@@ -228,7 +230,7 @@ export default function ShoppingCart({ user }) {
                   >
                     Descargar PDF
                   </button>
-                   <button
+                  <button
                     onClick={() => enviarPDF(ticket)}
                     className="bg-gray-500 text-white text-xs  px-3 py-1 rounded hover:bg-gray-600"
                   >

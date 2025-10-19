@@ -75,7 +75,6 @@ public class ControlUsuario {
 	}
 
 	@DeleteMapping("delete/{id}")
-	@Modifying
 	@Transactional
 	public ResponseEntity<Integer> deleteUsuario(@PathVariable Long id) {
 
@@ -84,7 +83,7 @@ public class ControlUsuario {
 		if (n != null) {
 			return new ResponseEntity<Integer>(n, HttpStatus.OK);
 		} else {
-			return new ResponseEntity<Integer>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<Integer>(HttpStatus.NO_CONTENT);
 		}
 
 	}

@@ -70,7 +70,8 @@ import kotlinx.coroutines.launch
  *  - Mostrar los tickets del usuario autenticado.
  *  - Descargar cada ticket en formato PDF.
  *  - Enviar cada ticket por correo electrónico.
- *  - Vaciar todos los tickets localmente (con confirmación).
+ *  - Vaciar todos los tickets del usuario (confirmación incluida).
+ *  - Se comunica con el backend para borrar los tickets realmente de la base de datos.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -83,7 +84,8 @@ fun TicketsScreen(
     val tickets by ticketViewModel.tickets.collectAsState()
     val usuario = authViewModel.currentUser
 
-    // 🚀 Cargar tickets automáticamente al entrar en la pantalla
+
+    //  Cargar tickets automáticamente al entrar en la pantalla
     LaunchedEffect(usuario?.id) {
         usuario?.id?.let { ticketViewModel.cargarTickets(it) }
     }
@@ -93,6 +95,10 @@ fun TicketsScreen(
             .fillMaxSize()
             .padding(horizontal = 16.dp)
     ) {
+<<<<<<< HEAD
+=======
+        //  Encabezado de la pantalla
+>>>>>>> ddae60d1159ac3ca62612ae6f56bf09a41805431
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -102,7 +108,11 @@ fun TicketsScreen(
         ) {
             Icon(
                 imageVector = Icons.Default.QrCode,
+<<<<<<< HEAD
                 contentDescription = "Carrito",
+=======
+                contentDescription = "Icono tickets",
+>>>>>>> ddae60d1159ac3ca62612ae6f56bf09a41805431
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .size(32.dp)
@@ -115,6 +125,10 @@ fun TicketsScreen(
             )
         }
 
+<<<<<<< HEAD
+=======
+        //  Si no hay tickets, mostrar mensaje informativo
+>>>>>>> ddae60d1159ac3ca62612ae6f56bf09a41805431
         if (tickets.isEmpty()) {
             Box(
                 modifier = Modifier
@@ -125,6 +139,10 @@ fun TicketsScreen(
                 Text("Aún no tienes tickets", fontSize = 18.sp)
             }
         } else {
+<<<<<<< HEAD
+=======
+            //  Listado de tickets del usuario
+>>>>>>> ddae60d1159ac3ca62612ae6f56bf09a41805431
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -139,6 +157,7 @@ fun TicketsScreen(
                             usuario?.email?.let {
                                 ticketViewModel.enviarTicketPorEmail(context, it, ticket)
                             }
+<<<<<<< HEAD
                         }
                     )
                 }
@@ -146,6 +165,21 @@ fun TicketsScreen(
 
             VaciarTicketsSection(
                 onConfirmar = { ticketViewModel.vaciarTickets() }
+=======
+                        },
+                        onDelete = { ticketViewModel.eliminarTicket(context, ticket.id) }
+                    )
+                }
+            }
+
+            // Sección de "Vaciar tickets" (ahora conectada al backend)
+            VaciarTicketsSection(
+                onConfirmar = {
+                    usuario?.id?.let { userId ->
+                        ticketViewModel.vaciarTickets(context, userId)
+                    }
+                }
+>>>>>>> ddae60d1159ac3ca62612ae6f56bf09a41805431
             )
         }
     }
@@ -158,21 +192,25 @@ fun TicketsScreen(
  * Incluye:
  *  - Imagen del evento
  *  - Nombre, fecha y precio
- *  - Botón para descargar PDF
- *  - Botón para enviar por correo (con retardo de seguridad)
+ *  - Botones para:
+ *      - Descargar PDF
+ *      - Enviar por correo
+ *      - Eliminar ticket individual (con confirmación)
  */
 @Composable
 fun TicketCard(
     ticket: DTOTicketBajada,
     onDownload: () -> Unit,
-    onSendEmail: () -> Unit
+    onSendEmail: () -> Unit,
+    onDelete: () -> Unit
 ) {
     var enviando by remember { mutableStateOf(false) }
     var descargando by remember { mutableStateOf(false) }
+    var mostrarDialogoEliminar by remember { mutableStateOf(false) } // 🔹 Controla el diálogo
 
-    // ⚙️ Permite lanzar corrutinas desde el Composable (para delays)
     val coroutineScope = rememberCoroutineScope()
 
+    // Tarjeta del ticket
     Card(
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(6.dp),
@@ -184,7 +222,8 @@ fun TicketCard(
                 .fillMaxWidth()
                 .padding(12.dp)
         ) {
-            // 🖼 Imagen del evento
+
+            //  Imagen del evento
             Image(
                 painter = rememberAsyncImagePainter(ticket.eventoImagen),
                 contentDescription = ticket.eventoNombre,
@@ -197,16 +236,22 @@ fun TicketCard(
 
             Spacer(Modifier.height(10.dp))
 
-            // 📅 Información básica del evento
+            //  Información básica del evento
             Text(ticket.eventoNombre, fontWeight = FontWeight.Bold, fontSize = 18.sp)
             Text("Fecha: ${formatearFecha(ticket.eventoInicio)}", fontSize = 14.sp)
             Text("Precio: ${formatearPrecio(ticket.precio)} €", fontSize = 14.sp)
+<<<<<<< HEAD
+=======
+
+>>>>>>> ddae60d1159ac3ca62612ae6f56bf09a41805431
             Spacer(Modifier.height(10.dp))
 
-            // 🧩 Botones de acción: Descargar / Enviar por correo
+            //  Botones de acción: Descargar / Enviar / Eliminar
             Row(
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
+                    .height(45.dp)
             ) {
                 // --- Descargar PDF ---
                 Button(
@@ -214,7 +259,6 @@ fun TicketCard(
                         if (!descargando) {
                             descargando = true
                             onDownload()
-                            // ⏳ Espera 3 segundos antes de poder volver a pulsar
                             coroutineScope.launch {
                                 delay(3000)
                                 descargando = false
@@ -222,27 +266,37 @@ fun TicketCard(
                         }
                     },
                     enabled = !descargando,
-                    modifier = Modifier.weight(1f)
+
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(10.dp)
                 ) {
-                    if (descargando) {
-                        CircularProgressIndicator(
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    } else {
-                        Icon(Icons.Default.PictureAsPdf, contentDescription = null)
-                        Spacer(Modifier.width(6.dp))
-                        Text("Descargar")
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (descargando) {
+                            CircularProgressIndicator(
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                strokeWidth = 2.dp,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Default.PictureAsPdf,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
                     }
                 }
 
+<<<<<<< HEAD
                 // --- Enviar por correo ---
+=======
+                // --- Enviar correo ---
+>>>>>>> ddae60d1159ac3ca62612ae6f56bf09a41805431
                 ElevatedButton(
                     onClick = {
                         if (!enviando) {
                             enviando = true
                             onSendEmail()
-                            // ⏳ Espera 5 segundos antes de volver a habilitar
                             coroutineScope.launch {
                                 delay(5000)
                                 enviando = false
@@ -251,39 +305,92 @@ fun TicketCard(
                     },
                     enabled = !enviando,
                     modifier = Modifier.weight(1f),
+<<<<<<< HEAD
 
+=======
+                    shape = RoundedCornerShape(10.dp)
+>>>>>>> ddae60d1159ac3ca62612ae6f56bf09a41805431
                 ) {
-                    if (enviando) {
-                        CircularProgressIndicator(
-                            color = MaterialTheme.colorScheme.onPrimary,
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (enviando) {
+                            CircularProgressIndicator(
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                strokeWidth = 2.dp,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        } else {
+                            Icon(Icons.Default.Email, contentDescription = null, modifier = Modifier.size(20.dp))
+                        }
+                    }
+                }
+
+                // --- Eliminar ticket individual ---
+                FilledTonalButton(
+                    onClick = { mostrarDialogoEliminar = true },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.errorContainer),
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(10.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            Icons.Outlined.DeleteForever,
+                            contentDescription = "Eliminar ticket",
+                            tint = MaterialTheme.colorScheme.error,
                             modifier = Modifier.size(20.dp)
                         )
-                    } else {
-                        Icon(Icons.Default.Email, contentDescription = null)
-                        Spacer(Modifier.width(6.dp))
-                        Text("Enviar correo")
+
                     }
                 }
             }
         }
+    }
+
+
+    //  Diálogo de confirmación antes de eliminar el ticket
+    if (mostrarDialogoEliminar) {
+        AlertDialog(
+            onDismissRequest = { mostrarDialogoEliminar = false },
+            title = { Text("Eliminar ticket") },
+            text = { Text("¿Seguro que deseas eliminar este ticket? Esta acción no se puede deshacer.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        mostrarDialogoEliminar = false
+                        onDelete() // Ejecuta la eliminación
+                    }
+                ) {
+                    Text("Sí, eliminar", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { mostrarDialogoEliminar = false }) {
+                    Text("Cancelar")
+                }
+            }
+        )
     }
 }
 
 /**
  * Sección que muestra el botón "Vaciar tickets" al final de la lista.
  *
- * Incluye un diálogo de confirmación para evitar eliminaciones accidentales.
+ * Incluye:
+ *  - Diálogo de confirmación para evitar eliminaciones accidentales.
+ *  -  Conexión directa con el backend: elimina realmente los tickets del usuario en la BD.
+ *  -  Limpia la lista local tras eliminar los datos.
  */
 @Composable
 fun VaciarTicketsSection(onConfirmar: () -> Unit) {
     var mostrarDialogo by remember { mutableStateOf(false) }
 
-    // 🪟 Diálogo de confirmación
+
+    //  Diálogo de confirmación
     if (mostrarDialogo) {
         AlertDialog(
             onDismissRequest = { mostrarDialogo = false },
             title = { Text("¿Vaciar todos los tickets?") },
-            text = { Text("Esta acción eliminará todos los tickets de tu lista local. ¿Estás seguro?") },
+
+            text = { Text("Esta acción eliminará todos los tickets, descargalos o envia por correo antes de eliminar.") },
             confirmButton = {
                 TextButton(onClick = {
                     onConfirmar()
@@ -300,25 +407,37 @@ fun VaciarTicketsSection(onConfirmar: () -> Unit) {
         )
     }
 
-    // 🔘 Botón de vaciado
+
+    //  Botón de vaciado (ahora envía la petición DELETE al backend)
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 20.dp),
         contentAlignment = Alignment.Center
     ) {
+<<<<<<< HEAD
+=======
+
+>>>>>>> ddae60d1159ac3ca62612ae6f56bf09a41805431
         FilledTonalButton(
             onClick = { mostrarDialogo = true },
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
         ) {
             Text("Vaciar tickets", color = MaterialTheme.colorScheme.onError)
+<<<<<<< HEAD
+=======
+
+>>>>>>> ddae60d1159ac3ca62612ae6f56bf09a41805431
             Icon(
                 imageVector = Icons.Outlined.DeleteForever,
                 contentDescription = "Borrar",
                 modifier = Modifier.padding(start = 4.dp),
                 tint = MaterialTheme.colorScheme.onError
             )
+<<<<<<< HEAD
 
+=======
+>>>>>>> ddae60d1159ac3ca62612ae6f56bf09a41805431
         }
     }
 }

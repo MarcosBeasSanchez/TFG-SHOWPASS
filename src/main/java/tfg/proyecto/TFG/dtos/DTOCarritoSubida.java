@@ -12,5 +12,6 @@ import lombok.NoArgsConstructor;
 
 public class DTOCarritoSubida {
 
-	 private Long eventoId;
+	private Long eventoId;
+    private int cantidad;
 }

@@ -1,6 +1,5 @@
 package tfg.proyecto.TFG.dtos;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -18,18 +17,22 @@ import tfg.proyecto.TFG.modelo.Categoria;
 public class DTOeventoBajada {
 
 	private Long id;
-	private String nombre;
-	private String localizacion;
-	private LocalDateTime inicioEvento;
-	private LocalDateTime finEvento;
-	private List<DTOInvitado> invitados;
-	private String imagen;
-	private String descripcion;
-	@Singular
-	private List<String> carrusels;
-	private double precio;
-	private int aforo;
-	private Categoria categoria;
+    private String nombre;
+    private String localizacion;
+    private LocalDateTime inicioEvento;
+    private LocalDateTime finEvento;
+    private String descripcion;
+    private double precio;
+    private int aforo;
+    private Categoria categoria;
+
+    private String imagenPrincipalUrl;
+    @Singular
+    private List<String> imagenesCarruselUrls;
+
+    private List<DTOInvitadoBajada> invitados;
+    
+    private Long vendedorId;
 
 
 

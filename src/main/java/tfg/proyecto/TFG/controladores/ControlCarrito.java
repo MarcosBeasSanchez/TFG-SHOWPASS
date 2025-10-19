@@ -53,15 +53,21 @@ public class ControlCarrito {
 	}
 
 	// Agregar un evento al carrito
-	@PostMapping("/agregar/{usuarioId}/{eventoId}")
-	public ResponseEntity<DTOCarritoBajada> agregarEvento(@PathVariable Long usuarioId, @PathVariable Long eventoId) {
-		try {
-			DTOCarritoBajada carrito = carritoService.agregarEvento(usuarioId, eventoId);
-			return ResponseEntity.ok(carrito);
-		} catch (RuntimeException e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-		}
+	@PostMapping("/agregar/{carritoId}/{eventoId}")
+	public ResponseEntity<DTOCarritoBajada> agregarEvento(
+	        @PathVariable Long carritoId,
+	        @PathVariable Long eventoId,
+	        @RequestBody Map<String, Integer> body) {
+
+	    int cantidad = body.getOrDefault("cantidad", 1);
+	    try {
+	        DTOCarritoBajada carrito = carritoService.agregarEventoPorCarrito(carritoId, eventoId, cantidad);
+	        return ResponseEntity.ok(carrito);
+	    } catch (RuntimeException e) {
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+	    }
 	}
+
 
 	// Eliminar un evento del carrito
 	@DeleteMapping("/eliminar/{usuarioId}/{eventoId}")
@@ -97,15 +103,16 @@ public class ControlCarrito {
 	}
 
 	// Finalizar la compra
-	@PostMapping("/finalizar/{usuarioId}")
-	public ResponseEntity<DTOCarritoBajada> finalizarCompra(@PathVariable Long usuarioId) {
-		try {
-			DTOCarritoBajada carrito = carritoService.finalizarCompra(usuarioId);
-			return ResponseEntity.ok(carrito);
-		} catch (RuntimeException e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-		}
+	@PostMapping("/finalizar/{carritoId}")
+	public ResponseEntity<DTOCarritoBajada> finalizarCompra(@PathVariable Long carritoId) {
+	    try {
+	        DTOCarritoBajada dto = carritoService.finalizarCompraPorCarrito(carritoId);
+	        return ResponseEntity.ok(dto);
+	    } catch (RuntimeException e) {
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+	    }
 	}
+
 
 	@PostMapping("/enviarPdfEmail")
 	public ResponseEntity<Map<String, String>> sendTicketEmail(@RequestBody Map<String, String> payload) throws MessagingException, IOException {
@@ -129,7 +136,7 @@ public class ControlCarrito {
 	            pdfFile
 	    );
 
-	    // ✅ Devolver respuesta en formato JSON correcto
+	    // Devolver respuesta en formato JSON correcto
 	    Map<String, String> response = new HashMap<>();
 	    response.put("mensaje", "Correo enviado correctamente");
 	    response.put("email", email);

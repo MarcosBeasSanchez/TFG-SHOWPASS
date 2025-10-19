@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import AddEventSection from '../pages/AddEventSection'; // Importas tu componente
-import EditEventSection from '../pages/EditEventSection';   // Si lo usarás luego
+import AddEventSection from '../pages/AddEventSection'; 
+import EditEventSection from '../pages/EditEventSection';  
 
 const sectionTitles = {
   addEvent: 'Añadir Evento',

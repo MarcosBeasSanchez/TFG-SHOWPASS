@@ -74,30 +74,14 @@ class CarritoViewModel : ViewModel() {
                 val eventos = _carrito.value?.eventos ?: emptyList()
                 _eventosComprados.value = eventos
 
-                // Llamamos al endpoint para finalizar el carrito
+                // Solo llamamos al backend
                 RetrofitClient.carritoApiService.finalizarCompra(usuarioId)
 
-                //  Por cada evento, generamos su ticket
-                for (evento in eventos) {
-                    try {
-                        val dtoTicket = DTOTicketSubida(
-                            usuarioId = usuarioId,
-                            eventoId = evento.id,
-                            precio = evento.precio
-                        )
-                        RetrofitClient.ticketApiService.insertarTicket(dtoTicket)
-                        Log.d("CarritoVM", "🎟 Ticket generado para ${evento.nombre}")
-                    } catch (t: Throwable) {
-                        Log.e("CarritoVM", "❌ Error generando ticket: ${t.message}")
-                    }
-                }
-
-                // 3️⃣ Limpiamos carrito
+                // Limpiar carrito
                 _carrito.value = null
                 _total.value = 0.0
 
                 onSuccess()
-
             } catch (e: Exception) {
                 e.printStackTrace()
             }

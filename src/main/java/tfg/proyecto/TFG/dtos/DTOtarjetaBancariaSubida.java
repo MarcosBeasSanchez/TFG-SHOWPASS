@@ -15,10 +15,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class DTOtarjetaBancariaSubida {
 
-    private String nombreTitular;
+	private String nombreTitular;
     private String nTarjeta;
     private LocalDate fechaCaducidad;
-    private String cvv;  
+    private String cvv;
     private BigDecimal saldo;
+    private Long usuarioId;
 
 }

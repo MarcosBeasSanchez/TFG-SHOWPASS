@@ -28,7 +28,7 @@ export default function VentanaPrincipal() {
 
   // Función para detectar si la imagen es URL o Base64
   const getImageSrc = (img) => {
-    if (!img) return ""; // si no hay imagen, devolvemos vacío
+    if (!img) return null; // si no hay imagen, devolvemos vacío
     if (img.startsWith("data:image/")) return img; // ya es Base64 con prefijo → no hacer nada
     if (img.startsWith("http://") || img.startsWith("https://")) return img; // es URL externa → usar tal cual
     return `data:image/png;base64,${img}`; // es Base64 crudo → agregamos el prefijo necesario
@@ -41,11 +41,12 @@ export default function VentanaPrincipal() {
         const res = await fetch("http://localhost:8080/tfg/evento/findAll");
         const data = await res.json();
         setEntradas(data);
+        console.log("Eventos recibidos del backend:", data);
         // Mezclar los eventos aleatoriamente solo una vez
         setEntradasAleatorias([...data].sort(() => Math.random() - 0.5));
       } catch (err) {
         console.error("Error cargando eventos:", err);
-      } finally { 
+      } finally {
         setLoading(false);
       }
     };
@@ -54,6 +55,13 @@ export default function VentanaPrincipal() {
 
   const primerEvento = entradasAleatorias[0];
   const restoEventos = entradasAleatorias.slice(1);
+
+  // Obtener usuario desde localStorage para depuración
+  const userFromStorage = localStorage.getItem("user")
+    ? JSON.parse(localStorage.getItem("user"))
+    : null;
+
+  console.log("Usuario desde localStorage:", userFromStorage);
 
   if (loading) {
     return <p className="text-center mt-10 text-gray-500">Cargando eventos...</p>;
@@ -93,7 +101,7 @@ export default function VentanaPrincipal() {
               <div className="relative w-full ">
                 {/* Usamos getImageSrc para asegurar que la imagen sea válida */}
                 <img
-                  src={getImageSrc(primerEvento.imagen)}
+                  src={getImageSrc(primerEvento.imagenPrincipalUrl)}
                   alt={primerEvento.nombre}
                   className="w-full h-100 object-cover transition duration-500 group-hover:opacity-70"
                 />
@@ -138,7 +146,7 @@ export default function VentanaPrincipal() {
             <Link to={`/evento/${entrada.nombre}`}>
               <div className="relative w-full h-80 ">
                 <img
-                  src={getImageSrc(entrada.imagen)}
+                  src={getImageSrc(entrada.imagenPrincipalUrl)}
                   alt={entrada.nombre}
                   className="w-full h-80 object-cover transition duration-500 group-hover:opacity-70"
                 />

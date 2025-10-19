@@ -52,7 +52,7 @@ export default function BusquedaEventos() {
                         <Link to={`/evento/${evento.nombre}`} className="w-full sm:w-full [@media(min-width:978px)]:w-130 lg:w-120 flex-shrink-0">
                             <div className="w-full h-90 aspect-square overflow-hidden flex items-center justify-center bg-gray-200">
                                 <img
-                                    src={getImageSrc(evento.imagen)}
+                                    src={getImageSrc(evento.imagenPrincipalUrl)}
                                     alt={evento.nombre}
                                     className="w-full h-full object-cover transition duration-500 group-hover:opacity-70"
                                 />

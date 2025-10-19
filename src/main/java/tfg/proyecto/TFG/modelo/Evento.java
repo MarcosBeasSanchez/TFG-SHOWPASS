@@ -1,14 +1,11 @@
 package tfg.proyecto.TFG.modelo;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import jakarta.persistence.CollectionTable;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -17,12 +14,15 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.Singular;
+import lombok.ToString;
 
 @Data
 @Builder
@@ -32,34 +32,41 @@ import lombok.Singular;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Evento {
 	@Id
-	@EqualsAndHashCode.Include
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id; 
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 	
 	@Column(length = 100)
-	private String nombre;
-	private String localizacion;
-	
-	@Singular
-	@ElementCollection // Para listas de objetos simples
-	@CollectionTable(name = "evento_invitados", //CREA TABLA EVENTO_INVITADOS
-	joinColumns = @JoinColumn(name = "evento_id")) //EVENTO_ID ES EL @ID DE LA TABLA
-	private List<Invitado> invitados;
-	
-	@Lob
-	private String imagen;
-	private LocalDateTime inicioEvento;
-	private LocalDateTime finEvento;
-	@Lob // Para textos largos
-	private String descripcion;
-	
-	@Singular
-	@Lob
-	private List<String> carrusels;
-	private double precio;
-	private int aforo;
-	@Enumerated(EnumType.STRING)
-	private Categoria categoria;
+    private String nombre;
+	@Column(length = 100)
+    private String localizacion;
 
+    @Lob
+    private String imagen; // Base64 o URL
+
+    private LocalDateTime inicioEvento;
+    private LocalDateTime finEvento;
+    @Lob
+    private String descripcion;
+    private double precio;
+    private int aforoMax;
+
+    @Enumerated(EnumType.STRING)
+    private Categoria categoria;
+
+    @ManyToOne
+    @JoinColumn(name = "vendedor_id")
+    @ToString.Exclude
+    private Usuario vendedor;
+
+    @OneToMany(mappedBy = "evento", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    private List<Invitado> invitados;
+    
+    @Singular
+    private List<String> imagenesCarruselUrls;
+
+    @OneToMany(mappedBy = "evento", cascade = CascadeType.ALL)
+    @ToString.Exclude
+    private List<Ticket> tickets;
 	
 }
