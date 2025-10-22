@@ -11,6 +11,7 @@ data class Usuario (
     val rol: Rol,
     val foto: String,
     val cuenta: TarjetaBancaria? = null,
-    val activo: Boolean,
-    val reportado: Boolean = false
+    val reportado: Boolean = false,
+    val carrito: Carrito? = null,
+    val tickets: List<Ticket> = emptyList()
 )

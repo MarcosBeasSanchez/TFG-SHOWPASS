@@ -4,9 +4,12 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.appmovilshowpass.data.remote.api.RetrofitClient
+import com.example.appmovilshowpass.data.remote.dto.DTOCarritoItemSubida
 import com.example.appmovilshowpass.data.remote.dto.DTOTicketSubida
 import com.example.appmovilshowpass.data.remote.dto.toCarrito
 import com.example.appmovilshowpass.model.Carrito
+import com.example.appmovilshowpass.model.Categoria
+import com.example.appmovilshowpass.model.EstadoCarrito
 import com.example.appmovilshowpass.model.Evento
 import com.example.appmovilshowpass.utils.generarTicketPdf
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,71 +26,131 @@ class CarritoViewModel : ViewModel() {
     private val _total = MutableStateFlow(0.0)
     val total: StateFlow<Double> get() = _total
 
-    // ✅ Nuevo estado para guardar los eventos comprados
+    // Eventos comprados (solo si los necesitas)
     private val _eventosComprados = MutableStateFlow<List<Evento>>(emptyList())
     val eventosComprados: StateFlow<List<Evento>> get() = _eventosComprados
 
+    /**
+     * Cargar carrito del usuario desde el backend
+     */
     fun cargarCarrito(usuarioId: Long) {
         viewModelScope.launch {
             try {
                 val dto = RetrofitClient.carritoApiService.obtenerCarrito(usuarioId)
-                _carrito.value = dto.toCarrito()
-                _total.value = RetrofitClient.carritoApiService.calcularTotal(usuarioId)
+                val carrito = dto.toCarrito()
+                _carrito.value = carrito
+                calcularTotal(carrito)
             } catch (e: Exception) {
                 e.printStackTrace()
+                Log.e("CarritoVM", "Error al cargar carrito: ${e.message}")
             }
         }
     }
 
-    fun agregarEvento(usuarioId: Long, eventoId: Long) {
+    /**
+     * Agregar un evento al carrito (crea un CarritoItem nuevo)
+     */
+    fun agregarItem(usuarioId: Long, eventoId: Long, cantidad: Int = 1) {
         viewModelScope.launch {
             try {
-                Log.d("CarritoVM", "Agregando evento: user=$usuarioId evento=$eventoId") // 👈 DEBUG
-                val dto = RetrofitClient.carritoApiService.agregarEvento(usuarioId, eventoId)
-                _carrito.value = dto.toCarrito()
-                _total.value = RetrofitClient.carritoApiService.calcularTotal(usuarioId)
+                Log.d("CarritoVM", "Agregando item: user=$usuarioId evento=$eventoId cantidad=$cantidad")
+
+                val body = mapOf("cantidad" to cantidad)
+                val dto = RetrofitClient.carritoApiService.agregarItem(usuarioId, eventoId, body)
+
+                val carrito = dto.toCarrito()
+                _carrito.value = carrito
+                calcularTotal(carrito)
+
+                Log.d("CarritoVM", "Item agregado correctamente. Nuevo total: ${_total.value}")
+
             } catch (e: Exception) {
                 e.printStackTrace()
+                Log.e("CarritoVM", "Error al agregar item: ${e.message}")
             }
         }
     }
 
-    fun eliminarEvento(usuarioId: Long, eventoId: Long) {
+    /**
+     * Eliminar un item específico del carrito
+     */
+    fun eliminarItem(usuarioId: Long, itemId: Long) {
         viewModelScope.launch {
-            val dto = RetrofitClient.carritoApiService.eliminarEvento(usuarioId, eventoId)
-            _carrito.value = dto.toCarrito()
-            _total.value = RetrofitClient.carritoApiService.calcularTotal(usuarioId)
+            try {
+                Log.d("CarritoVM", "Eliminando item: $itemId del usuario $usuarioId")
+                val dto = RetrofitClient.carritoApiService.eliminarItem(usuarioId, itemId)
+                val carrito = dto.toCarrito()
+                _carrito.value = carrito
+                calcularTotal(carrito)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Log.e("CarritoVM", "Error al eliminar item: ${e.message}")
+            }
         }
     }
 
+    /**
+     * Vaciar completamente el carrito
+     */
     fun vaciarCarrito(usuarioId: Long) {
         viewModelScope.launch {
-            val dto = RetrofitClient.carritoApiService.vaciarCarrito(usuarioId)
-            _carrito.value = dto.toCarrito()
-            _total.value = 0.0
+            try {
+                Log.d("CarritoVM", "Vaciando carrito de usuario $usuarioId")
+                RetrofitClient.carritoApiService.vaciarCarrito(usuarioId)
+                _carrito.value = Carrito(id = 0L, estado = EstadoCarrito.ACTIVO, items = emptyList())
+                _total.value = 0.0
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Log.e("CarritoVM", "Error al vaciar carrito: ${e.message}")
+            }
         }
     }
 
+    /**
+     * Finalizar la compra: notifica al backend y limpia el carrito local
+     */
     fun finalizarCompra(usuarioId: Long, onSuccess: () -> Unit) {
         viewModelScope.launch {
             try {
-                val eventos = _carrito.value?.eventos ?: emptyList()
-                _eventosComprados.value = eventos
+                val items = _carrito.value?.items ?: emptyList()
+                _eventosComprados.value = items.map {
+                    // Si necesitas crear objetos Evento, puedes hacerlo aquí.
+                    Evento(
+                        id = it.eventoId,
+                        nombre = it.nombreEvento,
+                        localizacion = "",
+                        descripcion = "",
+                        imagen = "",
+                        invitados = emptyList(),
+                        inicioEvento = "",
+                        finEvento = "",
+                        precio = it.precioUnitario,
+                        categoria = Categoria.OTROS,
+                        aforoMax = 0,
+                        imagenesCarruselUrls = emptyList(),
+                        vendedorId = 0
+                    )
+                }
 
-                // Solo llamamos al backend
+                // Llamar al backend para confirmar compra
                 RetrofitClient.carritoApiService.finalizarCompra(usuarioId)
 
-                // Limpiar carrito
+                // Limpiar carrito local
                 _carrito.value = null
                 _total.value = 0.0
 
                 onSuccess()
             } catch (e: Exception) {
                 e.printStackTrace()
+                Log.e("CarritoVM", "Error al finalizar compra: ${e.message}")
             }
         }
     }
 
-
-
+    /**
+     * Calcula el total de los items del carrito
+     */
+    private fun calcularTotal(carrito: Carrito?) {
+        _total.value = carrito?.items?.sumOf { it.precioUnitario * it.cantidad } ?: 0.0
+    }
 }

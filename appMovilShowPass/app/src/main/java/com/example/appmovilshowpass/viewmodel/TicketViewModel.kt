@@ -10,6 +10,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.appmovilshowpass.data.remote.api.RetrofitClient
 import com.example.appmovilshowpass.data.remote.dto.DTOTicketBajada
+import com.example.appmovilshowpass.data.remote.dto.toEvento
+import com.example.appmovilshowpass.utils.construirUrlImagen
 import com.example.appmovilshowpass.utils.generarTicketPdf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -47,24 +49,35 @@ class TicketViewModel: ViewModel() {
     fun generarPdfTicket(context: Context, ticket: DTOTicketBajada) {
         viewModelScope.launch {
             try {
+                // 🔹 1. Obtener el evento completo desde el backend
+                val eventoDto = RetrofitClient.eventoApiService.findById(ticket.eventoId)
+                val evento = eventoDto.toEvento()
+
+                // 🔹 2. Generar el PDF con los datos reales del evento
                 val pdfBase64 = generarTicketPdf(
                     context,
-                    ticket.eventoNombre,
+                    evento.nombre, // nombre del evento
                     "TICKET-${ticket.id}",
-                    ticket.eventoInicio.take(16),
-                    ticket.eventoImagen
+                    evento.inicioEvento.take(16), // fecha del evento
+                    construirUrlImagen(evento.imagen) // imagen completa del evento
                 )
 
+                // 🔹 3. Guardar en carpeta Descargas
                 val pdfBytes = Base64.decode(pdfBase64, Base64.NO_WRAP)
                 val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                val file = File(downloadsDir, "${ticket.eventoNombre}-${ticket.id}.pdf")
+                val file = File(downloadsDir, "${evento.nombre}-${ticket.id}.pdf")
+
                 FileOutputStream(file).use { it.write(pdfBytes) }
 
-                Toast.makeText(context, "📄 PDF guardado en Descargas", Toast.LENGTH_SHORT).show()
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "📄 PDF guardado en Descargas", Toast.LENGTH_SHORT).show()
+                }
 
             } catch (e: Exception) {
                 e.printStackTrace()
-                Toast.makeText(context, "❌ Error al generar PDF", Toast.LENGTH_SHORT).show()
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "❌ Error al generar PDF", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
@@ -72,30 +85,34 @@ class TicketViewModel: ViewModel() {
     fun enviarTicketPorEmail(context: Context, email: String, ticket: DTOTicketBajada) {
         viewModelScope.launch {
             try {
+                // 🔹 1. Obtener el evento por ID
+                val eventoDto = RetrofitClient.eventoApiService.findById(ticket.eventoId)
+                val evento = eventoDto.toEvento()
+
+                // 🔹 2. Generar el PDF (igual que en generarPdfTicket)
                 val pdfBase64 = generarTicketPdf(
                     context,
-                    ticket.eventoNombre,
+                    evento.nombre,
                     "TICKET-${ticket.id}",
-                    ticket.eventoInicio.take(16),
-                    ticket.eventoImagen
+                    evento.inicioEvento.take(16),
+                    construirUrlImagen(evento.imagen)
                 )
 
+                // 🔹 3. Enviar PDF por email usando la API
                 val payload = mapOf(
                     "email" to email,
                     "ticketId" to "TICKET-${ticket.id}",
-                    "eventoNombre" to ticket.eventoNombre,
+                    "eventoNombre" to evento.nombre,
                     "pdfBase64" to pdfBase64
                 )
 
                 val response = RetrofitClient.ticketApiService.enviarPdfEmail(payload)
 
-                if (response.isSuccessful) {
-                    val mensaje = response.body()?.get("mensaje") ?: "Ticket enviado correctamente"
-                    withContext(Dispatchers.Main) {
+                withContext(Dispatchers.Main) {
+                    if (response.isSuccessful) {
+                        val mensaje = response.body()?.get("mensaje") ?: "Ticket enviado correctamente"
                         Toast.makeText(context, "📧 $mensaje", Toast.LENGTH_SHORT).show()
-                    }
-                } else {
-                    withContext(Dispatchers.Main) {
+                    } else {
                         Toast.makeText(
                             context,
                             "⚠️ Error del servidor (${response.code()})",
@@ -107,8 +124,7 @@ class TicketViewModel: ViewModel() {
             } catch (e: Exception) {
                 e.printStackTrace()
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(context, "❌ Error al enviar el ticket", Toast.LENGTH_SHORT)
-                        .show()
+                    Toast.makeText(context, "❌ Error al enviar el ticket", Toast.LENGTH_SHORT).show()
                 }
             }
         }

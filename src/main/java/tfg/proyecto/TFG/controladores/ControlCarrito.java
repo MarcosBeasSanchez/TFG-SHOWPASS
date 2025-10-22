@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,117 +32,59 @@ import tfg.proyecto.TFG.servicios.IServicioPdfEmail;
 @RestController
 @RequestMapping("/tfg/carrito")
 @CrossOrigin(origins = "http://localhost:5173")
-
 public class ControlCarrito {
 
-	@Autowired
-	IServicioCarrito carritoService;
-	@Autowired
-	IServicioPdfEmail emailService;
+    @Autowired
+    private IServicioCarrito carritoService;
 
+    @GetMapping("/{usuarioId}")
+    public ResponseEntity<DTOCarritoBajada> obtenerCarrito(@PathVariable Long usuarioId) {
+        return ResponseEntity.ok(carritoService.obtenerCarritoPorUsuario(usuarioId));
+    }
 
+    //  Agregar nuevo item (evento) al carrito
+    @PostMapping("/item/{usuarioId}/{eventoId}")
+    public ResponseEntity<DTOCarritoBajada> agregarItem(
+            @PathVariable Long usuarioId,
+            @PathVariable Long eventoId,
+            @RequestBody Map<String, Integer> body) {
+        int cantidad = body.getOrDefault("cantidad", 1);
+        return ResponseEntity.ok(carritoService.agregarItemAlCarrito(usuarioId, eventoId, cantidad));
+    }
 
-	// Obtener carrito de un usuario
-	@GetMapping("/{usuarioId}")
-	public ResponseEntity<DTOCarritoBajada> obtenerCarrito(@PathVariable Long usuarioId) {
-		try {
-			DTOCarritoBajada carrito = carritoService.obtenerCarritoPorUsuario(usuarioId);
-			return ResponseEntity.ok(carrito);
-		} catch (RuntimeException e) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-		}
-	}
+    //  Actualizar cantidad de un item
+    @PutMapping("/item/{usuarioId}/{itemId}")
+    public ResponseEntity<DTOCarritoBajada> actualizarItem(
+            @PathVariable Long usuarioId,
+            @PathVariable Long itemId,
+            @RequestBody Map<String, Integer> body) {
+        int cantidad = body.getOrDefault("cantidad", 1);
+        return ResponseEntity.ok(carritoService.actualizarItem(usuarioId, itemId, cantidad));
+    }
 
-	// Agregar un evento al carrito
-	@PostMapping("/agregar/{carritoId}/{eventoId}")
-	public ResponseEntity<DTOCarritoBajada> agregarEvento(
-	        @PathVariable Long carritoId,
-	        @PathVariable Long eventoId,
-	        @RequestBody Map<String, Integer> body) {
+    // Eliminar un item del carrito
+    @DeleteMapping("/itemEliminar/{usuarioId}/{itemId}")
+    public ResponseEntity<DTOCarritoBajada> eliminarItem(
+            @PathVariable Long usuarioId,
+            @PathVariable Long itemId) {
+        return ResponseEntity.ok(carritoService.eliminarItem(usuarioId, itemId));
+    }
 
-	    int cantidad = body.getOrDefault("cantidad", 1);
-	    try {
-	        DTOCarritoBajada carrito = carritoService.agregarEventoPorCarrito(carritoId, eventoId, cantidad);
-	        return ResponseEntity.ok(carrito);
-	    } catch (RuntimeException e) {
-	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-	    }
-	}
+    //  Vaciar carrito
+    @DeleteMapping("/vaciar/{usuarioId}")
+    public ResponseEntity<DTOCarritoBajada> vaciarCarrito(@PathVariable Long usuarioId) {
+        return ResponseEntity.ok(carritoService.vaciarCarrito(usuarioId));
+    }
 
+    //  Calcular total
+    @GetMapping("/total/{usuarioId}")
+    public ResponseEntity<Double> calcularTotal(@PathVariable Long usuarioId) {
+        return ResponseEntity.ok(carritoService.calcularTotal(usuarioId));
+    }
 
-	// Eliminar un evento del carrito
-	@DeleteMapping("/eliminar/{usuarioId}/{eventoId}")
-	public ResponseEntity<DTOCarritoBajada> eliminarEvento(@PathVariable Long usuarioId, @PathVariable Long eventoId) {
-		try {
-			DTOCarritoBajada carrito = carritoService.eliminarEvento(usuarioId, eventoId);
-			return ResponseEntity.ok(carrito);
-		} catch (RuntimeException e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-		}
-	}
-
-	// Vaciar el carrito de un usuario
-	@DeleteMapping("/vaciar/{usuarioId}")
-	public ResponseEntity<DTOCarritoBajada> vaciarCarrito(@PathVariable Long usuarioId) {
-		try {
-			DTOCarritoBajada carrito = carritoService.vaciarCarrito(usuarioId);
-			return ResponseEntity.ok(carrito);
-		} catch (RuntimeException e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-		}
-	}
-
-	// Calcular total del carrito
-	@GetMapping("/total/{usuarioId}")
-	public ResponseEntity<Double> calcularTotal(@PathVariable Long usuarioId) {
-		try {
-			double total = carritoService.calcularTotal(usuarioId);
-			return ResponseEntity.ok(total);
-		} catch (RuntimeException e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-		}
-	}
-
-	// Finalizar la compra
-	@PostMapping("/finalizar/{carritoId}")
-	public ResponseEntity<DTOCarritoBajada> finalizarCompra(@PathVariable Long carritoId) {
-	    try {
-	        DTOCarritoBajada dto = carritoService.finalizarCompraPorCarrito(carritoId);
-	        return ResponseEntity.ok(dto);
-	    } catch (RuntimeException e) {
-	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-	    }
-	}
-
-
-	@PostMapping("/enviarPdfEmail")
-	public ResponseEntity<Map<String, String>> sendTicketEmail(@RequestBody Map<String, String> payload) throws MessagingException, IOException {
-		String email = payload.get("email");
-	    String ticketId = payload.get("ticketId");
-	    String eventoNombre = payload.get("eventoNombre");
-	    String pdfBase64 = payload.get("pdfBase64");
-
-	    // Convertir base64 a archivo temporal
-	    byte[] pdfBytes = Base64.getDecoder().decode(pdfBase64);
-	    File pdfFile = File.createTempFile("ticket-", ".pdf");
-	    try (FileOutputStream fos = new FileOutputStream(pdfFile)) {
-	        fos.write(pdfBytes);
-	    }
-
-	    // Enviar email
-	    emailService.sendPdfEmail(
-	            email,
-	            "Tu entrada para " + eventoNombre + " - Ticket ID: " + ticketId,
-	            "<p>Hola, aquí tienes tu ticket con ID <b>" + ticketId + "</b>.</p>",
-	            pdfFile
-	    );
-
-	    // Devolver respuesta en formato JSON correcto
-	    Map<String, String> response = new HashMap<>();
-	    response.put("mensaje", "Correo enviado correctamente");
-	    response.put("email", email);
-	    response.put("ticketId", ticketId);
-
-	    return ResponseEntity.ok(Map.of("mensaje", "Correo enviado correctamente", "email", email));
-	}
+    //  Finalizar compra
+    @PostMapping("/finalizar/{usuarioId}")
+    public ResponseEntity<DTOCarritoBajada> finalizarCompra(@PathVariable Long usuarioId) {
+        return ResponseEntity.ok(carritoService.finalizarCompra(usuarioId));
+    }
 }

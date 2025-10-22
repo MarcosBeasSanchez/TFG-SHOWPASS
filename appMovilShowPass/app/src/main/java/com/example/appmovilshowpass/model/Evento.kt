@@ -11,7 +11,9 @@ data class Evento(
     val inicioEvento: String,      // mejor manejarlo como String y luego parsear a LocalDateTime
     val finEvento: String,
     val descripcion: String,
-    val carrusels: List<String> = emptyList(),
     val precio: Double,
-    val categoria: Categoria
+    val aforoMax: Int,
+    val categoria: Categoria,
+    val imagenesCarruselUrls: List<String> = emptyList(),
+    val vendedorId: Long? = null
 )

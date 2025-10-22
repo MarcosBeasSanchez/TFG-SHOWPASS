@@ -1,5 +1,7 @@
 package com.example.appmovilshowpass.ui.screens
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +19,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.RemoveShoppingCart
 import androidx.compose.material.icons.filled.ShoppingCartCheckout
 import androidx.compose.material3.Button
@@ -45,6 +48,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
+import com.example.appmovilshowpass.model.CarritoItem
 import com.example.appmovilshowpass.utils.formatearPrecio
 import com.example.appmovilshowpass.viewmodel.CarritoViewModel
 
@@ -64,17 +69,15 @@ fun CarritoScreen(
         carritoViewModel.cargarCarrito(usuarioId)
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
+    Column(modifier = Modifier.fillMaxSize()) {
 
+        // 🔹 Título superior
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
             horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically // centra verticalmente los hijos
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 imageVector = Icons.Default.ShoppingCartCheckout,
@@ -82,16 +85,17 @@ fun CarritoScreen(
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .size(32.dp)
-                    .padding(end = 8.dp) // separa del texto
+                    .padding(end = 8.dp)
             )
             Text(
                 text = "Carrito de Compra",
                 fontWeight = FontWeight.Bold,
                 fontSize = 24.sp
             )
-
         }
-        if (carrito?.eventos.isNullOrEmpty()) {
+
+        // 🔹 Carrito vacío
+        if (carrito?.items.isNullOrEmpty()) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -104,9 +108,7 @@ fun CarritoScreen(
                         .padding(8.dp),
                     shape = RoundedCornerShape(15.dp),
                     elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                    )
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                 ) {
                     Column(
                         modifier = Modifier
@@ -119,28 +121,21 @@ fun CarritoScreen(
                             imageVector = Icons.Default.RemoveShoppingCart,
                             contentDescription = "Carrito vacío",
                             tint = Color.Gray,
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier.size(64.dp)
                         )
-                        // Título principal
                         Text(
                             text = "Tu carrito está vacío",
                             fontWeight = FontWeight.Bold,
                             fontSize = 20.sp,
-                            style = MaterialTheme.typography.titleLarge,
-                            textAlign = TextAlign.Center,
-                            color = Color.Gray
+                            color = Color.Gray,
+                            textAlign = TextAlign.Center
                         )
-
-                        //  Mensaje complementario
                         Text(
                             text = "¡Añade eventos para empezar tu compra!",
-                            style = MaterialTheme.typography.titleSmall,
-                            textAlign = TextAlign.Center,
                             color = Color.Gray,
+                            textAlign = TextAlign.Center
                         )
-
                         Spacer(modifier = Modifier.height(20.dp))
-
                         coil.compose.AsyncImage(
                             model = "https://i.giphy.com/giXLnhxp60zEEIkq8K.webp",
                             contentDescription = "Carrito vacío animado",
@@ -148,8 +143,6 @@ fun CarritoScreen(
                                 .size(200.dp)
                                 .padding(bottom = 16.dp)
                         )
-
-                        //  Botón elegante
                         OutlinedButton(
                             onClick = { navController.navigate("eventos") },
                             shape = RoundedCornerShape(16.dp),
@@ -166,59 +159,22 @@ fun CarritoScreen(
                 }
             }
 
-    } else {
-            // 👉 Lista scrollable de eventos
+        } else {
+            // 🔹 Lista de ítems del carrito
             LazyColumn(
                 modifier = Modifier.weight(1f),
                 contentPadding = PaddingValues(12.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(carrito?.eventos ?: emptyList()) { evento ->
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        elevation = CardDefaults.cardElevation(4.dp),
-                        shape = RoundedCornerShape(5.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(10.dp)
-                        ) {
-                            AsyncImage(
-                                model = evento.imagen ?: "",
-                                contentDescription = evento.nombre ?: "Evento",
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .size(70.dp)
-                                    .clip(RoundedCornerShape(0.dp))
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    evento.nombre ?: "Sin nombre",
-                                    fontWeight = FontWeight.Bold,
-                                    style = MaterialTheme.typography.titleMedium
-                                )
-                                Text(
-                                    text = "${formatearPrecio(evento.precio)} €",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                            }
-                            IconButton(
-                                onClick = { carritoViewModel.eliminarEvento(usuarioId, evento.id) }
-                            ) {
-                                Icon(
-                                    Icons.Default.Delete,
-                                    contentDescription = "Eliminar",
-                                    tint = MaterialTheme.colorScheme.error
-                                )
-                            }
-                        }
-                    }
+                items(carrito?.items ?: emptyList()) { item ->
+                    CarritoItemCard(
+                        item = item,
+                        onEliminar = { carritoViewModel.eliminarItem(usuarioId, item.id) }
+                    )
                 }
             }
-            // 👉 Footer fijo con total y botón pagar
+
+            // 🔹 Footer: total y botón de pagar
             Surface(
                 tonalElevation = 6.dp,
                 shadowElevation = 4.dp,
@@ -236,20 +192,98 @@ fun CarritoScreen(
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(12.dp))
-                    Button(
-                        onClick = {
-                            carritoViewModel.finalizarCompra(
-                                usuarioId,
-                                onCompraFinalizada
-
-                            )
-                        },
+                    Row(
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp)
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Finalizar Compra", fontSize = 18.sp)
+                        OutlinedButton(
+                            onClick = { carritoViewModel.vaciarCarrito(usuarioId) },
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text("Vaciar carrito")
+                        }
+
+                        Button(
+                            onClick = { carritoViewModel.finalizarCompra(usuarioId, onCompraFinalizada) },
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text("Finalizar compra", fontSize = 18.sp)
+                        }
                     }
                 }
+            }
+        }
+    }
+}
+
+
+@Composable
+fun CarritoItemCard(
+    item: CarritoItem,
+    onEliminar: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(4.dp),
+        shape = RoundedCornerShape(5.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(10.dp)
+        ) {
+            // 🔹 Imagen del evento
+            if (!item.imagenEvento.isNullOrBlank()) {
+                Image(
+                    painter = rememberAsyncImagePainter(item.imagenEvento),
+                    contentDescription = item.nombreEvento,
+                    modifier = Modifier
+                        .size(70.dp)
+                        .clip(RoundedCornerShape(8.dp)),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .size(70.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color.LightGray),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Event,
+                        contentDescription = "Evento sin imagen",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = item.nombreEvento,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Text(
+                    text = "Cantidad: ${item.cantidad}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray
+                )
+                Text(
+                    text = "Precio: ${formatearPrecio(item.precioUnitario * item.cantidad)} €",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+
+            IconButton(onClick = onEliminar) {
+                Icon(
+                    Icons.Default.Delete,
+                    contentDescription = "Eliminar",
+                    tint = MaterialTheme.colorScheme.error
+                )
             }
         }
     }

@@ -190,7 +190,9 @@ private fun generarQR(texto: String): Bitmap {
     return bmp
 }
 
-fun formatearPrecio(precio: Double): String {
-    val formato = NumberFormat.getCurrencyInstance(java.util.Locale("es", "ES"))
-    return formato.format(precio)
+private const val SERVER_BASE_URL = "http://192.168.1.128:8080/"
+
+fun construirUrlImagen(ruta: String?): String {
+    if (ruta.isNullOrBlank()) return ""
+    return if (ruta.startsWith("http")) ruta else SERVER_BASE_URL + ruta.removePrefix("/")
 }

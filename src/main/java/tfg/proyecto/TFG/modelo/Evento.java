@@ -1,14 +1,18 @@
 package tfg.proyecto.TFG.modelo;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -63,7 +67,10 @@ public class Evento {
     private List<Invitado> invitados;
     
     @Singular
-    private List<String> imagenesCarruselUrls;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "evento_carrusel", joinColumns = @JoinColumn(name = "evento_id"))
+    @Column(name = "url_imagen")
+    private List<String> imagenesCarruselUrls = new ArrayList<>();;
 
     @OneToMany(mappedBy = "evento", cascade = CascadeType.ALL)
     @ToString.Exclude

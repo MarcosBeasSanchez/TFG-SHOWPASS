@@ -6,11 +6,11 @@ import tfg.proyecto.TFG.dtos.DTOeventoSubida;
 
 public interface IServicioCarrito {
 	
-	DTOCarritoBajada obtenerCarritoPorUsuario(Long Id);
-	DTOCarritoBajada agregarEventoPorCarrito(Long carritoId, Long eventoId, int cantidad);
-	DTOCarritoBajada eliminarEvento(Long usuarioId, Long eventoId);
-	DTOCarritoBajada vaciarCarrito(Long usuarioId);
-	double calcularTotal(Long usuarioId);
-	DTOCarritoBajada actualizarCantidad(Long usuarioId, Long eventoId, int cantidad);
-	DTOCarritoBajada finalizarCompraPorCarrito(Long carritoId);
+	 DTOCarritoBajada obtenerCarritoPorUsuario(Long usuarioId);
+	    DTOCarritoBajada agregarItemAlCarrito(Long usuarioId, Long eventoId, int cantidad);
+	    DTOCarritoBajada actualizarItem(Long usuarioId, Long itemId, int cantidad);
+	    DTOCarritoBajada eliminarItem(Long usuarioId, Long itemId);
+	    DTOCarritoBajada vaciarCarrito(Long usuarioId);
+	    double calcularTotal(Long usuarioId);
+	    DTOCarritoBajada finalizarCompra(Long usuarioId);
 }

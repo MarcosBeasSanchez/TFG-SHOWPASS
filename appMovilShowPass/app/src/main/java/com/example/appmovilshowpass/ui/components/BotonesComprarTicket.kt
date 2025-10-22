@@ -49,7 +49,7 @@ fun BotonesComprarTicket(
         OutlinedButton(
             onClick = {
                 repeat(cantidad) {
-                    carritoViewModel.agregarEvento(usuarioId, eventoId)
+                    carritoViewModel.agregarItem(usuarioId, eventoId)
                 }
                 onAdded(cantidad) // 👈 se ejecuta el callback con la cantidad añadida
             },

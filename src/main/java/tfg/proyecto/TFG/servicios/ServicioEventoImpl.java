@@ -1,6 +1,7 @@
 package tfg.proyecto.TFG.servicios;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,7 +15,6 @@ import tfg.proyecto.TFG.dtos.DTOeventoBajada;
 import tfg.proyecto.TFG.dtos.DTOeventoSubida;
 import tfg.proyecto.TFG.modelo.Categoria;
 import tfg.proyecto.TFG.modelo.Evento;
-import tfg.proyecto.TFG.modelo.Invitado;
 import tfg.proyecto.TFG.modelo.Rol;
 import tfg.proyecto.TFG.modelo.Usuario;
 import tfg.proyecto.TFG.repositorio.RepositorioEvento;
@@ -49,67 +49,83 @@ public class ServicioEventoImpl implements IServicioEvento{
 	            throw new RuntimeException("El usuario no tiene rol de vendedor");
 	        }
 
-	        // 🔸 Crear entidad base
-	        Evento evento = Evento.builder()
-	                .nombre(dto.getNombre())
-	                .localizacion(dto.getLocalizacion())
-	                .inicioEvento(dto.getInicioEvento())
-	                .finEvento(dto.getFinEvento())
-	                .descripcion(dto.getDescripcion())
-	                .precio(dto.getPrecio())
-	                .aforoMax(dto.getAforoMax())
-	                .categoria(dto.getCategoria())
-	                .imagenesCarruselUrls(dto.getImagenesCarruselUrls())
-	                .vendedor(vendedor)
-	                .build();
-
 	        try {
-	            // 🔹 Guardar imagen principal (Base64 o URL)
-	            if (dto.getImagen() != null && dto.getImagen().length() > 200) {
-	                String ruta = servicioImagen.guardarImagenBase64(dto.getImagen(), "eventos/portadas");
-	                evento.setImagen(ruta);
-	            } else {
-	                evento.setImagen(dto.getImagen()); // podría ser URL
+	            //  Procesar imagen principal
+	            String imagenFinal = null;
+	            if (dto.getImagen() != null && !dto.getImagen().isBlank()) {
+	                if (dto.getImagen().length() > 200) {
+	                    imagenFinal = servicioImagen.guardarImagenBase64(dto.getImagen(), "eventos/portadas");
+	                } else {
+	                    imagenFinal = dto.getImagen(); // URL directa
+	                }
 	            }
 
-	            // 🔹 Guardar el evento
+	            //  Procesar imágenes de carrusel
+	            List<String> urlsCarrusel = new ArrayList<>();
+	            if (dto.getImagenesCarruselUrls() != null && !dto.getImagenesCarruselUrls().isEmpty()) {
+	                for (String img : dto.getImagenesCarruselUrls()) {
+	                    if (img != null && !img.isBlank()) {
+	                        String urlFinal = (img.length() > 200)
+	                                ? servicioImagen.guardarImagenBase64(img, "eventos/carrusel")
+	                                : img;
+	                        urlsCarrusel.add(urlFinal);
+	                    }
+	                }
+	            }
+
+	            // Crear la entidad usando el builder (
+	            Evento evento = Evento.builder()
+	                    .nombre(dto.getNombre())
+	                    .localizacion(dto.getLocalizacion())
+	                    .inicioEvento(dto.getInicioEvento())
+	                    .finEvento(dto.getFinEvento())
+	                    .descripcion(dto.getDescripcion())
+	                    .precio(dto.getPrecio())
+	                    .aforoMax(dto.getAforoMax())
+	                    .categoria(dto.getCategoria())
+	                    .imagen(imagenFinal)
+	                    .imagenesCarruselUrls(urlsCarrusel) //  builder con lista (por @Singular)
+	                    .vendedor(vendedor)
+	                    .build();
+
+	            //  Guardar evento y cascada crea evento_carrusel automáticamente
 	            Evento guardado = eventoDAO.save(evento);
 
-	            // 🔹 Guardar carrusel (si hay)
-	            /*if (dto.getImagenesCarruselUrls() != null && !dto.getImagenesCarruselUrls().isEmpty()) {
-	                List<DTOEventoImagenSubida> lista = dto.getImagenesCarruselUrls().stream()
-	                        .map(img -> DTOEventoImagenSubida.builder()
-	                                .url(img)
-	                                .build())
-	                        .collect(Collectors.toList());
-	                servicioEventoImagen.guardarCarrusel(guardado.getId(), lista);
-	            }*/
+	            //  Guardar invitados si existen
 	            if (dto.getInvitados() != null && !dto.getInvitados().isEmpty()) {
 	                servicioInvitado.guardarInvitados(guardado.getId(), dto.getInvitados());
 	            }
 
-	            // 🔹 Convertir a DTO de bajada
-	            DTOeventoBajada dtoBajada = dtoConverter.map(guardado, DTOeventoBajada.class);
-	            dtoBajada.setImagenesCarruselUrls(eventoImagenDAO.findUrlsByEventoId(guardado.getId()));
-	            dtoBajada.setInvitados(servicioInvitado.obtenerInvitados(evento.getId()));
-	            
+	            // 🔹 Crear DTO de bajada con builder (sin usar setters)
+	            DTOeventoBajada dtoBajada = DTOeventoBajada.builder()
+	                    .id(guardado.getId())
+	                    .nombre(guardado.getNombre())
+	                    .localizacion(guardado.getLocalizacion())
+	                    .inicioEvento(guardado.getInicioEvento())
+	                    .finEvento(guardado.getFinEvento())
+	                    .descripcion(guardado.getDescripcion())
+	                    .precio(guardado.getPrecio())
+	                    .aforo(guardado.getAforoMax())
+	                    .categoria(guardado.getCategoria())
+	                    .imagenPrincipalUrl(guardado.getImagen())
+	                    .imagenesCarruselUrls(guardado.getImagenesCarruselUrls()) 
+	                    .invitados(servicioInvitado.obtenerInvitados(guardado.getId()))
+	                    .vendedorId(guardado.getVendedor().getId())
+	                    .build();
+
 	            return dtoBajada;
 
 	        } catch (IOException e) {
 	            throw new RuntimeException("Error guardando imágenes del evento", e);
 	        }
 	    }
-
 	@Override
 	public List<DTOeventoBajada> obtenerTodosLosEventos() {
 		// TODO Auto-generated method stub
-		List<Evento> eventos = (List<Evento>) eventoDAO.findAll();
-        return eventos.stream().map(e -> {
-            DTOeventoBajada dto = dtoConverter.map(e, DTOeventoBajada.class);
-            dto.setImagenesCarruselUrls(eventoImagenDAO.findUrlsByEventoId(e.getId()));
-            return dto;
-        }).collect(Collectors.toList());
-	}
+		return dtoConverter.mapAll((List<Evento>)eventoDAO.findAll(), DTOeventoBajada.class);
+
+		}
+	
 
 	@Override
     @Transactional
@@ -170,7 +186,6 @@ public class ServicioEventoImpl implements IServicioEvento{
 	public boolean eliminarEvento(Long id) {
 		// TODO Auto-generated method stub
         if (eventoDAO.existsById(id)) {
-            servicioEventoImagen.eliminarCarrusel(id);
             eventoDAO.deleteById(id);
             return true;
         }
@@ -210,11 +225,7 @@ public class ServicioEventoImpl implements IServicioEvento{
 
 	@Override
 	public DTOeventoBajada obtnerPorElId(Long id) {
-		  Evento evento = eventoDAO.findById(id)
-	                .orElseThrow(() -> new RuntimeException("Evento no encontrado"));
-	        DTOeventoBajada dto = dtoConverter.map(evento, DTOeventoBajada.class);
-	        dto.setImagenesCarruselUrls(eventoImagenDAO.findUrlsByEventoId(evento.getId()));
-	        return dto;
+		return dtoConverter.map(eventoDAO.findById(id),DTOeventoBajada.class);
 	}
 
 	@Override

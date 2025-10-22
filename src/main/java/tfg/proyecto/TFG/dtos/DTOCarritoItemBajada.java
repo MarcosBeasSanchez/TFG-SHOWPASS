@@ -15,4 +15,5 @@ public class DTOCarritoItemBajada {
     private double precioUnitario;
     private Long eventoId;
     private String nombreEvento;
+    private String imagenEvento; 
 }

@@ -136,7 +136,6 @@ class AuthViewModel : ViewModel() {
                     foto = usuario.foto,
                     rol = usuario.rol,
                     cuenta = usuario.cuenta?.toDTOsubida(),
-                    activo = usuario.activo
                 )
 
                 // Llamamos al endpoint

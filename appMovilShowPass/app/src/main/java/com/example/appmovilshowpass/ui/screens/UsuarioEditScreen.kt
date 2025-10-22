@@ -89,7 +89,6 @@ fun UsuarioEditScreen(
     val snackbarHostState = remember { SnackbarHostState() }
 
     var foto by remember { mutableStateOf(user.foto ?: "") }
-    var activo by remember { mutableStateOf(user.activo) }
     val context = LocalContext.current
 
 
@@ -127,7 +126,6 @@ fun UsuarioEditScreen(
                             saldo = saldo as BigDecimal
                         ),
                         rol = rol,
-                        activo = activo,
 
                         )
                     authViewModel.updateUser(context, updatedUser) { success ->

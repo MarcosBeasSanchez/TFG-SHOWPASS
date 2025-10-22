@@ -1,18 +1,19 @@
 package com.example.appmovilshowpass.data.remote.dto
 
 import com.example.appmovilshowpass.model.Carrito
+import com.example.appmovilshowpass.model.EstadoCarrito
 
 data class DTOCarritoBajada(
     val id: Long,
-    val usuarioId: Long,
-    val eventos: List<DTOeventoBajadaCarrito>
+    val estado: EstadoCarrito,
+    val items: List<DTOCarritoItemBajada>
 )
 
 
 fun DTOCarritoBajada.toCarrito(): Carrito {
     return Carrito(
         id = id,
-        usuarioId = usuarioId,
-        eventos = eventos.map { it.toEvento() }
+        estado = estado,
+        items = items.map { it.toCarritoItem() }
     )
 }

@@ -28,6 +28,7 @@ import com.example.appmovilshowpass.data.remote.api.RetrofitClient
 import com.example.appmovilshowpass.data.remote.dto.toEvento
 import com.example.appmovilshowpass.model.Evento
 import com.example.appmovilshowpass.ui.components.BotonesComprarTicket
+import com.example.appmovilshowpass.utils.construirUrlImagen
 import com.example.appmovilshowpass.utils.formatearFecha
 import com.example.appmovilshowpass.utils.formatearPrecio
 import com.example.appmovilshowpass.viewmodel.CarritoViewModel
@@ -123,7 +124,7 @@ fun EventoInfo(
                     Spacer(modifier = Modifier.height(20.dp))
 
                     // Carrusel de imágenes
-                    if (e.carrusels.isNotEmpty()) {
+                    if (e.imagenesCarruselUrls.isNotEmpty()) {
                         Text(
                             "Imágenes",
                             fontSize = 18.sp,
@@ -133,9 +134,9 @@ fun EventoInfo(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             contentPadding = PaddingValues(horizontal = 8.dp)
                         ) {
-                            items(e.carrusels) { imagenUrl ->
+                            items(e.imagenesCarruselUrls) { imagenUrl ->
                                 Image(
-                                    painter = rememberAsyncImagePainter(imagenUrl),
+                                    painter = rememberAsyncImagePainter(construirUrlImagen(imagenUrl)),
                                     contentDescription = null,
                                     modifier = Modifier
                                         .size(width = 300.dp, height = 200.dp)

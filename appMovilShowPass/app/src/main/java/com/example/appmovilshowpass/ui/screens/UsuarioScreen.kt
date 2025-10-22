@@ -131,7 +131,6 @@ fun UsuarioScreen(
                             "Contraseña",
                             if (user.password.isNullOrEmpty()) "—" else "••••••••"
                         )
-                        InfoRow("Cuenta Activa", if (user.activo) "Sí" else "No")
                     }
                 }
 

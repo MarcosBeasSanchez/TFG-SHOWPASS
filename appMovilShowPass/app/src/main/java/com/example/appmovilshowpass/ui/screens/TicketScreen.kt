@@ -36,6 +36,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -56,10 +57,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
+import com.example.appmovilshowpass.data.remote.api.RetrofitClient
 import com.example.appmovilshowpass.data.remote.dto.DTOTicketBajada
+import com.example.appmovilshowpass.data.remote.dto.toEvento
+import com.example.appmovilshowpass.model.Evento
+import com.example.appmovilshowpass.utils.construirUrlImagen
 import com.example.appmovilshowpass.utils.formatearFecha
 import com.example.appmovilshowpass.utils.formatearPrecio
 import com.example.appmovilshowpass.viewmodel.TicketViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -95,10 +102,8 @@ fun TicketsScreen(
             .fillMaxSize()
             .padding(horizontal = 16.dp)
     ) {
-<<<<<<< HEAD
-=======
+
         //  Encabezado de la pantalla
->>>>>>> ddae60d1159ac3ca62612ae6f56bf09a41805431
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -108,11 +113,8 @@ fun TicketsScreen(
         ) {
             Icon(
                 imageVector = Icons.Default.QrCode,
-<<<<<<< HEAD
-                contentDescription = "Carrito",
-=======
+
                 contentDescription = "Icono tickets",
->>>>>>> ddae60d1159ac3ca62612ae6f56bf09a41805431
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .size(32.dp)
@@ -125,10 +127,8 @@ fun TicketsScreen(
             )
         }
 
-<<<<<<< HEAD
-=======
+
         //  Si no hay tickets, mostrar mensaje informativo
->>>>>>> ddae60d1159ac3ca62612ae6f56bf09a41805431
         if (tickets.isEmpty()) {
             Box(
                 modifier = Modifier
@@ -139,10 +139,8 @@ fun TicketsScreen(
                 Text("Aún no tienes tickets", fontSize = 18.sp)
             }
         } else {
-<<<<<<< HEAD
-=======
+
             //  Listado de tickets del usuario
->>>>>>> ddae60d1159ac3ca62612ae6f56bf09a41805431
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -157,15 +155,6 @@ fun TicketsScreen(
                             usuario?.email?.let {
                                 ticketViewModel.enviarTicketPorEmail(context, it, ticket)
                             }
-<<<<<<< HEAD
-                        }
-                    )
-                }
-            }
-
-            VaciarTicketsSection(
-                onConfirmar = { ticketViewModel.vaciarTickets() }
-=======
                         },
                         onDelete = { ticketViewModel.eliminarTicket(context, ticket.id) }
                     )
@@ -179,7 +168,6 @@ fun TicketsScreen(
                         ticketViewModel.vaciarTickets(context, userId)
                     }
                 }
->>>>>>> ddae60d1159ac3ca62612ae6f56bf09a41805431
             )
         }
     }
@@ -206,11 +194,21 @@ fun TicketCard(
 ) {
     var enviando by remember { mutableStateOf(false) }
     var descargando by remember { mutableStateOf(false) }
-    var mostrarDialogoEliminar by remember { mutableStateOf(false) } // 🔹 Controla el diálogo
+    var mostrarDialogoEliminar by remember { mutableStateOf(false) }
 
-    val coroutineScope = rememberCoroutineScope()
+    // 🔹 Estado para el evento cargado desde el API
+    var evento by remember { mutableStateOf<Evento?>(null) }
 
-    // Tarjeta del ticket
+    // 🔹 Cargar el evento cuando se crea el composable
+    LaunchedEffect(ticket.eventoId) {
+        try {
+            val dtoEvento = RetrofitClient.eventoApiService.findById(ticket.eventoId)
+            evento = dtoEvento.toEvento()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
     Card(
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(6.dp),
@@ -222,151 +220,140 @@ fun TicketCard(
                 .fillMaxWidth()
                 .padding(12.dp)
         ) {
+            // 🔹 Imagen del evento si ya se cargó
+            if (evento?.imagen?.isNotEmpty() == true) {
+                Image(
+                    painter = rememberAsyncImagePainter(construirUrlImagen(evento!!.imagen)),
+                    contentDescription = evento!!.nombre,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(160.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                )
+                Spacer(Modifier.height(10.dp))
+            }
 
-            //  Imagen del evento
-            Image(
-                painter = rememberAsyncImagePainter(ticket.eventoImagen),
-                contentDescription = ticket.eventoNombre,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(160.dp)
-                    .clip(RoundedCornerShape(12.dp))
-            )
+            // 🔹 Información básica
+            Text(evento?.nombre ?: ticket.nombreEvento, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+
+            if (evento != null) {
+                Text("Inicio del evento: ${formatearFecha(evento!!.inicioEvento)}", fontSize = 14.sp)
+                Text("Localización: ${evento!!.localizacion}", fontSize = 14.sp)
+            }
+
+            Text("Fecha de compra: ${formatearFecha(ticket.fechaCompra)}", fontSize = 14.sp)
+            Text("Precio: ${formatearPrecio(ticket.precioPagado)} €", fontSize = 14.sp)
+            Text("Estado: ${ticket.estado}", fontSize = 14.sp)
 
             Spacer(Modifier.height(10.dp))
 
-            //  Información básica del evento
-            Text(ticket.eventoNombre, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-            Text("Fecha: ${formatearFecha(ticket.eventoInicio)}", fontSize = 14.sp)
-            Text("Precio: ${formatearPrecio(ticket.precio)} €", fontSize = 14.sp)
-<<<<<<< HEAD
-=======
+            // 🔹 Código QR (si existe)
+            if (!ticket.codigoQR.isNullOrEmpty()) {
+                Image(
+                    painter = rememberAsyncImagePainter(construirUrlImagen(ticket.codigoQR)),
+                    contentDescription = "Código QR",
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(150.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                )
+                Spacer(Modifier.height(10.dp))
+            }
 
->>>>>>> ddae60d1159ac3ca62612ae6f56bf09a41805431
-            Spacer(Modifier.height(10.dp))
-
-            //  Botones de acción: Descargar / Enviar / Eliminar
+            // 🔹 Botones de acción
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-                    .height(45.dp)
+                modifier = Modifier.fillMaxWidth().height(45.dp)
             ) {
-                // --- Descargar PDF ---
+                // Descargar ticket
                 Button(
                     onClick = {
                         if (!descargando) {
                             descargando = true
                             onDownload()
-                            coroutineScope.launch {
+                            CoroutineScope(Dispatchers.Main).launch {
                                 delay(3000)
                                 descargando = false
                             }
                         }
                     },
                     enabled = !descargando,
-
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(10.dp)
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        if (descargando) {
-                            CircularProgressIndicator(
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                strokeWidth = 2.dp,
-                                modifier = Modifier.size(18.dp)
-                            )
-                        } else {
-                            Icon(
-                                imageVector = Icons.Default.PictureAsPdf,
-                                contentDescription = null,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                    }
+                    if (descargando)
+                        CircularProgressIndicator(
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            strokeWidth = 2.dp,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    else
+                        Text("Descargar")
                 }
 
-<<<<<<< HEAD
-                // --- Enviar por correo ---
-=======
-                // --- Enviar correo ---
->>>>>>> ddae60d1159ac3ca62612ae6f56bf09a41805431
-                ElevatedButton(
+                // Enviar email
+                Button(
                     onClick = {
                         if (!enviando) {
                             enviando = true
                             onSendEmail()
-                            coroutineScope.launch {
-                                delay(5000)
+                            CoroutineScope(Dispatchers.Main).launch {
+                                delay(3000)
                                 enviando = false
                             }
                         }
                     },
                     enabled = !enviando,
                     modifier = Modifier.weight(1f),
-<<<<<<< HEAD
-
-=======
                     shape = RoundedCornerShape(10.dp)
->>>>>>> ddae60d1159ac3ca62612ae6f56bf09a41805431
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        if (enviando) {
-                            CircularProgressIndicator(
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                strokeWidth = 2.dp,
-                                modifier = Modifier.size(18.dp)
-                            )
-                        } else {
-                            Icon(Icons.Default.Email, contentDescription = null, modifier = Modifier.size(20.dp))
-                        }
-                    }
+                    if (enviando)
+                        CircularProgressIndicator(
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            strokeWidth = 2.dp,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    else
+                        Text("Enviar")
                 }
 
-                // --- Eliminar ticket individual ---
-                FilledTonalButton(
+                // Eliminar ticket
+                OutlinedButton(
                     onClick = { mostrarDialogoEliminar = true },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.errorContainer),
                     modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(10.dp)
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error
+                    )
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            Icons.Outlined.DeleteForever,
-                            contentDescription = "Eliminar ticket",
-                            tint = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.size(20.dp)
-                        )
-
-                    }
+                    Text("Eliminar")
                 }
             }
         }
     }
 
-
-    //  Diálogo de confirmación antes de eliminar el ticket
+    // 🔹 Diálogo de confirmación
     if (mostrarDialogoEliminar) {
         AlertDialog(
             onDismissRequest = { mostrarDialogoEliminar = false },
-            title = { Text("Eliminar ticket") },
-            text = { Text("¿Seguro que deseas eliminar este ticket? Esta acción no se puede deshacer.") },
             confirmButton = {
-                TextButton(
-                    onClick = {
-                        mostrarDialogoEliminar = false
-                        onDelete() // Ejecuta la eliminación
-                    }
-                ) {
-                    Text("Sí, eliminar", color = MaterialTheme.colorScheme.error)
+                TextButton(onClick = {
+                    onDelete()
+                    mostrarDialogoEliminar = false
+                }) {
+                    Text("Eliminar", color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { mostrarDialogoEliminar = false }) {
                     Text("Cancelar")
                 }
-            }
+            },
+            title = { Text("Eliminar ticket") },
+            text = { Text("¿Seguro que deseas eliminar este ticket?") }
         )
     }
 }
@@ -415,29 +402,17 @@ fun VaciarTicketsSection(onConfirmar: () -> Unit) {
             .padding(horizontal = 16.dp, vertical = 20.dp),
         contentAlignment = Alignment.Center
     ) {
-<<<<<<< HEAD
-=======
-
->>>>>>> ddae60d1159ac3ca62612ae6f56bf09a41805431
         FilledTonalButton(
             onClick = { mostrarDialogo = true },
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
         ) {
             Text("Vaciar tickets", color = MaterialTheme.colorScheme.onError)
-<<<<<<< HEAD
-=======
-
->>>>>>> ddae60d1159ac3ca62612ae6f56bf09a41805431
             Icon(
                 imageVector = Icons.Outlined.DeleteForever,
                 contentDescription = "Borrar",
                 modifier = Modifier.padding(start = 4.dp),
                 tint = MaterialTheme.colorScheme.onError
             )
-<<<<<<< HEAD
-
-=======
->>>>>>> ddae60d1159ac3ca62612ae6f56bf09a41805431
         }
     }
 }
