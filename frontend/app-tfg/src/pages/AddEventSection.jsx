@@ -98,60 +98,60 @@ const AddEventSection = () => {
     };
 
     const crearEvento = async (e) => {
-        e.preventDefault();
-        setMessage("");
+  e.preventDefault();
+  setMessage("");
 
-        try {
-            const payload = new FormData();
+  try {
+    const payload = new FormData();
 
-            // ✅ Recupera el usuario logueado (ajusta la clave según tu localStorage)
-            const user = JSON.parse(localStorage.getItem("user")); // o "usuario", según cómo lo guardes
-            if (!user || !user.id) {
-                alert("No se encontró el ID del usuario (vendedor).");
-                return;
-            }
+    // ✅ Recupera el usuario logueado (ajusta la clave según tu localStorage)
+    const user = JSON.parse(localStorage.getItem("user")); // o "usuario", según cómo lo guardes
+    if (!user || !user.id) {
+      alert("No se encontró el ID del usuario (vendedor).");
+      return;
+    }
 
-            payload.append("vendedorId", user.id); // 👈 IMPORTANTE
+    payload.append("vendedorId", user.id); // 👈 IMPORTANTE
 
-            // Resto de campos
-            payload.append("nombre", formData.nombre);
-            payload.append("localizacion", formData.localizacion);
-            payload.append("inicioEvento", formData.inicioEvento);
-            payload.append("finEvento", formData.finEvento);
-            payload.append("descripcion", formData.descripcion);
-            payload.append("precio", formData.precio);
-            payload.append("categoria", formData.categoria);
-            if (formData.imagen) payload.append("imagen", formData.imagen);
-            formData.carrusels.forEach((file) => payload.append("carrusels", file));
-            payload.append("invitados", JSON.stringify(formData.invitados));
+    // Resto de campos
+    payload.append("nombre", formData.nombre);
+    payload.append("localizacion", formData.localizacion);
+    payload.append("inicioEvento", formData.inicioEvento);
+    payload.append("finEvento", formData.finEvento);
+    payload.append("descripcion", formData.descripcion);
+    payload.append("precio", formData.precio);
+    payload.append("categoria", formData.categoria);
+    if (formData.imagen) payload.append("imagen", formData.imagen);
+    formData.carrusels.forEach((file) => payload.append("carrusels", file));
+    payload.append("invitados", JSON.stringify(formData.invitados));
 
-            const res = await fetch(`${config.apiBaseUrl}/tfg/evento/insert`, {
-                method: "POST",
-                body: payload,
-            });
+    const res = await fetch(`${config.apiBaseUrl}/tfg/evento/insert`, {
+      method: "POST",
+      body: payload,
+    });
 
-            if (!res.ok) throw new Error("Error al crear evento");
+    if (!res.ok) throw new Error("Error al crear evento");
 
-            setMessage("✅ Evento creado correctamente");
-            setFormData({
-                nombre: "",
-                localizacion: "",
-                inicioEvento: "",
-                finEvento: "",
-                descripcion: "",
-                precio: "",
-                categoria: "",
-                imagen: null,
-                carrusels: [],
-                invitados: [],
-            });
+    setMessage("✅ Evento creado correctamente");
+    setFormData({
+      nombre: "",
+      localizacion: "",
+      inicioEvento: "",
+      finEvento: "",
+      descripcion: "",
+      precio: "",
+      categoria: "",
+      imagen: null,
+      carrusels: [],
+      invitados: [],
+    });
 
-            fetchEventos();
-        } catch (err) {
-            console.error(err);
-            setMessage("❌ Error al crear evento");
-        }
-    };
+    fetchEventos();
+  } catch (err) {
+    console.error(err);
+    setMessage("❌ Error al crear evento");
+  }
+};
 
 
     const eliminarEvento = async (id) => {

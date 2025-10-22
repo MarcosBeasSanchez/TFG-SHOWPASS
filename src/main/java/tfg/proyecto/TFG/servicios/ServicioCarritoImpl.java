@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
@@ -23,12 +24,18 @@ import tfg.proyecto.TFG.repositorio.RepositorioUsuario;
 @Service
 public class ServicioCarritoImpl implements IServicioCarrito{
 
+    private final PasswordEncoder passwordEncoder;
+
 	   @Autowired private RepositorioCarrito carritoDAO;
 	    @Autowired private RepositorioCarritoItem itemDAO;
 	    @Autowired private RepositorioEvento eventoDAO;
 	    @Autowired private RepositorioUsuario usuarioDAO;
 	    @Autowired private ServicioTicketImpl servicioTicket;
 	    @Autowired private DtoConverter dtoConverter;
+
+    ServicioCarritoImpl(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
 
 	    @Override
 	    public DTOCarritoBajada obtenerCarritoPorUsuario(Long usuarioId) {
@@ -84,9 +91,11 @@ public class ServicioCarritoImpl implements IServicioCarrito{
 	    @Transactional
 	    public DTOCarritoBajada eliminarItem(Long usuarioId, Long itemId) {
 	        Carrito carrito = obtenerOCrearCarrito(usuarioId);
-
+	        
 	        itemDAO.findById(itemId).ifPresent(item -> {
+	        	
 	            if (item.getCarrito().getId().equals(carrito.getId())) {
+	            	System.out.println("ENTRO EN EL IF : ");
 	                carrito.getItems().remove(item);
 	                itemDAO.delete(item);
 	            }

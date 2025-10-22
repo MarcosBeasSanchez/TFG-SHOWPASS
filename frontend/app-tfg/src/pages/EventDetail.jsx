@@ -51,36 +51,36 @@ export default function EventDetail() {
         .padStart(2, "0")}`;
   };
 
-const handleEventoAlCarrito = async (cantidadSeleccionada) => {
-  const user = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null;
-  const carritoId = user?.carritoId;
-  const eventoId = evento?.id;
+  const handleEventoAlCarrito = async (cantidadSeleccionada) => {
+    const user = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null;
+    const usuarioId = user?.id;
+    const eventoId = evento?.id;
 
-  if (!carritoId || !eventoId) {
-    alert("No se pudo identificar el carrito o el evento");
-    return;
-  }
+    if (!usuarioId || !eventoId) {
+      alert("No se pudo identificar el carrito o el evento");
+      return;
+    }
 
-  try {
-    const res = await fetch(
-      `http://localhost:8080/tfg/carrito/agregar/${carritoId}/${eventoId}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cantidad: cantidadSeleccionada }),
-      }
-    );
+    try {
+      const res = await fetch(
+        `http://localhost:8080/tfg/carrito/item/${usuarioId}/${eventoId}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ cantidad: cantidadSeleccionada }),
+        }
+      );
 
-    if (!res.ok) throw new Error("Error al agregar evento al carrito");
-    const data = await res.json();
-    console.log("Carrito actualizado:", data);
+      if (!res.ok) throw new Error("Error al agregar evento al carrito");
+      const data = await res.json();
+      console.log("Carrito actualizado:", data);
 
-    alert(`Entrada agregada al carrito para: ${evento.nombre} (Cantidad: ${cantidadSeleccionada})`);
-  } catch (err) {
-    console.error(err);
-    alert("Hubo un error al agregar el evento al carrito ❌");
-  }
-};
+      alert(`Entrada agregada al carrito para: ${evento.nombre} (Cantidad: ${cantidadSeleccionada})`);
+    } catch (err) {
+      console.error(err);
+      alert("Hubo un error al agregar el evento al carrito ❌");
+    }
+  };
 
 
   if (loading) return <p className="p-4 text-gray-800">Cargando evento...</p>;

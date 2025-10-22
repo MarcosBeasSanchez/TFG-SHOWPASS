@@ -56,9 +56,10 @@ export default function ShoppingCart({ user }) {
     fetchCarrito();
   }, []);
 
-  const eliminarEvento = async (eventoId) => {
+  const eliminarEvento = async (itemId) => {
+    console.log("Eliminando evento con ID:", itemId);
     try {
-      const res = await fetch(`${config.apiBaseUrl}/tfg/carrito/eliminar/${usuarioId}/${eventoId}`, {
+      const res = await fetch(`${config.apiBaseUrl}/tfg/carrito/itemEliminar/${usuarioId}/${itemId}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Error eliminando evento");
@@ -159,7 +160,7 @@ export default function ShoppingCart({ user }) {
               </div>
             </div>
             <button
-              onClick={() => eliminarEvento(item.eventoId)}
+              onClick={() => eliminarEvento(item.id)}
               className="bg-red-500 text-white px-2 py-1 text-xs rounded hover:bg-red-600"
             >
               Eliminar
@@ -220,7 +221,7 @@ export default function ShoppingCart({ user }) {
                   <div>
                     <p className="font-semibold text-blue-950 oscuroTextoGris">{ticket.nombreEvento}</p>
                     <p className="text-gray-500">Precio: {ticket.precioPagado.toFixed(2)} €</p>
-                    <p className="text-gray-500">Inicio del evento: {new Date(ticket.eventoInicio).toLocaleString()}</p>
+                    <p className="text-gray-500">Fecha Compra: {new Date(ticket.fechaCompra).toLocaleString()}</p>
                   </div>
                 </div>
                 <div className="flex gap-2 md:flex-col flex-row">
