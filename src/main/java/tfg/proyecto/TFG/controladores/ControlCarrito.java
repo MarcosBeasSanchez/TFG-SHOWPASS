@@ -36,11 +36,13 @@ public class ControlCarrito {
 
     @Autowired
     private IServicioCarrito carritoService;
-
+    
+    // Buscar un carrito
     @GetMapping("/{usuarioId}")
     public ResponseEntity<DTOCarritoBajada> obtenerCarrito(@PathVariable Long usuarioId) {
         return ResponseEntity.ok(carritoService.obtenerCarritoPorUsuario(usuarioId));
     }
+    
 
     //  Agregar nuevo item (evento) al carrito
     @PostMapping("/item/{usuarioId}/{eventoId}")

@@ -18,6 +18,7 @@ export default function EventDetail() {
     return `data:image/png;base64,${img}`; // es Base64 crudo → agregamos el prefijo necesario
   };
 
+  const userFromStorage = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null;
   // Fetch del evento
   useEffect(() => {
     const fetchEvento = async () => {
@@ -132,11 +133,11 @@ export default function EventDetail() {
       </div>
 
       <div
-        className={`claro oscuro shadow-xl max-w w-full p-8 transform transition-all duration-700 ease-out ${animate ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          }`}
+        className={`claro oscuro shadow-xl max-w w-full p-8 
+          transform transition-all duration-700 ease-out ${animate ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
         style={{ position: "relative" }}
       >
-        <div className="max-w-4xl mx-auto text-left ">
+        <div className="mx-auto sm:max-w-8/8 md:max-w-7/8 lg:max-w-5/8">
           <h2 className="text-2xl font-semibold mb-0 claroEvento oscuroEvento">Datos del evento</h2>
           <div className="flex flex-col md:flex-row md:justify-between mb-0 text-gray-800 text-lg py-8">
             <div className="bg-blue-100 oscuroBox p-1">
@@ -161,7 +162,7 @@ export default function EventDetail() {
           {/* Carrusel de imágenes */}
           {evento.imagenesCarruselUrls && evento.imagenesCarruselUrls.length > 0 ? (
             <div className="flex flex-col items-center">
-              <div className="max-w-4xl mx-auto text-left">
+              <div className="max mx-auto">
                 <div className="mb-8">
                   <div className="flex space-x-4 overflow-x-auto p-2 carrusel-sin-scrollbar">
                     {evento.imagenesCarruselUrls.map((foto, index) => (
@@ -218,9 +219,6 @@ export default function EventDetail() {
               ? `${evento.aforo} personas`
               : "Aforo no disponible"}
           </p>
-
-
-
           <h2 className="text-2xl font-semibold mb-3 mt-6 claroEvento oscuroEvento">Precio</h2>
           <p className="text-gray-700 font-bold md:text-left text-center claroEvento oscuroEvento">
             {typeof evento.precio === "number"
@@ -228,33 +226,39 @@ export default function EventDetail() {
               : "Precio no disponible"}
           </p>
 
-
           {/* Botones cantidad + carrito */}
-          <div className="flex md:justify-end justify-center items-center mt-3">
-            <button
-              type="button"
-              onClick={() => setCantidad(Math.max(cantidad - 1, 1))}
-              className="bg-gray-500 text-white hover:bg-red-600 transition font-bold w-10 h-10 rounded-l-lg"
-            >
-              -
-            </button>
-            <button
-              type="button"
-              onClick={() => handleEventoAlCarrito(cantidad)}
-              className="bg-gray-500 text-white h-10 px-5 hover:bg-green-600 transition"
-              style={{ marginRight: 0 }}
-            >
-              Agregar al carrito: <span className="font-bold">{cantidad}</span>
-              <span className="material-symbols-outlined align-middle pl-2">add_shopping_cart</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setCantidad(cantidad + 1)}
-              className="bg-gray-500 text-white hover:bg-blue-600 transition font-bold w-10 h-10 rounded-r-lg"
-            >
-              +
-            </button>
-          </div>
+          {userFromStorage ? (
+            <div className="flex md:justify-end justify-center items-center mt-3 py-8">
+              <button
+                type="button"
+                onClick={() => setCantidad(Math.max(cantidad - 1, 1))}
+                className="bg-gray-500 text-white hover:bg-red-600 transition font-bold w-10 h-10 rounded-l-lg text-2xl pb-2"
+              >
+                -
+              </button>
+              <button
+                type="button"
+                onClick={() => handleEventoAlCarrito(cantidad)}
+                className="bg-gray-500 text-white h-10 px-5 hover:bg-green-600 transition"
+                style={{ marginRight: 0 }}
+              >
+                <span className="material-symbols-outlined align-middle ">add_shopping_cart</span>
+                Agregar al carrito: <span className="font-bold">{cantidad}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setCantidad(cantidad + 1)}
+                className="bg-gray-500 text-white hover:bg-blue-600 transition font-bold w-10 h-10 rounded-r-lg text-2xl pb-1"
+              >
+                +
+              </button>
+            </div>
+
+          ) : (
+            <p className="flex md:justify-end justify-center items-center mt-3 text-gray-700 font-bold py-8 oscuroTextoGris">
+              Inicia sesión para comprar entradas 🎟️
+            </p>
+          )}
         </div>
       </div>
     </div>

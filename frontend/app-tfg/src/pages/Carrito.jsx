@@ -191,11 +191,12 @@ export default function ShoppingCart({ user }) {
       {/* Resumen tickets comprados */}
       {ticketsComprados.length > 0 && (
         <div className="mt-6 p-4 bg-white shadow rounded oscuro">
-          <h2 className="text-2xl font-semibold text-gray-500 mb-4 oscuroTextoGris">Resumen de tu compra</h2>
-          <div className="block my-5">
+
+          <div className="flex my-5 w-full justify-between items-center">
+            <h2 className="inline text-2xl font-semibold text-gray-500 mb-4 oscuroTextoGris">Resumen de tu compra</h2>
             <a
               href="/tickets"
-              className="bg-gray-500 text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-blue-600 transition w-full text-center"
+              className="bg-gray-500 text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-blue-600 transition w-fit text-center"
             >
               Ver mis tickets
             </a>

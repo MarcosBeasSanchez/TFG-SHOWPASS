@@ -10,6 +10,8 @@ export default function Login() {
         body: JSON.stringify(data),
       });
 
+      console.log("Datos enviados al backend (login):\n",JSON.stringify(data, null, 2));
+      
       const result = await res.json();
 
       console.log("Respuesta completa del backend (login):\n",JSON.stringify(result, null, 2));

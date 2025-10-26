@@ -53,8 +53,8 @@ export default function VentanaPrincipal() {
     fetchEventos();
   }, []);
 
-  const primerEvento = entradasAleatorias[0];
-  const restoEventos = entradasAleatorias.slice(1);
+    const primerEvento = entradasAleatorias[0];
+    const restoEventos = entradasAleatorias.slice(1);
 
   // Obtener usuario desde localStorage para depuración
   const userFromStorage = localStorage.getItem("user")
@@ -90,57 +90,58 @@ export default function VentanaPrincipal() {
           </div>
         </div>
       )}
-      {primerEvento && (
-        <div className="grid place-items-center p-5 sm:p-10">
-          <h1 className="text-2xl font-bold mb-4 text-gray-600 oscuroTextoGris">PRÓXIMOS EVENTOS</h1>
-          <div
-            key={primerEvento.id}
-            className="bg-white shadow-lg overflow-hidden hover:scale-101 transition transform lg:w-full w-full group"
-          >
-            <Link to={`/evento/${primerEvento.nombre}`}>
-              <div className="relative w-full ">
-                {/* Usamos getImageSrc para asegurar que la imagen sea válida */}
-                <img
-                  src={getImageSrc(primerEvento.imagenPrincipalUrl)}
-                  alt={primerEvento.nombre}
-                  className="w-full h-100 object-cover transition duration-500 group-hover:opacity-70"
-                />
-                <div className="absolute inset-0 bg-blue-500 opacity-0 group-hover:opacity-20 transition duration-500"></div>
-              </div>
-            </Link>
+      <div className="max-w-7/8 mx-auto ">
+        {primerEvento && (
+          <div className="grid place-items-center p-5 sm:p-10 ">
+            <h1 className="text-2xl font-bold mb-4 text-gray-600 oscuroTextoGris">PRÓXIMOS EVENTOS</h1>
+            <div
+              key={primerEvento.id}
+              className="bg-white shadow-lg overflow-hidden hover:scale-101 transition transform lg:w-full w-full group"
+            >
+              <Link to={`/evento/${primerEvento.nombre}`}>
+                <div className="relative w-full ">
+                  {/* Usamos getImageSrc para asegurar que la imagen sea válida */}
+                  <img
+                    src={getImageSrc(primerEvento.imagenPrincipalUrl)}
+                    alt={primerEvento.nombre}
+                    className="w-full h-100 object-cover transition duration-500 group-hover:opacity-70"
+                  />
+                  <div className="absolute inset-0 bg-blue-500 opacity-0 group-hover:opacity-20 transition duration-500"></div>
+                </div>
+              </Link>
 
-            <div className="p-4 flex flex-col bg-white oscuro">
-              <h3 className="text-xl font-semibold text-gray-700 oscuro">{primerEvento.nombre}</h3>
-              <div className="my-2">
-                <p className="text-gray-500 mt-1"><strong>Localización:</strong> {primerEvento.localizacion}</p>
-                <p className="text-gray-500 mt-1">
-                  <strong>Inicio Evento:</strong> {primerEvento.inicioEvento ? new Date(primerEvento.inicioEvento).toLocaleString() : "Fecha por definir"}
-                </p>
-                <p className="text-gray-500 mt-1">
-                  <strong>Final Evento:</strong> {primerEvento.finEvento ? new Date(primerEvento.finEvento).toLocaleString() : "Fecha por definir"}
-                </p>
-                <p className="text-gray-500 mt-1">
-                  {primerEvento.invitados?.length ? `Invitados: ${primerEvento.invitados.map(i => i.nombre).join(", ")}` : "Sin invitados por ahora"}
-                </p>
-              </div>
-              <div className="flex justify-end gap-2 items-baseline">
-                <p className="font-medium text-sm text-gray-600 bg-blue-100 oscuroBox p-2 rounded-md">
-                  {Number(primerEvento.precio).toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€
-                </p>
-                <Link
-                  to={`/evento/${primerEvento.nombre}`}
-                  className=" bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 text-center"
-                >
-                  Ver detalles
-                </Link>
+              <div className="p-4 flex flex-col bg-white oscuro">
+                <h3 className="text-xl font-semibold text-gray-700 oscuro">{primerEvento.nombre}</h3>
+                <div className="my-2">
+                  <p className="text-gray-500 mt-1"><strong>Localización:</strong> {primerEvento.localizacion}</p>
+                  <p className="text-gray-500 mt-1">
+                    <strong>Inicio Evento:</strong> {primerEvento.inicioEvento ? new Date(primerEvento.inicioEvento).toLocaleString() : "Fecha por definir"}
+                  </p>
+                  <p className="text-gray-500 mt-1">
+                    <strong>Final Evento:</strong> {primerEvento.finEvento ? new Date(primerEvento.finEvento).toLocaleString() : "Fecha por definir"}
+                  </p>
+                  <p className="text-gray-500 mt-1">
+                    {primerEvento.invitados?.length ? `Invitados: ${primerEvento.invitados.map(i => i.nombre).join(", ")}` : "Sin invitados por ahora"}
+                  </p>
+                </div>
+                <div className="flex justify-end gap-2 items-baseline">
+                  <p className="font-medium text-sm text-gray-600 bg-blue-100 oscuroBox p-2 rounded-md">
+                    {Number(primerEvento.precio).toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€
+                  </p>
+                  <Link
+                    to={`/evento/${primerEvento.nombre}`}
+                    className=" bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 text-center"
+                  >
+                    Ver detalles
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
-
+        )}
+      </div>
       {/* Mostrar resto de eventos */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10 p-5 sm:p-10 ">
+      <div className=" max-w-5/6 mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-10 p-5 sm:p-10 ">
         {restoEventos.map((entrada) => (
           <div key={entrada.id} className="claro oscuro shadow-lg overflow-hidden hover:scale-101 transition transform group h-full ">
             <Link to={`/evento/${entrada.nombre}`}>
@@ -182,6 +183,7 @@ export default function VentanaPrincipal() {
           </div>
         ))}
       </div>
+
     </div>
   );
 }

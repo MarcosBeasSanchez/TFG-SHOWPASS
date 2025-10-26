@@ -1,11 +1,13 @@
 package tfg.proyecto.TFG.dtos;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import tfg.proyecto.TFG.modelo.Evento;
 import tfg.proyecto.TFG.modelo.Rol;
 
 @Builder
@@ -23,5 +25,7 @@ public class DTOusuarioBajada {
 
     private Long tarjetaId;
     private Long carritoId;
+    //private List<Long>ticketsId; //solo coger los ID
+    //private List<Evento>eventosCreados; //solo coger los ID
 
 }
