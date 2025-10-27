@@ -42,6 +42,7 @@ public class DtoConverter {
 		    modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.LOOSE);
 
 		    // 1. Crear el Converter de List<?> a List<Long> (usando reflexión)
+		    // Puede verse por ejemplo en tfg/usuario/findAll
 		    Converter<List<?>, List<Long>> listToIdConverter = new Converter<List<?>, List<Long>>() {
 		        @Override
 		        public List<Long> convert(MappingContext<List<?>, List<Long>> context) {

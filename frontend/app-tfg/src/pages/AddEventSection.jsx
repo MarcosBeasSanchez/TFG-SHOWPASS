@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import config from "../config/config";
 
+const usuarioId = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")).id : null;
 
 
 const AddEventSection = () => {
@@ -98,76 +99,60 @@ const AddEventSection = () => {
     };
 
     const crearEvento = async (e) => {
-  e.preventDefault();
-  setMessage("");
-
-  try {
-    const payload = new FormData();
-
-    // ✅ Recupera el usuario logueado (ajusta la clave según tu localStorage)
-    const user = JSON.parse(localStorage.getItem("user")); // o "usuario", según cómo lo guardes
-    if (!user || !user.id) {
-      alert("No se encontró el ID del usuario (vendedor).");
-      return;
-    }
-
-    payload.append("vendedorId", user.id); // 👈 IMPORTANTE
-
-    // Resto de campos
-    payload.append("nombre", formData.nombre);
-    payload.append("localizacion", formData.localizacion);
-    payload.append("inicioEvento", formData.inicioEvento);
-    payload.append("finEvento", formData.finEvento);
-    payload.append("descripcion", formData.descripcion);
-    payload.append("precio", formData.precio);
-    payload.append("categoria", formData.categoria);
-    if (formData.imagen) payload.append("imagen", formData.imagen);
-    formData.carrusels.forEach((file) => payload.append("carrusels", file));
-    payload.append("invitados", JSON.stringify(formData.invitados));
-
-    const res = await fetch(`${config.apiBaseUrl}/tfg/evento/insert`, {
-      method: "POST",
-      body: payload,
-    });
-
-    if (!res.ok) throw new Error("Error al crear evento");
-
-    setMessage("✅ Evento creado correctamente");
-    setFormData({
-      nombre: "",
-      localizacion: "",
-      inicioEvento: "",
-      finEvento: "",
-      descripcion: "",
-      precio: "",
-      categoria: "",
-      imagen: null,
-      carrusels: [],
-      invitados: [],
-    });
-
-    fetchEventos();
-  } catch (err) {
-    console.error(err);
-    setMessage("❌ Error al crear evento");
-  }
-};
-
-
-    const eliminarEvento = async (id) => {
+        e.preventDefault();
         setMessage("");
+
         try {
-            const res = await fetch(`${config.apiBaseUrl}/tfg/evento/delete/${id}`, {
-                method: "DELETE"
+            const payload = new FormData();
+            //Error si no hay usuarioId
+            if (!usuarioId) {
+                alert("No se encontró el ID del usuario (vendedor).");
+                return;
+            }
+            // Agregar el vendedorId al payload
+            payload.append("vendedorId", usuarioId); // 👈 IMPORTANTE
+            // Resto de campos
+            payload.append("nombre", formData.nombre);
+            payload.append("localizacion", formData.localizacion);
+            payload.append("inicioEvento", formData.inicioEvento);
+            payload.append("finEvento", formData.finEvento);
+            payload.append("descripcion", formData.descripcion);
+            payload.append("precio", formData.precio);
+            payload.append("categoria", formData.categoria);
+
+            if (formData.imagen) payload.append("imagen", formData.imagen);
+            formData.carrusels.forEach((file) => payload.append("carrusels", file));
+            payload.append("invitados", JSON.stringify(formData.invitados));
+
+            const res = await fetch(`${config.apiBaseUrl}/tfg/evento/insert`, {
+                method: "POST",
+                body: payload,
             });
-            if (!res.ok) throw new Error("Error al eliminar evento");
-            setMessage("✅ Evento eliminado correctamente");
-            fetchEventos();
+
+            if (!res.ok) throw new Error("Error al crear evento");
+
+            setMessage("✅ Evento creado correctamente");
+            setFormData({
+                nombre: "",
+                localizacion: "",
+                inicioEvento: "",
+                finEvento: "",
+                descripcion: "",
+                precio: "",
+                categoria: "",
+                imagen: null,
+                carrusels: [],
+                invitados: [],
+            });
+            
+            console.log("Envio al backend" + JSON.stringify(payload));
+            //fetchEventos();
         } catch (err) {
             console.error(err);
-            setMessage("❌ Error al eliminar evento");
+            setMessage("❌ Error al crear evento");
         }
     };
+
 
     return (
         <div className="mt-4 px-2 md:px-0 text-gray-500 ">
@@ -189,7 +174,7 @@ const AddEventSection = () => {
                     <input type="datetime-local" name="finEvento" value={formData.finEvento} onChange={handleChange} required className="p-2  rounded  bg-gray-200 text-black oscuroBox" />
 
                     <label>Precio:</label>
-                    <input type="number" name="precio" value={formData.precio} onChange={handleChange} className="p-2  rounded  bg-gray-200 text-black oscuroBox" />
+                    <input type="number" name="precio" value={formData.precio} onChange={handleChange} min="0" className="p-2  rounded  bg-gray-200 text-black oscuroBox" />
 
                     <label>Categoría:</label>
                     <select name="categoria" value={formData.categoria} onChange={handleChange} required className="p-2  rounded bg-gray-200 text-black oscuroBox">

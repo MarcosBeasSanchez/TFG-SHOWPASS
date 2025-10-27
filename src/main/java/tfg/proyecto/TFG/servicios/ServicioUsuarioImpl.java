@@ -3,16 +3,20 @@ package tfg.proyecto.TFG.servicios;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
 import tfg.proyecto.TFG.config.DtoConverter;
 import tfg.proyecto.TFG.config.JwtUtil;
 import tfg.proyecto.TFG.dtos.DTOUsuarioReportado;
+import tfg.proyecto.TFG.dtos.DTOeventoBajada;
 import tfg.proyecto.TFG.dtos.DTOusuarioBajada;
 import tfg.proyecto.TFG.dtos.DTOusuarioBajadaMinimo;
 import tfg.proyecto.TFG.dtos.DTOusuarioLogin;
@@ -22,6 +26,7 @@ import tfg.proyecto.TFG.dtos.DTOusuarioSubida;
 import tfg.proyecto.TFG.dtos.DTOusuarioSubidaMinimo;
 import tfg.proyecto.TFG.modelo.Carrito;
 import tfg.proyecto.TFG.modelo.EstadoCarrito;
+import tfg.proyecto.TFG.modelo.Evento;
 import tfg.proyecto.TFG.modelo.Rol;
 import tfg.proyecto.TFG.modelo.TarjetaBancaria;
 import tfg.proyecto.TFG.modelo.Usuario;
@@ -214,6 +219,22 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 		}
 		return null;
 	}
+	
+	@Override
+    @Transactional 
+    public List<DTOeventoBajada> findAllEventosCreadosPorUnUsuario(Long id) {
+        Optional<Usuario> u = repoUsuario.findById(id);
+        
+        if (u.isPresent()) {
+            Usuario usu = u.get();
+            List<Evento> eventos = usu.getEventosCreados();
+            
+            // 🚨 Mapear la lista de entidades a una lista de DTOs 🚨
+            return dtoConverter.mapAll(eventos, DTOeventoBajada.class);
+        }
+        
+        return null; // Devuelve lista vacía de DTOs
+    }
 
 	@Override
 	public List<DTOUsuarioReportado> findAllReportados() {
@@ -254,5 +275,6 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 
 		return dto;
 	}
+
 
 }

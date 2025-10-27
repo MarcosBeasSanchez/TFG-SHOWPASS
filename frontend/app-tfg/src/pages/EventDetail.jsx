@@ -11,10 +11,12 @@ export default function EventDetail() {
   const [fullscreenImg, setFullscreenImg] = useState(null);
   const [cantidad, setCantidad] = useState(1);
 
+
   const getImageSrc = (img) => {
     if (!img) return ""; // si no hay imagen, devolvemos vacío
     if (img.startsWith("data:image/")) return img; // ya es Base64 con prefijo → no hacer nada
     if (img.startsWith("http://") || img.startsWith("https://")) return img; // es URL externa → usar tal cual
+    if (img.startsWith("/uploads/")) return `${config.apiBaseUrl}${img}`; // es ruta relativa del backend
     return `data:image/png;base64,${img}`; // es Base64 crudo → agregamos el prefijo necesario
   };
 

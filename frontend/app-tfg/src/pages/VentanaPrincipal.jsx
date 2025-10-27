@@ -1,5 +1,6 @@
 import { set } from "@cloudinary/url-gen/actions/variable";
 import { useEffect, useState } from "react";
+import config from "../config/config";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 
 export default function VentanaPrincipal() {
@@ -31,6 +32,7 @@ export default function VentanaPrincipal() {
     if (!img) return null; // si no hay imagen, devolvemos vacío
     if (img.startsWith("data:image/")) return img; // ya es Base64 con prefijo → no hacer nada
     if (img.startsWith("http://") || img.startsWith("https://")) return img; // es URL externa → usar tal cual
+    if (img.startsWith("/uploads/")) return `${config.apiBaseUrl}${img}`; // es ruta relativa del backend
     return `data:image/png;base64,${img}`; // es Base64 crudo → agregamos el prefijo necesario
   };
 

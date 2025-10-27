@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
+import config from "../config/config";
 
 export default function BusquedaEventos() {
     const [entradas, setEntradas] = useState([]);
@@ -26,6 +27,7 @@ export default function BusquedaEventos() {
         if (!img) return ""; // si no hay imagen, devolvemos vacío
         if (img.startsWith("data:image/")) return img; // ya es Base64 con prefijo → no hacer nada
         if (img.startsWith("http://") || img.startsWith("https://")) return img; // es URL externa → usar tal cual
+        if (img.startsWith("/uploads/")) return `${config.apiBaseUrl}${img}`; // es ruta relativa del backend
         return `data:image/png;base64,${img}`; // es Base64 crudo → agregamos el prefijo necesario
     };
 
