@@ -27,6 +27,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.Singular;
 import lombok.ToString;
+import tfg.proyecto.TFG.config.TieneId;
 
 @Data
 @Builder
@@ -34,7 +35,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Evento {
+public class Evento implements TieneId{
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

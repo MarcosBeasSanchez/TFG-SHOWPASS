@@ -25,7 +25,7 @@ public class DTOusuarioBajada {
 
     private Long tarjetaId;
     private Long carritoId;
-    //private List<Long>ticketsId; //solo coger los ID
-    //private List<Evento>eventosCreados; //solo coger los ID
+    private List<Long>ticketsId; //solo coger los ID
+    private List<Long>eventosCreadosId; //solo coger los ID
 
 }
