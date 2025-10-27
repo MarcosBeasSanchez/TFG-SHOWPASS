@@ -63,11 +63,14 @@ const Profile = () => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(userToSend)
             })
+            console.log("Usuario enviado al backend para actualización:", userToSend);
+            
             const responseCuenta = await fetch(`${config.apiBaseUrl}/tfg/cuentaBancaria/update`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(cuenta)
             });
+            console.log("Cuenta enviada al backend para actualización:", cuenta);
 
             if (responseUser.ok && responseCuenta.ok) {
                 const updatedUser = await responseUser.json();
@@ -195,7 +198,7 @@ const Profile = () => {
                                     className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black oscuroBox"
                                 />
                             ) : (
-                                <span className="block p-3 bg-gray-100 rounded-lg text-black oscuroBox" >{user.fechaNacimiento || <span>&nbsp;</span>}</span>
+                                <span className="block p-3 bg-gray-100 rounded-lg text-black oscuroBox" >{new Date(user.fechaNacimiento).toLocaleDateString("es-ES") || <span>&nbsp;</span>}</span>
                             )}
                         </div>
                         <div className="flex flex-col gap-2">
@@ -288,7 +291,7 @@ const Profile = () => {
                                     className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black oscuroBox"
                                 />
                             ) : (
-                                <span className="block p-3 bg-gray-100 rounded-lg text-black oscuroBox">{cuenta?.fechaCaducidad || <span>&nbsp;</span>}</span>
+                                <span className="block p-3 bg-gray-100 rounded-lg text-black oscuroBox">{new Date(cuenta?.fechaCaducidad).toLocaleDateString("es-ES") || <span>&nbsp;</span>}</span>
                             )}
                         </div>
 

@@ -40,9 +40,35 @@ public class ControlUtilidades {
 		}
 
 		// Usar tu servicio para enviar el PDF
-		daoMail.sendPdfEmail(email, "Tu entrada para " + eventoNombre + " - Ticket ID: " + ticketId,
-				"<p>Hola, aquí tienes tu ticket con ID <b>" + ticketId + "</b>.</p>", pdfFile);
+		// Reemplazar la línea de daoMail.sendPdfEmail(...) con esta versión:
+		// Usar tu servicio para enviar el PDF
+		daoMail.sendPdfEmail(
+		    email, 
+		    "=?UTF-8?B?" + Base64.getEncoder().encodeToString(("¡Tu entrada para " + eventoNombre + " está lista! 🎉").getBytes("UTF-8")) + "?=", // Asunto con codificación forzada
+		    "<html>"
+		    + "<head><meta charset=\"UTF-8\"></head>" 
+		    + "<body style=\"font-family: Arial, sans-serif; line-height: 1.6;\">"
+		 
+		    + "<div style=\"max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;\">"
+		    + "<h2 style=\"color: #4CAF50;\">¡Compra Exitosa!</h2>"
 
+		    + "<p>Hola, <b>" + email + "</b>.</p>"
+		    // ...
+		    + "<p>¡Tu aventura con <b>SHOWPASS</b> comienza ahora! Estamos encantados de confirmar tu compra. </p>"
+		    + "<p>En este correo adjuntamos tu <b>ticket</b> para:</p>"
+		    + "<h3 margin-top: 15px;\">" + eventoNombre + "</h3>"
+
+		    + "<p style=\"font-size: 14px; color: #555;\">"
+		    + "    <b>ID de Ticket:</b> <b style=\"color: #1a73e8;\">" + ticketId + "</b>" + "</p>"
+
+		    + "<p>Guarda el archivo PDF adjunto de forma segura y tenlo listo en tu móvil o impreso para acceder rápidamente al recinto. ¡Solo tienes que escanear tu código!</p>"
+		    + "<p style=\"margin-top: 25px;\">¡Gracias por elegir SHOWPASS! ¡Nos vemos en el evento!</p>"
+		    + "<p style=\"font-size: 12px; color: #888;\">" + "     El equipo de ShowPass" + "</p>"
+		    + "</div>" 
+		    + "</body>"
+		    + "</html>",
+		    pdfFile
+		);
 		// Borrar archivo temporal
 		pdfFile.delete();
 

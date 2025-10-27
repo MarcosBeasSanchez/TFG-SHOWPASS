@@ -55,7 +55,7 @@ const AddEventSection = () => {
         }));
     };
 
-    const removerImagenCarrusel = (index) => {
+    const eliminarImagenCarrusel = (index) => {
         const nuevasImagenes = [...formData.carrusels];
         nuevasImagenes.splice(index, 1);
         setFormData((prev) => ({ ...prev, carrusels: nuevasImagenes }));
@@ -91,7 +91,7 @@ const AddEventSection = () => {
         }));
     };
 
-    const removerInvitado = (index) => {
+    const eliminarInvitado = (index) => {
         const nuevosInvitados = [...formData.invitados];
         nuevosInvitados.splice(index, 1);
         setFormData((prev) => ({ ...prev, invitados: nuevosInvitados }));
@@ -213,7 +213,7 @@ const AddEventSection = () => {
                         {formData.carrusels.map((file, idx) => (
                             <div key={idx} className="relative w-24 h-24">
                                 <img src={URL.createObjectURL(file)} alt={`Carrusel ${idx}`} className="w-full h-full object-cover rounded border" />
-                                <button type="button" onClick={() => removerImagenCarrusel(idx)} className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6">×</button>
+                                <button type="button" onClick={() => eliminarImagenCarrusel(idx)} className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6">×</button>
                             </div>
                         ))}
                     </div>
@@ -229,7 +229,7 @@ const AddEventSection = () => {
                             <label className=" bg-blue-500 text-white text-center px-4 py-2 rounded">
                                 Foto <input type="file" name="fotoURL" onChange={(e) => handleInvitadoChange(idx, e)} className="hidden" />
                             </label>
-                            <button type="button" onClick={() => removerInvitado(idx)} className=" bg-red-500 text-white p-2 rounded hover:bg-red-600 transition">Quitar</button>
+                            <button type="button" onClick={() => eliminarInvitado(idx)} className=" bg-red-500 text-white p-2 rounded hover:bg-red-600 transition">Quitar</button>
                         </div>
 
                     </div>
