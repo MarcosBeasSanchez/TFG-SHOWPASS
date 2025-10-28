@@ -159,11 +159,11 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 		if (existente != null) {
 			throw new IllegalArgumentException("El email " + u.getEmail() + " ya existe");
 		}
-		
+
 		// Codificar contraseña antes de guardar
-	    u.setPassword(passwordEncoder.encode(u.getPassword()));
-	    
-	    //Cliente por defecto
+		u.setPassword(passwordEncoder.encode(u.getPassword()));
+
+		// Cliente por defecto
 		if (u.getRol() == null)
 			u.setRol(Rol.CLIENTE);
 		if (u.getFoto() == null) {
@@ -172,7 +172,7 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 		// Tarjeta por defecto
 		if (u.getTarjeta() == null)
 			u.setTarjeta(new TarjetaBancaria());
-		
+
 		// Carrito por defecto(importante setear usuario)
 		if (u.getCarrito() == null) {
 			Carrito carrito = new Carrito();
@@ -194,16 +194,25 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 	public DTOusuarioLoginBajada login(DTOusuarioLogin dtoLogin) {
 		Usuario u = repoUsuario.findByEmail(dtoLogin.getEmail());
 		DTOusuarioLoginBajada out = new DTOusuarioLoginBajada();
+		//
+		DTOusuarioBajada dtoUser = dtoConverter.map(u, DTOusuarioBajada.class);
+		String token = JwtUtil.generateToken(u.getEmail());
 
 		if (u != null && passwordEncoder.matches(dtoLogin.getPassword(), u.getPassword())) {
-			DTOusuarioBajada dtoUser = dtoConverter.map(u, DTOusuarioBajada.class);
-			String token = JwtUtil.generateToken(u.getEmail());
-
+			
+			//Si el usuario está reportado
+	        if (u.isReportado()) { 
+	            out.setExito(false);
+	            out.setMensaje("Cuenta bloqueada. Por favor, contacte con soporte.");
+	            return out; 
+	        }
+			//En caso de no estar reportado
 			out.setDtousuarioBajada(dtoUser);
 			out.setToken(token);
 			out.setExito(true);
 			out.setMensaje("Login correcto");
 		} else {
+			//En caso que la password sea incorrecta
 			out.setExito(false);
 			out.setMensaje("Credenciales incorrectas");
 		}
@@ -219,22 +228,22 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 		}
 		return null;
 	}
-	
+
 	@Override
-    @Transactional 
-    public List<DTOeventoBajada> findAllEventosCreadosPorUnUsuario(Long id) {
-        Optional<Usuario> u = repoUsuario.findById(id);
-        
-        if (u.isPresent()) {
-            Usuario usu = u.get();
-            List<Evento> eventos = usu.getEventosCreados();
-            
-            // 🚨 Mapear la lista de entidades a una lista de DTOs 🚨
-            return dtoConverter.mapAll(eventos, DTOeventoBajada.class);
-        }
-        
-        return null; // Devuelve lista vacía de DTOs
-    }
+	@Transactional
+	public List<DTOeventoBajada> findAllEventosCreadosPorUnUsuario(Long id) {
+		Optional<Usuario> u = repoUsuario.findById(id);
+
+		if (u.isPresent()) {
+			Usuario usu = u.get();
+			List<Evento> eventos = usu.getEventosCreados();
+
+			// 🚨 Mapear la lista de entidades a una lista de DTOs 🚨
+			return dtoConverter.mapAll(eventos, DTOeventoBajada.class);
+		}
+
+		return null; // Devuelve lista vacía de DTOs
+	}
 
 	@Override
 	public List<DTOUsuarioReportado> findAllReportados() {
@@ -251,8 +260,11 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 		if (usuario == null) {
 			return null;
 		}
-
-		usuario.setReportado(true);
+		if (!usuario.isReportado()) {
+			usuario.setReportado(true);
+		} else {
+			usuario.setReportado(false);
+		}
 		repoUsuario.save(usuario);
 
 		DTOUsuarioReportado dto = dtoConverter.map(usuario, DTOUsuarioReportado.class);
@@ -275,6 +287,5 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 
 		return dto;
 	}
-
 
 }

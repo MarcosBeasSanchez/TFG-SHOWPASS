@@ -133,9 +133,9 @@ public class ControlUsuario {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-    
+    //Reporta o desReporta un usuario
     @PutMapping("reportar")
-    public ResponseEntity<DTOUsuarioReportado> reportarUsuario(@RequestParam   String email) {
+    public ResponseEntity<DTOUsuarioReportado> reportarUsuario(@RequestParam String email) {
         DTOUsuarioReportado dto = daoUsuario.reportarUsuario(email);
         if (dto != null) {
         	return new ResponseEntity<>(dto, HttpStatus.OK);

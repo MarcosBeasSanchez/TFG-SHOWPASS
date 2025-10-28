@@ -5,7 +5,6 @@ const usuarioId = localStorage.getItem("user") ? JSON.parse(localStorage.getItem
 
 
 const AddEventSection = () => {
-    const [eventos, setEventos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [formData, setFormData] = useState({
         nombre: "",
@@ -20,25 +19,6 @@ const AddEventSection = () => {
         invitados: [],
     });
     const [message, setMessage] = useState("");
-
-    useEffect(() => {
-        fetchEventos();
-    }, []);
-
-    const fetchEventos = async () => {
-        setLoading(true);
-        try {
-            const res = await fetch(`${config.apiBaseUrl}/tfg/evento/findAll`);
-            if (!res.ok) throw new Error("Error al obtener eventos");
-            const data = await res.json();
-            setEventos(data);
-        } catch (err) {
-            console.error(err);
-            setEventos([]);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleChange = (e) => {
         const { name, value, files } = e.target;
@@ -110,7 +90,7 @@ const AddEventSection = () => {
                 return;
             }
             // Agregar el vendedorId al payload
-            payload.append("vendedorId", usuarioId); // 👈 IMPORTANTE
+            payload.append("vendedorId", usuarioId); // IMPORTANTE
             // Resto de campos
             payload.append("nombre", formData.nombre);
             payload.append("localizacion", formData.localizacion);
@@ -208,8 +188,8 @@ const AddEventSection = () => {
                 {formData.invitados.map((invitado, idx) => (
 
                     <div key={idx} className="flex lg:flex-row flex-col  gap-2 items-center justify- oscuro">
-                        <input type="text" name="nombre" placeholder="Nombre" value={invitado.nombre} maxLength={50} onChange={(e) => handleInvitadoChange(idx, e)} className="w-full  p-2  rounded text-black oscuroBox" />
-                        <input type="text" name="apellidos" placeholder="Apellidos" value={invitado.apellidos} maxLength={50} onChange={(e) => handleInvitadoChange(idx, e)} className="w-full p-2  rounded text-black oscuroBox" />
+                        <input type="text" name="nombre" placeholder="Nombre" value={invitado.nombre} maxLength={50} onChange={(e) => handleInvitadoChange(idx, e)} className="w-full  p-2  rounded text-black oscuroBox bg-gray-200" />
+                        <input type="text" name="apellidos" placeholder="Apellidos" value={invitado.apellidos} maxLength={50} onChange={(e) => handleInvitadoChange(idx, e)} className="w-full p-2  rounded text-black oscuroBox bg-gray-200" />
                         <div className="flex flex-row gap-2 my-3.5 lg:my-0 items-center justify-center lg:justify-start ">
                             <label className=" bg-blue-500 text-white text-center px-4 py-2 rounded">
                                 Foto <input type="file" name="fotoURL" onChange={(e) => handleInvitadoChange(idx, e)} className="hidden" />
