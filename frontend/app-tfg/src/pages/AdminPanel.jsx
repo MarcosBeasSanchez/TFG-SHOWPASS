@@ -1,15 +1,13 @@
 import React, { useState } from 'react';
 import AdminUserSection from '../pages/AdminUserSection';
 import AdminEventSection from '../pages/AdminEvent';
-import AdminReportSection from '../pages/AdminReports';
 
 const AdminPanel = () => {
     const [activeSection, setActiveSection] = useState(null);
 
     const sectionTitles = {
         user: 'Usuarios',
-        event: 'Eventos',
-        report: 'Reportes'
+        event: 'Eventos'
     };
 
     return (
@@ -18,7 +16,7 @@ const AdminPanel = () => {
                 <h1 className='text-2xl font-bold text-gray-600  oscuroTextoGris mb-6'>Panel de Administración</h1>
 
                 {/* Botones de navegación */}
-                <div className='flex flex-col md:flex-row justify-center  mt-8'>
+                <div className='flex flex-col md:flex-row justify-center  mt-8 gap-5'>
                     <section className="flex-1">
                         <button
                             className={`w-full text-white bg-blue-500 p-3 px-6  shadow hover:bg-blue-700 transition font-semibold text-md flex items-center justify-center gap-2 `}
@@ -37,15 +35,6 @@ const AdminPanel = () => {
                             Eventos
                         </button>
                     </section>
-                    <section className="flex-1">
-                        <button
-                            className={`w-full text-white bg-blue-500 p-3 px-6  shadow hover:bg-blue-700 transition font-semibold text-md flex items-center justify-center gap-2`}
-                            onClick={() => setActiveSection(activeSection === 'report' ? null : 'report')}
-                        >
-                            <span className="material-symbols-outlined">bar_chart</span>
-                            Reportes
-                        </button>
-                    </section>
                 </div>
 
 
@@ -60,8 +49,7 @@ const AdminPanel = () => {
                     {activeSection === 'user' && <AdminUserSection />}
                     {/* Eventos */}
                     {activeSection === 'event' && <AdminEventSection />}
-                    {/* Reportes */}
-                    {activeSection === 'report' && <AdminReportSection />}
+                    
                 </div>
             </div>
         </div>

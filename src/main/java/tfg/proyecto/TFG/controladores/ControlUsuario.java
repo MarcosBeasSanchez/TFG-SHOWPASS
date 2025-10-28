@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,12 +20,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.transaction.Transactional;
 import tfg.proyecto.TFG.dtos.DTOUsuarioReportado;
+import tfg.proyecto.TFG.dtos.DTOeventoBajada;
 import tfg.proyecto.TFG.dtos.DTOusuarioBajada;
 import tfg.proyecto.TFG.dtos.DTOusuarioLogin;
 import tfg.proyecto.TFG.dtos.DTOusuarioLoginBajada;
 import tfg.proyecto.TFG.dtos.DTOusuarioModificarSubida;
 import tfg.proyecto.TFG.dtos.DTOusuarioSubida;
 import tfg.proyecto.TFG.dtos.DTOusuarioSubidaMinimo;
+import tfg.proyecto.TFG.modelo.Evento;
 import tfg.proyecto.TFG.servicios.IServicioUsuario;
 
 @RestController
@@ -104,6 +107,16 @@ public class ControlUsuario {
         return new ResponseEntity<>(lista, HttpStatus.OK);
     }
     
+    @GetMapping("findAllEventosCreados/{id}")
+ // 🚨 El tipo de retorno debe ser List<EventoDTO> 🚨
+ public ResponseEntity<List<DTOeventoBajada>> findAllEventosCreadosPorUnUsuario(@PathVariable Long id){
+     
+     // El servicio ahora devuelve List<EventoDTO>
+ 	List<DTOeventoBajada> lista = daoUsuario.findAllEventosCreadosPorUnUsuario(id); 
+     
+     return new ResponseEntity<List<DTOeventoBajada>>(lista, HttpStatus.OK);
+ }
+    
     @GetMapping("findAllReportados")
     public ResponseEntity<List<DTOUsuarioReportado>> getAllReportados() {
         List<DTOUsuarioReportado> lista = daoUsuario.findAllReportados();
@@ -120,9 +133,9 @@ public class ControlUsuario {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-    
+    //Reporta o desReporta un usuario
     @PutMapping("reportar")
-    public ResponseEntity<DTOUsuarioReportado> reportarUsuario(@RequestParam   String email) {
+    public ResponseEntity<DTOUsuarioReportado> reportarUsuario(@RequestParam String email) {
         DTOUsuarioReportado dto = daoUsuario.reportarUsuario(email);
         if (dto != null) {
         	return new ResponseEntity<>(dto, HttpStatus.OK);

@@ -56,9 +56,10 @@ export default function ShoppingCart({ user }) {
     fetchCarrito();
   }, []);
 
-  const eliminarEvento = async (eventoId) => {
+  const eliminarEvento = async (itemId) => {
+    console.log("Eliminando evento con ID:", itemId);
     try {
-      const res = await fetch(`${config.apiBaseUrl}/tfg/carrito/eliminar/${usuarioId}/${eventoId}`, {
+      const res = await fetch(`${config.apiBaseUrl}/tfg/carrito/itemEliminar/${usuarioId}/${itemId}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Error eliminando evento");
@@ -159,7 +160,7 @@ export default function ShoppingCart({ user }) {
               </div>
             </div>
             <button
-              onClick={() => eliminarEvento(item.eventoId)}
+              onClick={() => eliminarEvento(item.id)}
               className="bg-red-500 text-white px-2 py-1 text-xs rounded hover:bg-red-600"
             >
               Eliminar
@@ -190,11 +191,12 @@ export default function ShoppingCart({ user }) {
       {/* Resumen tickets comprados */}
       {ticketsComprados.length > 0 && (
         <div className="mt-6 p-4 bg-white shadow rounded oscuro">
-          <h2 className="text-2xl font-semibold text-gray-500 mb-4 oscuroTextoGris">Resumen de tu compra</h2>
-          <div className="block my-5">
+
+          <div className="flex my-5 w-full justify-between items-center">
+            <h2 className="inline text-2xl font-semibold text-gray-500 mb-4 oscuroTextoGris">Resumen de tu compra</h2>
             <a
               href="/tickets"
-              className="bg-gray-500 text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-blue-600 transition w-full text-center"
+              className="bg-gray-500 text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-blue-600 transition w-fit text-center"
             >
               Ver mis tickets
             </a>
@@ -220,7 +222,7 @@ export default function ShoppingCart({ user }) {
                   <div>
                     <p className="font-semibold text-blue-950 oscuroTextoGris">{ticket.nombreEvento}</p>
                     <p className="text-gray-500">Precio: {ticket.precioPagado.toFixed(2)} €</p>
-                    <p className="text-gray-500">Inicio del evento: {new Date(ticket.eventoInicio).toLocaleString()}</p>
+                    <p className="text-gray-500">Fecha Compra: {new Date(ticket.fechaCompra).toLocaleString()}</p>
                   </div>
                 </div>
                 <div className="flex gap-2 md:flex-col flex-row">

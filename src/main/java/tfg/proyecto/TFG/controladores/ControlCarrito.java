@@ -25,11 +25,13 @@ public class ControlCarrito {
 
     @Autowired
     private IServicioCarrito carritoService;
-
+    
+    // Buscar un carrito
     @GetMapping("/{usuarioId}")
     public ResponseEntity<DTOCarritoBajada> obtenerCarrito(@PathVariable Long usuarioId) {
         return ResponseEntity.ok(carritoService.obtenerCarritoPorUsuario(usuarioId));
     }
+    
 
     //  Agregar nuevo item (evento) al carrito
     @PostMapping("/item/{usuarioId}/{eventoId}")
@@ -51,7 +53,7 @@ public class ControlCarrito {
         return ResponseEntity.ok(carritoService.actualizarItem(usuarioId, itemId, cantidad));
     }
 
-    // Eliminar un item del carrito
+    // Eliminar un item del carrito(un solo item)
     @DeleteMapping("/itemEliminar/{usuarioId}/{itemId}")
     public ResponseEntity<DTOCarritoBajada> eliminarItem(
             @PathVariable Long usuarioId,
@@ -59,7 +61,7 @@ public class ControlCarrito {
         return ResponseEntity.ok(carritoService.eliminarItem(usuarioId, itemId));
     }
 
-    //  Vaciar carrito
+    //  Vaciar carrito(todos los items)
     @DeleteMapping("/vaciar/{usuarioId}")
     public ResponseEntity<DTOCarritoBajada> vaciarCarrito(@PathVariable Long usuarioId) {
         return ResponseEntity.ok(carritoService.vaciarCarrito(usuarioId));

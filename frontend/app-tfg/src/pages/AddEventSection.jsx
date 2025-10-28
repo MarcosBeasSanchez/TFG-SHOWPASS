@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import config from "../config/config";
 
+const usuarioId = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")).id : null;
 
 
 const AddEventSection = () => {
-    const [eventos, setEventos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [formData, setFormData] = useState({
         nombre: "",
@@ -19,25 +19,6 @@ const AddEventSection = () => {
         invitados: [],
     });
     const [message, setMessage] = useState("");
-
-    useEffect(() => {
-        fetchEventos();
-    }, []);
-
-    const fetchEventos = async () => {
-        setLoading(true);
-        try {
-            const res = await fetch(`${config.apiBaseUrl}/tfg/evento/findAll`);
-            if (!res.ok) throw new Error("Error al obtener eventos");
-            const data = await res.json();
-            setEventos(data);
-        } catch (err) {
-            console.error(err);
-            setEventos([]);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleChange = (e) => {
         const { name, value, files } = e.target;
@@ -55,7 +36,7 @@ const AddEventSection = () => {
         }));
     };
 
-    const removerImagenCarrusel = (index) => {
+    const eliminarImagenCarrusel = (index) => {
         const nuevasImagenes = [...formData.carrusels];
         nuevasImagenes.splice(index, 1);
         setFormData((prev) => ({ ...prev, carrusels: nuevasImagenes }));
@@ -91,7 +72,7 @@ const AddEventSection = () => {
         }));
     };
 
-    const removerInvitado = (index) => {
+    const eliminarInvitado = (index) => {
         const nuevosInvitados = [...formData.invitados];
         nuevosInvitados.splice(index, 1);
         setFormData((prev) => ({ ...prev, invitados: nuevosInvitados }));
@@ -103,16 +84,13 @@ const AddEventSection = () => {
 
         try {
             const payload = new FormData();
-
-            // ✅ Recupera el usuario logueado (ajusta la clave según tu localStorage)
-            const user = JSON.parse(localStorage.getItem("user")); // o "usuario", según cómo lo guardes
-            if (!user || !user.id) {
+            //Error si no hay usuarioId
+            if (!usuarioId) {
                 alert("No se encontró el ID del usuario (vendedor).");
                 return;
             }
-
-            payload.append("vendedorId", user.id); // 👈 IMPORTANTE
-
+            // Agregar el vendedorId al payload
+            payload.append("vendedorId", usuarioId); // IMPORTANTE
             // Resto de campos
             payload.append("nombre", formData.nombre);
             payload.append("localizacion", formData.localizacion);
@@ -121,6 +99,7 @@ const AddEventSection = () => {
             payload.append("descripcion", formData.descripcion);
             payload.append("precio", formData.precio);
             payload.append("categoria", formData.categoria);
+
             if (formData.imagen) payload.append("imagen", formData.imagen);
             formData.carrusels.forEach((file) => payload.append("carrusels", file));
             payload.append("invitados", JSON.stringify(formData.invitados));
@@ -145,29 +124,15 @@ const AddEventSection = () => {
                 carrusels: [],
                 invitados: [],
             });
-
-            fetchEventos();
+            
+            console.log("Envio al backend" + JSON.stringify(payload));
+            //fetchEventos();
         } catch (err) {
             console.error(err);
             setMessage("❌ Error al crear evento");
         }
     };
 
-
-    const eliminarEvento = async (id) => {
-        setMessage("");
-        try {
-            const res = await fetch(`${config.apiBaseUrl}/tfg/evento/delete/${id}`, {
-                method: "DELETE"
-            });
-            if (!res.ok) throw new Error("Error al eliminar evento");
-            setMessage("✅ Evento eliminado correctamente");
-            fetchEventos();
-        } catch (err) {
-            console.error(err);
-            setMessage("❌ Error al eliminar evento");
-        }
-    };
 
     return (
         <div className="mt-4 px-2 md:px-0 text-gray-500 ">
@@ -189,7 +154,7 @@ const AddEventSection = () => {
                     <input type="datetime-local" name="finEvento" value={formData.finEvento} onChange={handleChange} required className="p-2  rounded  bg-gray-200 text-black oscuroBox" />
 
                     <label>Precio:</label>
-                    <input type="number" name="precio" value={formData.precio} onChange={handleChange} className="p-2  rounded  bg-gray-200 text-black oscuroBox" />
+                    <input type="number" name="precio" value={formData.precio} onChange={handleChange} min="0" className="p-2  rounded  bg-gray-200 text-black oscuroBox" />
 
                     <label>Categoría:</label>
                     <select name="categoria" value={formData.categoria} onChange={handleChange} required className="p-2  rounded bg-gray-200 text-black oscuroBox">
@@ -213,7 +178,7 @@ const AddEventSection = () => {
                         {formData.carrusels.map((file, idx) => (
                             <div key={idx} className="relative w-24 h-24">
                                 <img src={URL.createObjectURL(file)} alt={`Carrusel ${idx}`} className="w-full h-full object-cover rounded border" />
-                                <button type="button" onClick={() => removerImagenCarrusel(idx)} className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6">×</button>
+                                <button type="button" onClick={() => eliminarImagenCarrusel(idx)} className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6">×</button>
                             </div>
                         ))}
                     </div>
@@ -223,13 +188,13 @@ const AddEventSection = () => {
                 {formData.invitados.map((invitado, idx) => (
 
                     <div key={idx} className="flex lg:flex-row flex-col  gap-2 items-center justify- oscuro">
-                        <input type="text" name="nombre" placeholder="Nombre" value={invitado.nombre} maxLength={50} onChange={(e) => handleInvitadoChange(idx, e)} className="w-full  p-2  rounded text-black oscuroBox" />
-                        <input type="text" name="apellidos" placeholder="Apellidos" value={invitado.apellidos} maxLength={50} onChange={(e) => handleInvitadoChange(idx, e)} className="w-full p-2  rounded text-black oscuroBox" />
+                        <input type="text" name="nombre" placeholder="Nombre" value={invitado.nombre} maxLength={50} onChange={(e) => handleInvitadoChange(idx, e)} className="w-full  p-2  rounded text-black oscuroBox bg-gray-200" />
+                        <input type="text" name="apellidos" placeholder="Apellidos" value={invitado.apellidos} maxLength={50} onChange={(e) => handleInvitadoChange(idx, e)} className="w-full p-2  rounded text-black oscuroBox bg-gray-200" />
                         <div className="flex flex-row gap-2 my-3.5 lg:my-0 items-center justify-center lg:justify-start ">
                             <label className=" bg-blue-500 text-white text-center px-4 py-2 rounded">
                                 Foto <input type="file" name="fotoURL" onChange={(e) => handleInvitadoChange(idx, e)} className="hidden" />
                             </label>
-                            <button type="button" onClick={() => removerInvitado(idx)} className=" bg-red-500 text-white p-2 rounded hover:bg-red-600 transition">Quitar</button>
+                            <button type="button" onClick={() => eliminarInvitado(idx)} className=" bg-red-500 text-white p-2 rounded hover:bg-red-600 transition">Quitar</button>
                         </div>
 
                     </div>

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import config from "../config/config";
 
+const usuarioId = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")).id : null;
+
 const EditEventSection = () => {
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -23,11 +25,20 @@ const EditEventSection = () => {
         fetchEventos();
     }, []);
 
+    const getImageSrc = (img) => {
+    if (!img) return ""; // si no hay imagen, devolvemos vacío
+    if (img.startsWith("data:image/")) return img; // ya es Base64 con prefijo → no hacer nada
+    if (img.startsWith("http://") || img.startsWith("https://")) return img; // es URL externa → usar tal cual
+    if (img.startsWith("/uploads/")) return `${config.apiBaseUrl}${img}`; // es ruta relativa del backend
+    return `data:image/png;base64,${img}`; // es Base64 crudo → agregamos el prefijo necesario
+  };
+
     // Función para obtener todos los eventos
     const fetchEventos = async () => {
         setLoading(true);
+       
         try {
-            const res = await fetch(`${config.apiBaseUrl}/tfg/evento/findAll`);
+            const res = await fetch(`${config.apiBaseUrl}/tfg/usuario/findAllEventosCreados/${usuarioId}`);
             if (!res.ok) throw new Error("Error al obtener eventos");
             const data = await res.json();
             setEvents(data);
@@ -404,7 +415,7 @@ const EditEventSection = () => {
                                             />
                                             {invitado.fotoURL && (
                                                 <img
-                                                    src={invitado.fotoURL}
+                                                    src={getImageSrc(invitado.fotoURL)}
                                                     alt="Invitado"
                                                     className="w-20 h-20 object-cover rounded  mt-2"
                                                 />

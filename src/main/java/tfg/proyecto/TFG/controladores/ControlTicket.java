@@ -25,7 +25,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.mail.MessagingException;
 import tfg.proyecto.TFG.dtos.DTOticketBajada;
 import tfg.proyecto.TFG.dtos.DTOticketSubida;
 import tfg.proyecto.TFG.servicios.IServicioPdfEmail;
@@ -142,21 +144,20 @@ public class ControlTicket {
      * Obtener la imagen QR directamente (image/png)
      */
     @GetMapping("/{id}/qr")
-    public ResponseEntity<byte[]> obtenerQR(@PathVariable Long id) {
+    public ResponseEntity<Map<String, String>> obtenerQR(@PathVariable Long id) {
         DTOticketBajada ticket = daoTicket.findById(id);
 
         if (ticket.getCodigoQR() == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
-
-        String rutaRelativa = ticket.getCodigoQR();
-        Path rutaAbsoluta = Paths.get(System.getProperty("user.dir") + rutaRelativa);
+        //coge la ruta absoluta da igual el sistema operativo
+        Path rutaAbsoluta = Paths.get(System.getProperty("user.dir"), ticket.getCodigoQR());
 
         try {
             byte[] imagen = Files.readAllBytes(rutaAbsoluta);
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.IMAGE_PNG);
-            return new ResponseEntity<>(imagen, headers, HttpStatus.OK);
+            String base64 = Base64.getEncoder().encodeToString(imagen);
+            Map<String, String> respuesta = Map.of("codigoQR", "data:image/png;base64," + base64);
+            return ResponseEntity.ok(respuesta);
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }

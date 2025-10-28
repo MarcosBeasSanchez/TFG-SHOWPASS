@@ -11,10 +11,17 @@ const Profile = () => {
         reportado: '',
         tarjetaId: '',
         carritoId: '',
-        activo: false
+        reportado: false
     });
 
-    const [cuenta, setCuenta] = useState(null);
+    const [cuenta, setCuenta] = useState({
+        id: '',
+        nombreTitular: '',
+        fechaCaducidad: '',
+        cvv: '',
+        saldo: '',
+        ntarjeta: ''
+    });
     const [editing, setEditing] = useState(false);
     const [editingPassword, setEditingPassword] = useState(false);
 
@@ -51,19 +58,29 @@ const Profile = () => {
         }
 
         try {
-            const response = await fetch(`${config.apiBaseUrl}/tfg/usuario/update/${userId}`, {
+            const responseUser = await fetch(`${config.apiBaseUrl}/tfg/usuario/update/${userId}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(userToSend)
+            })
+            console.log("Usuario enviado al backend para actualización:", userToSend);
+            
+            const responseCuenta = await fetch(`${config.apiBaseUrl}/tfg/cuentaBancaria/update`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(cuenta)
             });
+            console.log("Cuenta enviada al backend para actualización:", cuenta);
 
-            if (response.ok) {
-                const updatedUser = await response.json();
+            if (responseUser.ok && responseCuenta.ok) {
+                const updatedUser = await responseUser.json();
+                const updatedCuenta = await responseCuenta.json();
                 localStorage.setItem("user", JSON.stringify(updatedUser));
                 setUser(updatedUser);
+                setCuenta(updatedCuenta);
                 alert("Usuario actualizado correctamente");
             } else {
-                console.error("Error actualizando usuario");
+                console.error("Error actualizando usuario o cuenta bancaria");
             }
         } catch (error) {
             console.error("Error en fetch:", error);
@@ -79,28 +96,29 @@ const Profile = () => {
                 const userObj = JSON.parse(userString);
                 const userId = userObj.id;
 
-                // 🔹 1. Obtener datos del usuario
+                // 1.Obtener datos del usuario
                 const resUser = await fetch(`${config.apiBaseUrl}/tfg/usuario/findById/${userId}`);
                 const dataUser = await resUser.json();
-                console.log("Datos del usuario obtenidos:", dataUser);
+                console.log("Usuario cargado:", dataUser);
                 setUser(dataUser);
 
-                // 🔹 2. Si tiene tarjetaId, obtener datos de la cuenta bancaria
+                // 2. Si tiene tarjetaId, obtener datos de la cuenta bancaria
                 if (dataUser.tarjetaId) {
                     const resCuenta = await fetch(`${config.apiBaseUrl}/tfg/cuentaBancaria/findById/${dataUser.tarjetaId}`);
                     if (resCuenta.ok) {
                         const dataCuenta = await resCuenta.json();
+                        console.log("Cuenta cargada:", dataCuenta);
                         setCuenta(dataCuenta);
                     } else {
                         console.warn("No se pudo obtener la cuenta bancaria del usuario");
                     }
                 }
 
+
             } catch (error) {
                 console.error("Error cargando usuario o cuenta bancaria:", error);
             }
         };
-
         fetchUserAndCuenta();
     }, []);
 
@@ -180,7 +198,7 @@ const Profile = () => {
                                     className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black oscuroBox"
                                 />
                             ) : (
-                                <span className="block p-3 bg-gray-100 rounded-lg text-black oscuroBox" >{user.fechaNacimiento || <span>&nbsp;</span>}</span>
+                                <span className="block p-3 bg-gray-100 rounded-lg text-black oscuroBox" >{new Date(user.fechaNacimiento).toLocaleDateString("es-ES") || <span>&nbsp;</span>}</span>
                             )}
                         </div>
                         <div className="flex flex-col gap-2">
@@ -235,8 +253,8 @@ const Profile = () => {
                                 <span className="block w-full p-3 bg-gray-100 rounded-lg text-black oscuroBox">{user.rol || <span>&nbsp;</span>}</span>
                             </div>
                             <div className="flex flex-col gap-2 flex-1">
-                                <label className="block text-gray-700 mb-1 oscuroTextoGris">Cuenta Activa:</label>
-                                <span className="block p-3 bg-gray-100 rounded-lg text-black oscuroBox">{typeof user.activo === "boolean" ? (user.activo ? 'Sí' : 'No') : <span>&nbsp;</span>}</span>
+                                <label className="block text-gray-700 mb-1 oscuroTextoGris">Reportado:</label>
+                                <span className="block p-3 bg-gray-100 rounded-lg text-black oscuroBox">{typeof user.reportado === "boolean" ? (user.reportado ? 'Sí' : 'No') : <span>&nbsp;</span>}</span>
                             </div>
                         </div>
                     </div>
@@ -273,7 +291,7 @@ const Profile = () => {
                                     className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black oscuroBox"
                                 />
                             ) : (
-                                <span className="block p-3 bg-gray-100 rounded-lg text-black oscuroBox">{cuenta?.fechaCaducidad || <span>&nbsp;</span>}</span>
+                                <span className="block p-3 bg-gray-100 rounded-lg text-black oscuroBox">{new Date(cuenta?.fechaCaducidad).toLocaleDateString("es-ES") || <span>&nbsp;</span>}</span>
                             )}
                         </div>
 

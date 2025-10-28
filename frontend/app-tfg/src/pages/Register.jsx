@@ -9,10 +9,10 @@ export default function Register() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-
+      //Log de registro 
+      console.log("Datos enviados al backend (registro):\n", JSON.stringify(data, null, 2));
       const result = await res.json();
-
-      console.log(result);
+      console.log("Respuesta completa del backend (registro):\n", JSON.stringify(result, null, 2));
 
       if (!res.ok) {
         alert(result.message || "Error en registro");
@@ -24,8 +24,11 @@ export default function Register() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: data.email, password: data.password }),
       });
-
+      //Log de intento de login automático
+      console.log("Intentando login automático tras registro...");
+      console.log("Datos enviados al backend (login automático):\n", JSON.stringify({ email: data.email, password: data.password }, null, 2));
       const loginResult = await loginRes.json();
+      console.log("Respuesta completa del backend (login automático):\n", JSON.stringify(loginResult, null, 2));
 
       if (loginRes.ok && (loginResult.exito === true || !!loginResult.dtousuarioBajada)) {
         // Guardar usuario y token si existen y redirigir
@@ -33,7 +36,7 @@ export default function Register() {
         if (loginResult.token) {
           localStorage.setItem("token", loginResult.token);
         }
-        alert(loginResult.mensaje || "Registro y login automáticos correctos ✅");
+        alert("Registro y login automáticos correctos ✅");
         window.location.href = "/";
       } else {
         // Registro ok pero login automático falló: avisar y quedarse en /register

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
+import config from "../config/config";
 
 export default function BusquedaEventos() {
     const [entradas, setEntradas] = useState([]);
@@ -12,7 +13,7 @@ export default function BusquedaEventos() {
     useEffect(() => {
         const fetchEventos = async () => {
             try {
-                const res = await fetch("http://localhost:8080/tfg/evento/findAll");
+                const res = await fetch("http://localhost:8080/tfg/evento/filterByNombre?nombre=" + encodeURIComponent(busqueda));
                 const data = await res.json();
                 setEntradas(data);
             } catch (err) {
@@ -22,19 +23,16 @@ export default function BusquedaEventos() {
         fetchEventos();
     }, []);
 
-    const entradasFiltradas = entradas.filter((e) =>
-        e.nombre.toLowerCase().includes(busqueda.toLowerCase())
-    );
-
     const getImageSrc = (img) => {
         if (!img) return ""; // si no hay imagen, devolvemos vacío
         if (img.startsWith("data:image/")) return img; // ya es Base64 con prefijo → no hacer nada
         if (img.startsWith("http://") || img.startsWith("https://")) return img; // es URL externa → usar tal cual
+        if (img.startsWith("/uploads/")) return `${config.apiBaseUrl}${img}`; // es ruta relativa del backend
         return `data:image/png;base64,${img}`; // es Base64 crudo → agregamos el prefijo necesario
     };
 
     return (
-        <div className="p-5 [@media(min-width:978px)]:p-8">
+        <div className="py-8 max-w-7/8 mx-auto">
             <h1 className="text-2xl font-bold mb-4 text-gray-600 text-center oscuroTextoGris">RESULTADOS DE BÚSQUEDA</h1>
             <div>
                 <p className="text-sm px-4 sm:text-lg text-gray-500 mb-4 text-center ">
@@ -44,7 +42,7 @@ export default function BusquedaEventos() {
 
             <div className="flex flex-col gap-6 [@media(min-width:978px)]:gap-10 [@media(min-width:978px)]:p-10">
 
-                {entradasFiltradas.length > 0 ? entradasFiltradas.map((evento) => (
+                {entradas.length > 0 ? entradas.map((evento) => (
                     <div
                         key={evento.id}
                         className="bg-white oscuro shadow-lg overflow-hidden hover:scale-101 transition transform group flex flex-col [@media(min-width:978px)]:flex-row"
@@ -84,7 +82,7 @@ export default function BusquedaEventos() {
                                 <span className=" font-medium text-sm text-gray-600 bg-blue-100  p-2 rounded-md oscuroBox">
                                     {Number(evento.precio).toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || "sin precio"}€ </span>
                                 <Link
-                                    to={`/evento/${evento.id}`}
+                                    to={`/evento/${evento.nombre}`}
                                     className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 text-center inline-block w-auto"
                                 >
                                     Ver detalles
