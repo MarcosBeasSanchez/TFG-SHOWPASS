@@ -39,7 +39,11 @@ public class ServicioInvitadoImpl implements IServicioInvitado{
         return invitadosDto.stream().map(dto -> {
             try {
                 //  Guardar la imagen (ya maneja Base64, URL y placeholder internamente)
-                String rutaFoto = servicioImagen.guardarImagenBase64(dto.getFotoURL(), "invitados/" + eventoId);
+            	String rutaFoto = servicioImagen.guardarImagenBase64(
+            	        dto.getFotoURL(),
+            	        "invitados/" + eventoId
+            	);
+            	System.out.println("✅ [BACKEND] Invitado imagen guardada: " + rutaFoto);
 
                 Invitado invitado = Invitado.builder()
                         .nombre(dto.getNombre())

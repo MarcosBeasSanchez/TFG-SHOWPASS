@@ -13,6 +13,10 @@ material3Version = "1.4.0"
 foundationLayout = "1.9.2"
 foundation = "1.9.2"
 runtimeSaveable = "1.9.2"
+ui = "1.9.4"
+foundationVersion = "1.9.4"
+firebaseCrashlyticsBuildtools = "3.0.6"
+roomKtx = "2.8.3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -34,6 +38,10 @@ material3 = { group = "androidx.compose.material3", name = "material3", version.
 androidx-compose-foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout", version.ref = "foundationLayout" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
 androidx-compose-runtime-saveable = { group = "androidx.compose.runtime", name = "runtime-saveable", version.ref = "runtimeSaveable" }
+androidx-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "ui" }
+androidx-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundationVersion" }
+firebase-crashlytics-buildtools = { group = "com.google.firebase", name = "firebase-crashlytics-buildtools", version.ref = "firebaseCrashlyticsBuildtools" }
+androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "roomKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

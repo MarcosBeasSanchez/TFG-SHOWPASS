@@ -27,6 +27,6 @@ interface CarritoApiService {
     @DELETE("tfg/carrito/vaciar/{usuarioId}")
     suspend fun vaciarCarrito(@Path("usuarioId") usuarioId: Long): Response<Unit>
 
-    @POST("tfg/carrito/{usuarioId}/checkout")
+    @POST("tfg/carrito/finalizar/{usuarioId}")
     suspend fun finalizarCompra(@Path("usuarioId") usuarioId: Long): Response<Unit>
 }

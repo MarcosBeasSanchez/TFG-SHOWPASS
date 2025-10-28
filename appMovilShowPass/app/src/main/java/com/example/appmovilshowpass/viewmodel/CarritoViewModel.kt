@@ -109,43 +109,25 @@ class CarritoViewModel : ViewModel() {
     /**
      * Finalizar la compra: notifica al backend y limpia el carrito local
      */
-    fun finalizarCompra(usuarioId: Long, onSuccess: () -> Unit) {
+    fun finalizarCompra(
+        usuarioId: Long,
+        onSuccess: () -> Unit
+    ) {
         viewModelScope.launch {
             try {
-                val items = _carrito.value?.items ?: emptyList()
-                _eventosComprados.value = items.map {
-                    // Si necesitas crear objetos Evento, puedes hacerlo aquí.
-                    Evento(
-                        id = it.eventoId,
-                        nombre = it.nombreEvento,
-                        localizacion = "",
-                        descripcion = "",
-                        imagen = "",
-                        invitados = emptyList(),
-                        inicioEvento = "",
-                        finEvento = "",
-                        precio = it.precioUnitario,
-                        categoria = Categoria.OTROS,
-                        aforoMax = 0,
-                        imagenesCarruselUrls = emptyList(),
-                        vendedorId = 0
-                    )
-                }
-
-                // Llamar al backend para confirmar compra
                 RetrofitClient.carritoApiService.finalizarCompra(usuarioId)
 
-                // Limpiar carrito local
-                _carrito.value = null
-                _total.value = 0.0
+                vaciarCarrito(usuarioId)
 
                 onSuccess()
+
             } catch (e: Exception) {
                 e.printStackTrace()
                 Log.e("CarritoVM", "Error al finalizar compra: ${e.message}")
             }
         }
     }
+
 
     /**
      * Calcula el total de los items del carrito

@@ -73,6 +73,10 @@ dependencies {
     implementation(libs.androidx.compose.foundation.layout)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.runtime.saveable)
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.foundation)
+    implementation(libs.firebase.crashlytics.buildtools)
+    implementation(libs.androidx.room.ktx)
 
 
 

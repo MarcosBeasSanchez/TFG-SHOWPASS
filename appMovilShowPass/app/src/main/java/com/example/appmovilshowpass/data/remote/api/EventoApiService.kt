@@ -2,10 +2,8 @@ package com.example.appmovilshowpass.data.remote.api
 
 import com.example.appmovilshowpass.data.remote.dto.DTOeventoBajada
 import retrofit2.http.GET
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import com.example.appmovilshowpass.data.local.BASE_URL //
 import com.example.appmovilshowpass.data.remote.dto.DTOUsuarioReportado
+import com.example.appmovilshowpass.data.remote.dto.DTOeventoSubida
 import com.example.appmovilshowpass.data.remote.dto.DTOusuarioBajada
 import com.example.appmovilshowpass.data.remote.dto.DTOusuarioLoginBajada
 import com.example.appmovilshowpass.data.remote.dto.DTOusuarioModificarSubida
@@ -55,6 +53,23 @@ interface EventoApiService {
 
     @PUT("tfg/usuario/quitarReport")
     suspend fun removeReport(@Query("email") email: String): DTOUsuarioReportado
+
+
+    @POST("tfg/evento/insert/mobile")
+    suspend fun crearEvento(@Body evento: DTOeventoSubida): DTOeventoBajada
+
+    @GET("tfg/evento/findByVendedor/{idVendedor}")
+    suspend fun getEventosByVendedor(@Path("idVendedor") id: Long): List<DTOeventoBajada>
+
+
+    @PUT("tfg/evento/updateMovil/{id}")
+    suspend fun actualizarEvento(
+        @Path("id") id: Long,
+        @Body dto: DTOeventoSubida
+    ): DTOeventoBajada
+
+    @DELETE("tfg/evento/deleteInvitado/{id}")
+    suspend fun eliminarInvitado(@Path("id") id: Long)
 }
 
 

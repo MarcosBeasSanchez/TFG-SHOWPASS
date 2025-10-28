@@ -1,5 +1,6 @@
 package com.example.appmovilshowpass.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -41,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -52,6 +54,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.appmovilshowpass.model.CarritoItem
 import com.example.appmovilshowpass.utils.formatearPrecio
 import com.example.appmovilshowpass.viewmodel.CarritoViewModel
+import com.example.appmovilshowpass.viewmodel.TicketViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,10 +62,11 @@ fun CarritoScreen(
     navController: NavController,
     carritoViewModel: CarritoViewModel,
     usuarioId: Long,
-    onCompraFinalizada: () -> Unit
+    ticketViewModel: TicketViewModel,
 ) {
     val carrito = carritoViewModel.carrito.collectAsState().value
     val total = carritoViewModel.total.collectAsState().value
+    val context = LocalContext.current
 
     // Cargar carrito al abrir
     LaunchedEffect(Unit) {
@@ -204,10 +208,13 @@ fun CarritoScreen(
                         }
 
                         Button(
-                            onClick = { carritoViewModel.finalizarCompra(usuarioId, onCompraFinalizada) },
-                            shape = RoundedCornerShape(12.dp)
+                            onClick = {
+                                carritoViewModel.finalizarCompra(usuarioId) {
+                                    Toast.makeText(context, "✅ ¡Compra realizada!", Toast.LENGTH_SHORT).show()
+                                }
+                            }
                         ) {
-                            Text("Finalizar compra", fontSize = 18.sp)
+                            Text("Finalizar Compra")
                         }
                     }
                 }
@@ -215,6 +222,7 @@ fun CarritoScreen(
         }
     }
 }
+
 
 
 @Composable

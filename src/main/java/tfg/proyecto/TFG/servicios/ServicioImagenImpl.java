@@ -1,6 +1,9 @@
 package tfg.proyecto.TFG.servicios;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.springframework.stereotype.Service;
 
@@ -48,5 +51,32 @@ public class ServicioImagenImpl {
 	 * Permite obtener la imagen en Base64 con obtenerImagenBase64() si lo necesitas
 	 * en frontend.
 	 */
+	
+	public boolean eliminarArchivo(String rutaRelativa) {
+	    try {
+	        if (rutaRelativa == null || !rutaRelativa.startsWith("/uploads/")) {
+	            return false; // No se borra placeholder o URLs externas
+	        }
+
+	        // Convertir ruta relativa en ruta absoluta
+	        Path rutaAbsoluta = Paths.get(System.getProperty("user.dir") + rutaRelativa);
+
+	        File archivo = rutaAbsoluta.toFile();
+
+	        if (archivo.exists()) {
+	            boolean eliminado = archivo.delete();
+	            System.out.println(" Archivo eliminado: " + rutaAbsoluta + " → " + eliminado);
+	            return eliminado;
+	        }
+
+	        System.out.println(" No existe: " + rutaAbsoluta);
+	        return false;
+
+	    } catch (Exception e) {
+	        System.err.println(" Error eliminando archivo: " + rutaRelativa);
+	        e.printStackTrace();
+	        return false;
+	    }
+	}
 
 }

@@ -1,5 +1,7 @@
 package com.example.appmovilshowpass.utils
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.content.Context
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -10,6 +12,7 @@ import android.util.Base64
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.icu.text.NumberFormat
+import android.net.Uri
 import android.util.Log
 import androidx.compose.ui.text.intl.Locale
 import com.itextpdf.text.*
@@ -22,6 +25,7 @@ import androidx.core.graphics.createBitmap
 import androidx.core.graphics.set
 import com.itextpdf.text.pdf.PdfContentByte
 import kotlinx.coroutines.Dispatchers
+import java.util.Calendar
 
 fun formatearFecha(fecha: String, formato: String = "dd/MM/yyyy HH:mm"): String {
     return try {
@@ -190,9 +194,69 @@ private fun generarQR(texto: String): Bitmap {
     return bmp
 }
 
-private const val SERVER_BASE_URL = "http://192.168.1.128:8080/"
+private const val SERVER_BASE_URL = "http://192.168.1.128:8080"
 
 fun construirUrlImagen(ruta: String?): String {
     if (ruta.isNullOrBlank()) return ""
-    return if (ruta.startsWith("http")) ruta else SERVER_BASE_URL + ruta.removePrefix("/")
+
+    return when {
+        ruta.startsWith("http://") || ruta.startsWith("https://") ->
+            ruta  // ya es URL válida
+
+        ruta.startsWith("/uploads/") ->
+            SERVER_BASE_URL + ruta // evitar doble slash
+
+        ruta.startsWith("uploads/") ->
+            "$SERVER_BASE_URL/$ruta"
+
+        ruta.startsWith("data:image/") ->
+            ruta  // Base64 completo, se usa tal cual
+
+        // Base64 crudo → agregar cabecera
+        else ->
+            "data:image/png;base64,$ruta"
+    }
+}
+
+
+fun imagenToBase64(context: Context, uri: Uri): String {
+    val input = context.contentResolver.openInputStream(uri)
+    val bytes = input?.readBytes() ?: return ""
+    return Base64.encodeToString(bytes, Base64.NO_WRAP)
+}
+
+ fun formatearFechaBonita(dateIso: String?): String {
+    if (dateIso.isNullOrBlank()) return "Seleccionar fecha"
+    return try {
+        val fecha = LocalDateTime.parse(dateIso)
+        fecha.format(DateTimeFormatter.ofPattern("dd MMM yyyy - HH:mm"))
+    } catch (e: Exception) {
+        dateIso
+    }
+}
+
+/** Date+Time picker que devuelve ISO-8601 (yyyy-MM-ddTHH:mm) */
+ fun showDateTimePickerEdit(
+    context: Context,
+    onSelect: (String) -> Unit
+) {
+    val cal = Calendar.getInstance()
+    DatePickerDialog(
+        context,
+        { _, year, month, day ->
+            TimePickerDialog(
+                context,
+                { _, hour, minute ->
+                    val fecha = LocalDateTime.of(year, month + 1, day, hour, minute).toString()
+                    onSelect(fecha)
+                },
+                cal.get(Calendar.HOUR_OF_DAY),
+                cal.get(Calendar.MINUTE),
+                true
+            ).show()
+        },
+        cal.get(Calendar.YEAR),
+        cal.get(Calendar.MONTH),
+        cal.get(Calendar.DAY_OF_MONTH)
+    ).show()
 }

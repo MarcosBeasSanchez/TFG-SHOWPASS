@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.appmovilshowpass.data.remote.api.RetrofitClient
+import com.example.appmovilshowpass.data.remote.dto.DTOeventoSubida
 import com.example.appmovilshowpass.data.remote.dto.toEvento
 import com.example.appmovilshowpass.model.Evento
 import kotlinx.coroutines.delay
@@ -16,6 +17,13 @@ class EventoViewModel : ViewModel() {
     private val _eventos = MutableStateFlow<List<Evento>>(emptyList())
     val eventos: StateFlow<List<Evento>> = _eventos
     private val allEventos = mutableListOf<Evento>()
+
+    private val _loading = MutableStateFlow(false)
+    val loading: StateFlow<Boolean> get() = _loading
+
+    private val _mensaje = MutableStateFlow<String?>(null)
+    val mensaje: StateFlow<String?> get() = _mensaje
+
 
     init {
         obtenerEventos()
@@ -72,4 +80,51 @@ class EventoViewModel : ViewModel() {
             }
         }
     }
+
+    fun crearEvento(dto: DTOeventoSubida, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            try {
+                _loading.value = true
+                RetrofitClient.eventoApiService.crearEvento(dto)
+                _mensaje.value = " Evento creado correctamente"
+                onSuccess()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _mensaje.value = " Error al crear evento"
+            } finally {
+                _loading.value = false
+            }
+        }
+    }
+
+    fun obtenerEventosDeVendedor(idVendedor: Long) {
+        viewModelScope.launch {
+            try {
+                _loading.value = true
+                val lista = RetrofitClient.eventoApiService.getEventosByVendedor(idVendedor)
+                _eventos.value = lista.map { it.toEvento() }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                _loading.value = false
+            }
+        }
+    }
+
+    fun actualizarEvento(id: Long, dto: DTOeventoSubida, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            try {
+                _loading.value = true
+                RetrofitClient.eventoApiService.actualizarEvento(id, dto)
+                _mensaje.value = " Evento actualizado correctamente"
+                onSuccess()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _mensaje.value = " Error al actualizar evento"
+            } finally {
+                _loading.value = false
+            }
+        }
+    }
+
 }

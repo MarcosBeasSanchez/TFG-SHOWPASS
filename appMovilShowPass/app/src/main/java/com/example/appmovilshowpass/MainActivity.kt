@@ -44,9 +44,10 @@ import com.example.appmovilshowpass.ui.components.AdminFab
 import com.example.appmovilshowpass.ui.components.VendedorFab
 import com.example.appmovilshowpass.ui.screens.BusquedaScreen
 import com.example.appmovilshowpass.ui.screens.CarritoScreen
+import com.example.appmovilshowpass.ui.screens.CrearEventoScreen
+import com.example.appmovilshowpass.ui.screens.EditarEventoScreen
 import com.example.appmovilshowpass.ui.screens.EventAdminScreen
 import com.example.appmovilshowpass.ui.screens.EventoInfo
-import com.example.appmovilshowpass.ui.screens.SimpleScreen
 import com.example.appmovilshowpass.ui.screens.EventoScreen
 import com.example.appmovilshowpass.ui.screens.LoginScreen
 import com.example.appmovilshowpass.ui.screens.RegisterScreen
@@ -54,6 +55,7 @@ import com.example.appmovilshowpass.ui.screens.TicketsScreen
 import com.example.appmovilshowpass.ui.screens.UsuarioEditScreen
 import com.example.appmovilshowpass.ui.screens.UsuarioScreen
 import com.example.appmovilshowpass.ui.screens.UsuariosReportScreen
+import com.example.appmovilshowpass.ui.screens.VendedorMisEventosScreen
 import com.example.appmovilshowpass.viewmodel.BusquedaViewModel
 import com.example.appmovilshowpass.viewmodel.CarritoViewModel
 import com.example.appmovilshowpass.viewmodel.EventoViewModel
@@ -243,20 +245,18 @@ fun MainScreen() {
             }
 
             composable("carrito") {
-                val carritoViewModel: CarritoViewModel = viewModel()
 
-                // Asegúrate de que el usuario esté logueado
+
+                val carritoViewModel: CarritoViewModel = viewModel()
+                val ticketViewModel: TicketViewModel = viewModel()
+
                 val usuarioId = authViewModel.currentUser?.id ?: 0L
 
                 CarritoScreen(
-                    navController=navController,
+                    navController = navController,
                     carritoViewModel = carritoViewModel,
-                    usuarioId = usuarioId,
-                    onCompraFinalizada = {
-                        navController.navigate("compra_realizada") {
-                            popUpTo("carrito") { inclusive = true }
-                        }
-                    }
+                    ticketViewModel = ticketViewModel,
+                    usuarioId = usuarioId
                 )
             }
             composable("tickets") {
@@ -318,13 +318,24 @@ fun MainScreen() {
                 )
             }
             composable("vendedor_crear") {
-                SimpleScreen(
-                    title = "Crear Evento",
-                )
+                CrearEventoScreen(authViewModel, navController)
             }
             composable("vendedor_editar") {
-                SimpleScreen(
-                    title = "Editar Mis Eventos",
+                VendedorMisEventosScreen(authViewModel, navController)
+
+            }
+
+            composable(
+                route = "vendedor_editar_evento/{id}",
+                arguments = listOf(navArgument("id") { type = NavType.LongType })
+            ) { backStackEntry ->
+
+                val id = backStackEntry.arguments?.getLong("id") ?: 0L
+
+                EditarEventoScreen(
+                    eventoId = id,
+                    authViewModel = authViewModel,
+                    navController = navController,
                 )
             }
 

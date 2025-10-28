@@ -93,7 +93,7 @@ fun TicketsScreen(
 
 
     //  Cargar tickets automáticamente al entrar en la pantalla
-    LaunchedEffect(usuario?.id) {
+    LaunchedEffect(Unit) {
         usuario?.id?.let { ticketViewModel.cargarTickets(it) }
     }
 

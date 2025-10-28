@@ -1,16 +1,10 @@
 package tfg.proyecto.TFG.controladores;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Base64;
-import java.util.HashMap;
+
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,15 +13,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
 
-import jakarta.mail.MessagingException;
 import tfg.proyecto.TFG.dtos.DTOCarritoBajada;
-import tfg.proyecto.TFG.dtos.DTOCarritoSubida;
 import tfg.proyecto.TFG.servicios.IServicioCarrito;
-import tfg.proyecto.TFG.servicios.IServicioPdfEmail;
 
 @RestController
 @RequestMapping("/tfg/carrito")

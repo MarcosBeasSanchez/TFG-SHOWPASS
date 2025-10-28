@@ -17,4 +17,7 @@ public interface IServicioEvento {
 	List<DTOeventoBajada> buscarPorNombreConteniendo(String nombre);
 	DTOeventoBajada obtnerPorElId(Long id);
 	List<DTOeventoBajada> obtenerPorVendedor(Long vendedorId);
+	
+	DTOeventoBajada actualizarEventoMovil(Long id,  DTOeventoSubida eventodto);
+
 }

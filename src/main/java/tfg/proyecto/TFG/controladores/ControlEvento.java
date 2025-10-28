@@ -29,6 +29,7 @@ import tfg.proyecto.TFG.dtos.DTOInvitadoSubida;
 import tfg.proyecto.TFG.dtos.DTOeventoBajada;
 import tfg.proyecto.TFG.dtos.DTOeventoSubida;
 import tfg.proyecto.TFG.modelo.Categoria;
+import tfg.proyecto.TFG.repositorio.RepositorioInvitado;
 import tfg.proyecto.TFG.servicios.IServicioEvento;
 
 
@@ -39,6 +40,9 @@ public class ControlEvento {
 	
 	@Autowired
 	IServicioEvento daoEvento;
+	
+	 @Autowired RepositorioInvitado invitadoDAO;
+
 	
 	//Con parametros porque multifilePart y JSOn Da error
 	@PostMapping("insert")
@@ -98,6 +102,21 @@ public class ControlEvento {
 	        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 	    }
 	}
+	
+	
+	@PostMapping("insert/mobile")
+	public ResponseEntity<DTOeventoBajada> insertarEventoMobile(
+	        @RequestBody DTOeventoSubida dto
+	) {
+	    try {
+	        DTOeventoBajada evento = daoEvento.insert(dto);
+	        return ResponseEntity.status(HttpStatus.CREATED).body(evento);
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+	    }
+	}
+	
 
 	
 	@GetMapping("findAll")
@@ -116,6 +135,17 @@ public class ControlEvento {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+	
+	@PutMapping("updateMovil/{id}")
+    public ResponseEntity<DTOeventoBajada> actualizarEventoMovil(@PathVariable Long id, @RequestBody DTOeventoSubida dto) {
+        try {
+            DTOeventoBajada actualizado = daoEvento.actualizarEventoMovil(id, dto);
+            return new ResponseEntity<>(actualizado, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+	
 	
 	@DeleteMapping("delete/{id}")
     public ResponseEntity<Void> eliminarEvento(@PathVariable Long id) {
@@ -176,4 +206,15 @@ public class ControlEvento {
 	public ResponseEntity<List<DTOeventoBajada>> findByVendedor(@PathVariable Long idVendedor) {
 	    return ResponseEntity.ok(daoEvento.obtenerPorVendedor(idVendedor));
 	}
+	
+
+	    @DeleteMapping("deleteInvitado/{id}")
+	    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+	        if (invitadoDAO.existsById(id)) {
+	            invitadoDAO.deleteById(id);
+	            return ResponseEntity.ok().build();
+	        }
+	        return ResponseEntity.notFound().build();
+	    }
+	
 }

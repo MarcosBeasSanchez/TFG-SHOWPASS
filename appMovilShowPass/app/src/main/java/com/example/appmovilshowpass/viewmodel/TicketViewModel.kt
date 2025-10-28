@@ -34,10 +34,17 @@ class TicketViewModel: ViewModel() {
     fun cargarTickets(usuarioId: Long) {
         viewModelScope.launch {
             try {
-                _tickets.value = RetrofitClient.ticketApiService.obtenerTicketsPorUsuario(usuarioId)
-            }
-            catch (e: Exception){
-                e.printStackTrace()
+                Log.d("TicketVM", "🔎 Cargando tickets del usuario $usuarioId...")
+                val result = RetrofitClient.ticketApiService.obtenerTicketsPorUsuario(usuarioId)
+                Log.d("TicketVM", "📌 Tickets recibidos: ${result.size}")
+                result.forEach {
+                    Log.d("TicketVM", "🎫 Ticket -> id=${it.id}, evento=${it.nombreEvento}, precio=${it.precioPagado}")
+                }
+
+                _tickets.value = result
+
+            } catch (e: Exception) {
+                Log.e("TicketVM", "❌ Error al cargar tickets: ${e.message}")
             }
         }
     }

@@ -11,14 +11,17 @@ import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 import tfg.proyecto.TFG.config.DtoConverter;
 import tfg.proyecto.TFG.dtos.DTOEventoImagenSubida;
+import tfg.proyecto.TFG.dtos.DTOInvitadoSubida;
 import tfg.proyecto.TFG.dtos.DTOeventoBajada;
 import tfg.proyecto.TFG.dtos.DTOeventoSubida;
 import tfg.proyecto.TFG.modelo.Categoria;
 import tfg.proyecto.TFG.modelo.Evento;
+import tfg.proyecto.TFG.modelo.Invitado;
 import tfg.proyecto.TFG.modelo.Rol;
 import tfg.proyecto.TFG.modelo.Usuario;
 import tfg.proyecto.TFG.repositorio.RepositorioEvento;
 import tfg.proyecto.TFG.repositorio.RepositorioEventoImagen;
+import tfg.proyecto.TFG.repositorio.RepositorioInvitado;
 import tfg.proyecto.TFG.repositorio.RepositorioUsuario;
 
 @Service
@@ -36,6 +39,7 @@ public class ServicioEventoImpl implements IServicioEvento{
 	    @Autowired  ServicioImagenImpl servicioImagen;
 	    @Autowired  ServicioEventoImagenImpl servicioEventoImagen;
 	    @Autowired ServicioInvitadoImpl servicioInvitado;
+	    @Autowired RepositorioInvitado invitadoDAO;
 
 
 	    @Override
@@ -51,14 +55,15 @@ public class ServicioEventoImpl implements IServicioEvento{
 
 	        try {
 	            //  Procesar imagen principal
+	            
 	            String imagenFinal = null;
 	            if (dto.getImagen() != null && !dto.getImagen().isBlank()) {
-	                if (dto.getImagen().length() > 200) {
-	                    imagenFinal = servicioImagen.guardarImagenBase64(dto.getImagen(), "eventos/portadas");
-	                } else {
+	                imagenFinal = servicioImagen.guardarImagenBase64(dto.getImagen(), "eventos/portadas");
+	                System.out.println("✅ [BACKEND] Portada guardada en: " + imagenFinal);
+	            } else {
 	                    imagenFinal = dto.getImagen(); // URL directa
 	                }
-	            }
+	            
 
 	            //  Procesar imágenes de carrusel
 	            List<String> urlsCarrusel = new ArrayList<>();
@@ -145,23 +150,29 @@ public class ServicioEventoImpl implements IServicioEvento{
 
         try {
             // Imagen principal
-            if (dto.getImagen() != null) {
-                if (dto.getImagen().length() > 200) {
-                    String ruta = servicioImagen.guardarImagenBase64(dto.getImagen(), "eventos/portadas");
-                    evento.setImagen(ruta);
-                } else {
-                    evento.setImagen(dto.getImagen());
+        	String imagenFinal = null;
+            if (dto.getImagen() != null && !dto.getImagen().isBlank()) {
+                imagenFinal = servicioImagen.guardarImagenBase64(dto.getImagen(), "eventos/portadas");
+                System.out.println("✅ [BACKEND] Portada guardada en: " + imagenFinal);
+            } else {
+                    imagenFinal = dto.getImagen(); // URL directa
                 }
-            }
 
             // Carrusel (se reemplaza completamente)
-            if (dto.getImagenesCarruselUrls() != null && !dto.getImagenesCarruselUrls().isEmpty()) {
-                servicioEventoImagen.eliminarCarrusel(id);
-                List<DTOEventoImagenSubida> lista = dto.getImagenesCarruselUrls().stream()
-                        .map(img -> DTOEventoImagenSubida.builder().url(img).build())
-                        .collect(Collectors.toList());
-                servicioEventoImagen.guardarCarrusel(id, lista);
-            }
+            	 List<String> urlsCarrusel = new ArrayList<>();
+ 	            if (dto.getImagenesCarruselUrls() != null && !dto.getImagenesCarruselUrls().isEmpty()) {
+ 	                for (String img : dto.getImagenesCarruselUrls()) {
+ 	                    if (img != null && !img.isBlank()) {
+ 	                        String urlFinal = (img.length() > 200)
+ 	                                ? servicioImagen.guardarImagenBase64(img, "eventos/carrusel")
+ 	                                : img;
+ 	                        urlsCarrusel.add(urlFinal);
+ 	                    }
+ 	                }
+ 	            }
+ 	            
+            
+       
             
             if (dto.getInvitados() != null && !dto.getInvitados().isEmpty()) {
                 servicioInvitado.eliminarInvitados(id);
@@ -180,6 +191,78 @@ public class ServicioEventoImpl implements IServicioEvento{
 
         return dtoBajada;
     }
+	
+	
+	@Override
+    @Transactional
+    public DTOeventoBajada actualizarEventoMovil(Long id, DTOeventoSubida dto) {
+		 Evento evento = eventoDAO.findById(id)
+		            .orElseThrow(() -> new RuntimeException("Evento no encontrado para actualizar"));
+
+		    evento.setNombre(dto.getNombre());
+		    evento.setLocalizacion(dto.getLocalizacion());
+		    evento.setInicioEvento(dto.getInicioEvento());
+		    evento.setFinEvento(dto.getFinEvento());
+		    evento.setDescripcion(dto.getDescripcion());
+		    evento.setPrecio(dto.getPrecio());
+		    evento.setAforoMax(dto.getAforoMax());
+		    evento.setCategoria(dto.getCategoria());
+
+		    try {
+		        // ✅ Portada igual que en insert()
+		        if (dto.getImagen() != null && !dto.getImagen().isBlank()) {
+		            String portadaFinal = (dto.getImagen().length() > 200)
+		                    ? servicioImagen.guardarImagenBase64(dto.getImagen(), "eventos/portadas")
+		                    : dto.getImagen();
+
+		            evento.setImagen(portadaFinal);
+		        }
+
+		        // ✅ Reemplazar TODAS las imágenes de carrusel como insert()
+		        servicioEventoImagen.eliminarCarrusel(id);
+
+		        if (dto.getImagenesCarruselUrls() != null && !dto.getImagenesCarruselUrls().isEmpty()) {
+		            List<String> urlsCarrusel = new ArrayList<>();
+
+		            for (String img : dto.getImagenesCarruselUrls()) {
+		                if (img != null && !img.isBlank()) {
+		                    String urlFinal = (img.length() > 200)
+		                            ? servicioImagen.guardarImagenBase64(img, "eventos/carrusel")
+		                            : img;
+
+		                    urlsCarrusel.add(urlFinal);
+		                }
+		            }
+
+		            // ✅ Guardamos carrusel usando servicio como insert()
+		            List<DTOEventoImagenSubida> lista = urlsCarrusel.stream()
+		                    .map(url -> DTOEventoImagenSubida.builder().url(url).build())
+		                    .toList();
+
+		            servicioEventoImagen.guardarCarrusel(id, lista);
+		            evento.setImagenesCarruselUrls(urlsCarrusel);
+		        }
+
+		        // ✅ Reemplazar invitados directamente como insert()
+		        servicioInvitado.eliminarInvitados(id);
+		        if (dto.getInvitados() != null && !dto.getInvitados().isEmpty()) {
+		            servicioInvitado.guardarInvitados(id, dto.getInvitados());
+		        }
+
+		    } catch (IOException e) {
+		        throw new RuntimeException("Error actualizando imágenes", e);
+		    }
+
+		    Evento actualizado = eventoDAO.save(evento);
+
+		    // ✅ Crear DTO de bajada igual que en insert()
+		    DTOeventoBajada dtoBajada = dtoConverter.map(actualizado, DTOeventoBajada.class);
+		    dtoBajada.setImagenesCarruselUrls(evento.getImagenesCarruselUrls());
+		    dtoBajada.setInvitados(servicioInvitado.obtenerInvitados(id));
+		    dtoBajada.setVendedorId(evento.getVendedor().getId());
+
+		    return dtoBajada;
+	}
 
 
 	@Override

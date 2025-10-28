@@ -1,6 +1,7 @@
 package com.example.appmovilshowpass.ui.screens
 
 import AuthViewModel
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -24,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.example.appmovilshowpass.data.remote.api.RetrofitClient
 import com.example.appmovilshowpass.data.remote.dto.toEvento
 import com.example.appmovilshowpass.model.Evento
@@ -73,7 +75,7 @@ fun EventoInfo(
             ) {
                 if (e.imagen.isNotEmpty()) {
                     Image(
-                        painter = rememberAsyncImagePainter(e.imagen),
+                        painter = rememberAsyncImagePainter(construirUrlImagen(e.imagen)),
                         contentDescription = e.nombre,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -145,6 +147,12 @@ fun EventoInfo(
                                 )
                             }
                         }
+
+                        Log.d("IMAGEN_EVENTO", "imagenPrincipalUrl = ${e.imagen}")
+                        Log.d("IMAGEN_EVENTO_URL", "URL final = ${construirUrlImagen(e.imagen)}")
+                        Log.d("IMAGEN_CARRUSEL", "iamgenesCarruselUrls: ${e.imagenesCarruselUrls[0]}")
+                        Log.d("IMAGEN_CSRRUSEL_URL", "URL final = ${construirUrlImagen(e.imagenesCarruselUrls[0])}")
+
                     }
 
                     Spacer(modifier = Modifier.height(20.dp))
@@ -181,9 +189,17 @@ fun EventoInfo(
                                         horizontalAlignment = Alignment.CenterHorizontally,
                                         verticalArrangement = Arrangement.Center
                                     ) {
-                                        // Foto circular
+                                        //  Construimos la URL final siempre
+                                        val urlFinal = construirUrlImagen(invitado.fotoURL)
+
+                                        //  Foto circular del invitado con Coil correctamente configurado
                                         Image(
-                                            painter = rememberAsyncImagePainter(invitado.fotoURL),
+                                            painter = rememberAsyncImagePainter(
+                                                ImageRequest.Builder(LocalContext.current)
+                                                    .data(urlFinal)
+                                                    .crossfade(true)
+                                                    .build()
+                                            ),
                                             contentDescription = invitado.nombre,
                                             modifier = Modifier
                                                 .size(100.dp)
@@ -215,8 +231,12 @@ fun EventoInfo(
                                             overflow = TextOverflow.Ellipsis
                                         )
                                     }
+
+                                // Logs para comprobar siempre que llega y es válida
+                                    Log.d("INVITADO_IMG", "ORIGINAL: ${invitado.fotoURL}")
                                 }
                             }
+
                         }
                     }
 

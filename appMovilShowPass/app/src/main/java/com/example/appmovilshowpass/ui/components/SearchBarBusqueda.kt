@@ -1,5 +1,6 @@
 package com.example.appmovilshowpass.ui.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -40,12 +41,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.appmovilshowpass.R
 import com.example.appmovilshowpass.model.Evento
 import com.example.appmovilshowpass.viewmodel.BusquedaViewModel
 
@@ -150,13 +153,30 @@ fun SearchBarBusqueda(
                         item {
                             when {
                                 busquedaRealizada && eventos.isEmpty() -> {
-                                    Text(
-                                        text = "No se han encontrado eventos",
+                                    Column(
                                         modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(16.dp),
-                                        textAlign = TextAlign.Center
-                                    )
+                                            .fillMaxSize()
+                                            .padding(20.dp),
+                                        verticalArrangement = Arrangement.Center,
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+
+                                        Image(
+                                            painter = painterResource(id = R.drawable.no_results),
+                                            contentDescription = "No results",
+                                            modifier = Modifier
+                                                .size(250.dp) // ajusta tamaño si quieres
+                                        )
+
+                                        Spacer(modifier = Modifier.height(18.dp))
+
+                                        Text(
+                                            text = "No se encontraron resultados",
+                                            style = MaterialTheme.typography.titleMedium,
+                                            color = Color.Gray,
+                                            textAlign = TextAlign.Center
+                                        )
+                                    }
                                 }
 
                                 busquedaRealizada && eventos.isNotEmpty() -> {

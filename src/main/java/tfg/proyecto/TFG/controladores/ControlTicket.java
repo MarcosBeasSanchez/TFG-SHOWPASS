@@ -1,9 +1,12 @@
 package tfg.proyecto.TFG.controladores;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import tfg.proyecto.TFG.dtos.DTOticketBajada;
 import tfg.proyecto.TFG.dtos.DTOticketSubida;
+import tfg.proyecto.TFG.servicios.IServicioPdfEmail;
 import tfg.proyecto.TFG.servicios.IServicioTicket;
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
@@ -33,6 +37,9 @@ public class ControlTicket {
 
 	@Autowired
 	IServicioTicket daoTicket;
+	
+	@Autowired
+	IServicioPdfEmail emailServices;
 
 	@PostMapping("insert")
 	public ResponseEntity<DTOticketBajada> insertarTicket(@RequestBody DTOticketSubida dto) {
@@ -154,6 +161,41 @@ public class ControlTicket {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+    
+    
+    @PostMapping("/enviarPdfEmail")
+    public ResponseEntity<Map<String, String>> sendPdfEmail(@RequestBody Map<String, String> payload) {
+        try {
+            String email = payload.get("email");
+            String ticketId = payload.get("ticketId");
+            String eventoNombre = payload.get("eventoNombre");
+            String pdfBase64 = payload.get("pdfBase64");
 
+            // Convertir el Base64 en archivo PDF temporal
+            byte[] pdfBytes = Base64.getDecoder().decode(pdfBase64);
+            File pdfFile = File.createTempFile("ticket-", ".pdf");
+            try (FileOutputStream fos = new FileOutputStream(pdfFile)) {
+                fos.write(pdfBytes);
+            }
 
+            //  HTML en formato válido para Java
+            String subject = "Tu entrada para " + eventoNombre + " - Ticket ID " + ticketId;
+            String body = "<h2>🎫 Ticket Confirmado</h2>"
+                    + "<p>Tu entrada para <b>" + eventoNombre + "</b> ya está lista ✅</p>"
+                    + "<p>Se adjunta el ticket en formato PDF.</p>";
+
+            emailServices.sendPdfEmail(email, subject, body, pdfFile);
+
+            return ResponseEntity.ok(
+                    Map.of("mensaje", "📨 Ticket enviado correctamente a " + email)
+            );
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", " Error enviando el correo: " + e.getMessage()));
+        }
+    }
+    
+    
 }
