@@ -55,7 +55,7 @@ fun BotonesComprarTicket(
             },
             modifier = Modifier
                 .weight(1f)
-                .height(48.dp)
+                .height(60.dp)
         ) {
             Text(
                 text = "Agregar al carrito: $cantidad",

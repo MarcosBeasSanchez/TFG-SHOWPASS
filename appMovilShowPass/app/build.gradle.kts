@@ -77,6 +77,7 @@ dependencies {
     implementation(libs.androidx.foundation)
     implementation(libs.firebase.crashlytics.buildtools)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.media3.exoplayer)
 
 
 
@@ -101,6 +102,10 @@ dependencies {
     // --- Para generar el código QR ---
     implementation("com.google.zxing:core:3.5.3")
     implementation("com.google.zxing:android-core:3.3.0")
+
+
+    implementation("com.airbnb.android:lottie-compose:6.3.0")
+
 
 
 

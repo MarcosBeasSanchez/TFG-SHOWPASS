@@ -194,9 +194,15 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 	public DTOusuarioLoginBajada login(DTOusuarioLogin dtoLogin) {
 		Usuario u = repoUsuario.findByEmail(dtoLogin.getEmail());
 		DTOusuarioLoginBajada out = new DTOusuarioLoginBajada();
+		
+
+	    if (u == null) {
+	        out.setExito(false);
+	        out.setMensaje("El correo no está registrado. ¿Deseas crear una cuenta?");
+	        return out;
+	    }
 		//
-		DTOusuarioBajada dtoUser = dtoConverter.map(u, DTOusuarioBajada.class);
-		String token = JwtUtil.generateToken(u.getEmail());
+
 
 		if (u != null && passwordEncoder.matches(dtoLogin.getPassword(), u.getPassword())) {
 			
@@ -206,6 +212,10 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 	            out.setMensaje("Cuenta bloqueada. Por favor, contacte con soporte.");
 	            return out; 
 	        }
+	        
+	        DTOusuarioBajada dtoUser = dtoConverter.map(u, DTOusuarioBajada.class);
+			String token = JwtUtil.generateToken(u.getEmail());
+			
 			//En caso de no estar reportado
 			out.setDtousuarioBajada(dtoUser);
 			out.setToken(token);

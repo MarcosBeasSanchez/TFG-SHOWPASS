@@ -265,6 +265,7 @@ fun MainScreen() {
                 TicketsScreen(
                     authViewModel = authViewModel,
                     ticketViewModel = ticketViewModel,
+                    navController = navController,
                     onBack = { navController.popBackStack() }
                 )
             }

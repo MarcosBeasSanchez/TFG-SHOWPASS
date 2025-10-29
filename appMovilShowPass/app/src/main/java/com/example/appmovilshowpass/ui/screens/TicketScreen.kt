@@ -17,9 +17,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.PictureAsPdf
 import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.filled.ShoppingCartCheckout
@@ -53,10 +57,19 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.media3.exoplayer.offline.Download
+import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
+import com.example.appmovilshowpass.R
 import com.example.appmovilshowpass.data.remote.api.RetrofitClient
 import com.example.appmovilshowpass.data.remote.dto.DTOTicketBajada
 import com.example.appmovilshowpass.data.remote.dto.toEvento
@@ -85,6 +98,7 @@ import kotlinx.coroutines.launch
 fun TicketsScreen(
     authViewModel: AuthViewModel,
     ticketViewModel: TicketViewModel,
+    navController: NavHostController,
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
@@ -133,11 +147,46 @@ fun TicketsScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(12.dp),
+                    .padding(16.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Text("Aún no tienes tickets", fontSize = 18.sp)
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+
+
+                    Image(
+                        painter = painterResource(id = R.drawable.no_tickets),
+                        contentDescription = "Imagen de tickets vacíos",
+                        modifier = Modifier.size(260.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = "¡Consigue tus entradas!",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text(
+                        text = "Explora eventos y vive la diversión 🎉",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Gray
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Button(
+                        onClick = { navController.navigate("eventos") },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(Icons.Default.Event, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Buscar eventos")
+                    }
+                }
             }
+
         } else {
 
             //  Listado de tickets del usuario
@@ -264,74 +313,105 @@ fun TicketCard(
 
             // 🔹 Botones de acción
             Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth().height(45.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                // Descargar ticket
-                Button(
-                    onClick = {
-                        if (!descargando) {
-                            descargando = true
-                            onDownload()
-                            CoroutineScope(Dispatchers.Main).launch {
-                                delay(3000)
-                                descargando = false
+
+                // Descargar
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Button(
+                        onClick = {
+                            if (!descargando) {
+                                descargando = true
+                                onDownload()
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    delay(3000)
+                                    descargando = false
+                                }
                             }
+                        },
+                        enabled = !descargando,
+                        modifier = Modifier.size(70.dp), // ✅ botón cuadrado
+                        shape = CircleShape, // ✅ más moderno
+                        contentPadding = PaddingValues(0.dp)
+                    ) {
+                        if (descargando) {
+                            CircularProgressIndicator(
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                strokeWidth = 2.dp,
+                                modifier = Modifier.size(28.dp)
+                            )
+                        } else {
+                            Icon(
+                                Icons.Default.Download,
+                                contentDescription = "Descargar",
+                                modifier = Modifier.size(34.dp)
+                            )
                         }
-                    },
-                    enabled = !descargando,
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(10.dp)
-                ) {
-                    if (descargando)
-                        CircularProgressIndicator(
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            strokeWidth = 2.dp,
-                            modifier = Modifier.size(18.dp)
-                        )
-                    else
-                        Text("Descargar")
+                    }
+                    Text("Descargar", fontSize = 12.sp)
                 }
 
                 // Enviar email
-                Button(
-                    onClick = {
-                        if (!enviando) {
-                            enviando = true
-                            onSendEmail()
-                            CoroutineScope(Dispatchers.Main).launch {
-                                delay(3000)
-                                enviando = false
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Button(
+                        onClick = {
+                            if (!enviando) {
+                                enviando = true
+                                onSendEmail()
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    delay(3000)
+                                    enviando = false
+                                }
                             }
+                        },
+                        enabled = !enviando,
+                        modifier = Modifier.size(70.dp),
+                        shape = CircleShape,
+                        contentPadding = PaddingValues(0.dp)
+                    ) {
+                        if (enviando) {
+                            CircularProgressIndicator(
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                strokeWidth = 2.dp,
+                                modifier = Modifier.size(28.dp)
+                            )
+                        } else {
+                            Icon(
+                                Icons.Default.Email,
+                                contentDescription = "Enviar",
+                                modifier = Modifier.size(34.dp)
+                            )
                         }
-                    },
-                    enabled = !enviando,
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(10.dp)
-                ) {
-                    if (enviando)
-                        CircularProgressIndicator(
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            strokeWidth = 2.dp,
-                            modifier = Modifier.size(18.dp)
-                        )
-                    else
-                        Text("Enviar")
+                    }
+                    Text("Enviar email", fontSize = 12.sp)
                 }
 
-                // Eliminar ticket
-                OutlinedButton(
-                    onClick = { mostrarDialogoEliminar = true },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = MaterialTheme.colorScheme.error
-                    )
-                ) {
-                    Text("Eliminar")
+                // Eliminar
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    OutlinedButton(
+                        onClick = { mostrarDialogoEliminar = true },
+                        modifier = Modifier.size(70.dp),
+                        shape = CircleShape,
+                        contentPadding = PaddingValues(0.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.error
+                        )
+                    ) {
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = "Eliminar",
+                            modifier = Modifier.size(34.dp),
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    }
+                    Text("Eliminar", fontSize = 12.sp, color = MaterialTheme.colorScheme.error)
                 }
             }
+
         }
     }
 

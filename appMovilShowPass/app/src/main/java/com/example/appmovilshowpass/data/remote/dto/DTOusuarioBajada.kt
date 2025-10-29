@@ -14,7 +14,6 @@ data class DTOusuarioBajada(
     val rol: Rol = Rol.CLIENTE,
     @SerializedName("cuenta") // El campo en el JSON es "cuenta"
     val dtoTarjetaBancariaBajada: DTOtarjetaBancariaBajada? = null,
-    val activo: Boolean = true,
     val reportado: Boolean = false,
     val carritoId: Long?
 

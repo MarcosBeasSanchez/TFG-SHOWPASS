@@ -71,12 +71,19 @@ fun LoginScreen(
         }
         error?.let {
             Spacer(Modifier.height(8.dp))
-            Text(it, color = MaterialTheme.colorScheme.error)
-        }
 
-        Spacer(Modifier.height(8.dp))
-        TextButton(onClick = onGoToRegister) {
-            Text("¿No tienes cuenta? Regístrate", color = Color.Gray)
+            Text(
+                it,
+                color = MaterialTheme.colorScheme.error
+            )
+
+            if (it.contains("no está registrado", ignoreCase = true)) {
+                Spacer(Modifier.height(8.dp))
+                TextButton(onClick = onGoToRegister) {
+                    Text("¿No tienes cuenta? Regístrate", color = Color.Gray)
+                }
+
+            }
         }
 
     }

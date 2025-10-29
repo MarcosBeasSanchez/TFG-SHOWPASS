@@ -32,7 +32,6 @@ class AuthViewModel : ViewModel() {
         private set
 
     var error by mutableStateOf<String?>(null)
-        private set
 
     fun login(
         context: Context,

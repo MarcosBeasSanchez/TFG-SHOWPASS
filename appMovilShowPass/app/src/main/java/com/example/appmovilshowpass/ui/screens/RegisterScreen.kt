@@ -23,6 +23,11 @@ fun RegisterScreen(
     onGoToLogin: () -> Unit
 ) {
     val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        authViewModel.error = null
+    }
+
     var nombre by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -33,7 +38,6 @@ fun RegisterScreen(
     val roles = listOf("CLIENTE", "VENDEDOR")
     var expanded by remember { mutableStateOf(false) }
     var rolSeleccionado by remember { mutableStateOf("CLIENTE") } // valor por defecto
-
     // date picker
     val calendar = Calendar.getInstance()
     val datePicker = DatePickerDialog(
