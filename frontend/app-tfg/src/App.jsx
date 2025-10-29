@@ -81,12 +81,21 @@ export default function App() {
           </div>
 
           {/* Botón menú lateral en móvil */}
-          <button
-            className="sm:hidden flex items-center px-2 py-1 rounded hover:bg-blue-800"
-            onClick={() => setDrawerOpen(true)}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: "32px" }}>menu</span>
-          </button>
+          <div className="flex items-center gap-2 ">
+            <button
+              className="sm:hidden px-2 py-2 rounded-full hover:bg-blue-800"
+              onClick={() => setDarkMode((prev) => !prev)}>
+              <span className="material-symbols-outlined align-middle " style={{ fontSize: "24px" }}>
+                dark_mode
+              </span>
+            </button>
+            <button
+              className="sm:hidden flex items-center px-2 py-2 rounded-full hover:bg-blue-800"
+              onClick={() => setDrawerOpen(true)}
+            >
+              <span className="material-symbols-outlined align-middle" style={{ fontSize: "32px" }}>menu</span>
+            </button>
+          </div>
 
           {/* Categorías y opciones en horizontal solo en escritorio */}
           <div className="hidden sm:flex w-auto justify-center flex-1">
@@ -204,7 +213,7 @@ export default function App() {
           <div className="fixed inset-0 z-50 flex">
             {/* Fondo oscuro */}
             <div
-              className="fixed inset-0 bg-black bg-opacity-40"
+              className="fixed inset-0 bg-black opacity-50"
               onClick={() => setDrawerOpen(false)}
             />
             {/* Panel lateral */}
@@ -231,14 +240,6 @@ export default function App() {
                   <>
                     <Link to="/login" className="text-base px-2 py-2 hover:bg-blue-800 rounded" onClick={() => setDrawerOpen(false)}>LOGIN</Link>
                     <Link to="/register" className="text-base px-2 py-2 hover:bg-blue-800 rounded" onClick={() => setDrawerOpen(false)}>REGISTRO</Link>
-                    <span
-                      className="material-symbols-outlined hover:bg-blue-800 rounded-full p-1 transition-colors cursor-pointer"
-                      title={darkMode ? "Desactivar modo oscuro" : "Activar modo oscuro"}
-                      onClick={() => setDarkMode((prev) => !prev)}
-                    >
-                      {darkMode ? "light_mode" : "dark_mode"}
-                    </span>
-
                   </>
                 ) : (
                   <>
@@ -247,11 +248,15 @@ export default function App() {
                       Editar perfil
                     </Link>
                     <Link to="/shoppingCart" className="text-base px-2 py-2 hover:bg-blue-800 rounded" onClick={() => setDrawerOpen(false)}>
-                      <span className="material-symbols-outlined pr-2">shopping_cart</span>
+                      <span className="material-symbols-outlined pr-2 align-middle">shopping_cart</span>
                       Ver carrito
                     </Link>
-                    <Link to="/tickets" className="text-base px-2 py-2 hover:bg-blue-800 rounded" onClick={() => setDrawerOpen(false)}>
-                      <span className="material-symbols-outlined pr-2">qr_code</span>
+                    <Link
+                      to="/tickets"
+                      className="text-base px-2 py-2 hover:bg-blue-800 rounded **flex items-center**"
+                      onClick={() => setDrawerOpen(false)}
+                    >
+                      <span className="material-symbols-outlined pr-2 align-middle ">qr_code</span>
                       Ver tickets
                     </Link>
 
@@ -279,7 +284,7 @@ export default function App() {
                       </Link>
                     )}
 
-                    <button className="flex items-center  px-2 py-2 gap-2 " onClick={() => setDarkMode((prev) => !prev)}>
+                    <button className="flex items-center  px-2 py-2 gap-2 hover:bg-blue-800 rounded" onClick={() => setDarkMode((prev) => !prev)}>
                       <span className="material-symbols-outlined ">
                         dark_mode
                       </span> {darkMode ? "Modo claro" : "Modo oscuro"}

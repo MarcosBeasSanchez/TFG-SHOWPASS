@@ -25,7 +25,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -43,18 +42,27 @@ import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.CropSquare
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.LocalActivity
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImagePainter.State.Empty.painter
 import coil.compose.rememberAsyncImagePainter
 import com.example.appmovilshowpass.model.Categoria
 import com.example.appmovilshowpass.utils.construirUrlImagen
+import com.example.appmovilshowpass.utils.formatearFecha
 import com.example.appmovilshowpass.viewmodel.EventoViewModel
 
 
@@ -159,14 +167,31 @@ fun EditarEventoScreen(
             LabeledInput(precioTxt, { precioTxt = it }, "Precio €", Icons.Default.AttachMoney)
             LabeledInput(aforoTxt, { aforoTxt = it }, "Aforo Máximo", Icons.Default.People)
 
+            SectionTitle("Categoría y Fechas")
+
             DropdownMenuCategoria(categoria) { categoria = it }
 
-            DateTimeInput("Inicio", inicioEvento) {
-                showDateTimePicker(context) { inicioEvento = it }
-            }
-            DateTimeInput("Fin", finEvento) {
-                showDateTimePicker(context) { finEvento = it }
-            }
+
+               //  Fecha y hora inicio y fin
+                DateTimeInput(
+                    text = "Inicio",
+                    value = formatearFecha(inicioEvento),
+                    onClick = {
+                        showDateTimePicker(context) { newDateTime ->
+                            inicioEvento = newDateTime
+                        }
+                    },
+                )
+                DateTimeInput(
+                    text = "Fin",
+                    value = formatearFecha(finEvento),
+                    onClick = {
+                        showDateTimePicker(context) { newDateTime ->
+                            finEvento = newDateTime
+                        }
+                    }
+                )
+
 
             SectionTitle("Carrusel")
 
@@ -248,19 +273,40 @@ fun InvitadoEditorUIEdit(invitados: MutableList<DTOInvitadoSubida>) {
                     Button(onClick = {
                         invitadoEditando = inv
                         mostrarDialogo = true
-                    }) { Text("✏") }
+                    }) {
+                        Icon(
+                            imageVector = Icons.Outlined.Edit,
+                            contentDescription = "Icono"
+                        )
+                    }
 
-                    OutlinedButton(onClick = { invitados.remove(inv) }) {
-                        Text("❌")
+                    OutlinedButton(onClick = { invitados.remove(inv) }
+                    , colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Red)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Close,
+                            contentDescription = "Icono",
+                            tint = Color.Red
+                        )
                     }
                 }
             }
         }
 
-        Button(onClick = {
+        OutlinedButton(
+            onClick = {
             invitadoEditando = DTOInvitadoSubida(null, "", "", "", "")
-            mostrarDialogo = true
-        }) { Text("➕ Añadir invitado") }
+            mostrarDialogo = true }
+            , modifier = Modifier.fillMaxWidth().align(Alignment.End)
+
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Add,
+                contentDescription = "Icono"
+            )
+            Text("Agregar Invitado", Modifier.padding(start = 6.dp))
+
+        }
 
         if (mostrarDialogo) {
             InvitadoDialogEditor(invitadoEditando!!, { mostrarDialogo = false }) { actualizado ->

@@ -34,6 +34,19 @@ const UserTickets = () => {
     }
   }, [userId]);
 
+  const getEstadoColorClass = (estado) => {
+    switch (estado) {
+        case 'VALIDO':
+            return 'text-green-600 font-semibold'; // Verde
+        case 'USADO':
+            return 'text-orange-500 font-semibold'; // Naranja
+        case 'ANULADO':
+            return 'text-red-600 font-semibold';   // Rojo
+        default:
+            return 'text-gray-500'; // Color por defecto (si el estado no coincide)
+    }
+};
+
 
 
   return (
@@ -49,6 +62,7 @@ const UserTickets = () => {
             Cambiar orden: {reverseOrder ? "Recientes" : "Antiguos"}
           </button>
         </div>
+        
 
         <ul className={`flex ${reverseOrder ? "flex-col-reverse" : "flex-col"} gap-2`}>
           {tickets.length > 0 ? tickets.map((ticket) => (
@@ -61,6 +75,8 @@ const UserTickets = () => {
                   <p className="font-semibold text-blue-950 oscuroTextoGris">{ticket.nombreEvento}</p>
                   <p className="text-gray-500">Precio: {ticket.precioPagado?.toFixed(2) ?? "?"} €</p>
                   <p className="text-gray-500">Fecha Compra: {new Date(ticket.fechaCompra).toLocaleString()}</p>
+                  <p className={getEstadoColorClass(ticket.estado)}>
+                    <span className="text-gray-500">Estado: </span>{ticket.estado}</p>
                 </div>
               </div>
 

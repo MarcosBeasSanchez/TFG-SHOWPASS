@@ -153,25 +153,24 @@ fun SearchBarBusqueda(
                         item {
                             when {
                                 busquedaRealizada && eventos.isEmpty() -> {
+                                    // ⭐ CAMBIO CLAVE: Aplicar .fillParentMaxSize() al ítem
                                     Column(
                                         modifier = Modifier
-                                            .fillMaxSize()
-                                            .padding(20.dp),
+                                            .fillParentMaxSize()
+                                            .padding(10.dp),
                                         verticalArrangement = Arrangement.Center,
                                         horizontalAlignment = Alignment.CenterHorizontally
                                     ) {
-
                                         Image(
                                             painter = painterResource(id = R.drawable.no_results),
                                             contentDescription = "No results",
-                                            modifier = Modifier
-                                                .size(250.dp) // ajusta tamaño si quieres
+                                            modifier = Modifier.size(300.dp)
                                         )
 
                                         Spacer(modifier = Modifier.height(18.dp))
 
                                         Text(
-                                            text = "No se encontraron resultados",
+                                            text = "No se encontraron resultados para: \"$query\"",
                                             style = MaterialTheme.typography.titleMedium,
                                             color = Color.Gray,
                                             textAlign = TextAlign.Center

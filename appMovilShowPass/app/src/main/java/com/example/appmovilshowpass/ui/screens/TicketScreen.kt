@@ -58,7 +58,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.media3.exoplayer.offline.Download
@@ -73,6 +76,7 @@ import com.example.appmovilshowpass.R
 import com.example.appmovilshowpass.data.remote.api.RetrofitClient
 import com.example.appmovilshowpass.data.remote.dto.DTOTicketBajada
 import com.example.appmovilshowpass.data.remote.dto.toEvento
+import com.example.appmovilshowpass.model.EstadoTicket
 import com.example.appmovilshowpass.model.Evento
 import com.example.appmovilshowpass.utils.construirUrlImagen
 import com.example.appmovilshowpass.utils.formatearFecha
@@ -293,23 +297,28 @@ fun TicketCard(
 
             Text("Fecha de compra: ${formatearFecha(ticket.fechaCompra)}", fontSize = 14.sp)
             Text("Precio: ${formatearPrecio(ticket.precioPagado)} €", fontSize = 14.sp)
-            Text("Estado: ${ticket.estado}", fontSize = 14.sp)
+            //Text("Estado: ${ticket.estado}", fontSize = 14.sp)
+            Text(
+                text = buildAnnotatedString {
+                    // 1. Etiqueta "Estado: "
+                    withStyle(style = SpanStyle(fontSize = 14.sp)) {
+                        append("Estado: ")
+                    }
+                    // 2. Determinar el color
+                    val colorEstado = when (ticket.estado) {
+                        EstadoTicket.VALIDO -> Color(0xFF4CAF50) // Verde
+                        EstadoTicket.USADO -> Color(0xFFFF9800)  // Naranja
+                        EstadoTicket.ANULADO -> Color(0xFFF44336) // Rojo
+                    }
+                    // 3. Aplicar el color
+                    withStyle(style = SpanStyle(fontSize = 14.sp, color = colorEstado)) {
+                        // Se usa .name para obtener el String del enum (VALIDO, USADO, ANULADO)
+                        append(ticket.estado.name)
+                    }
+                }
+            )
 
             Spacer(Modifier.height(10.dp))
-
-            // 🔹 Código QR (si existe)
-            if (!ticket.codigoQR.isNullOrEmpty()) {
-                Image(
-                    painter = rememberAsyncImagePainter(construirUrlImagen(ticket.codigoQR)),
-                    contentDescription = "Código QR",
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(150.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                )
-                Spacer(Modifier.height(10.dp))
-            }
 
             // 🔹 Botones de acción
             Row(
@@ -320,7 +329,14 @@ fun TicketCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                // Descargar
+                // Forma rectangular común para los botones
+                val buttonShape = RoundedCornerShape(8.dp)
+                // Dimensiones rectangulares
+                val buttonModifier = Modifier
+                    .width(90.dp) // Nuevo ancho rectangular
+                    .height(50.dp) // Nueva altura
+
+                // --- Botón Descargar (Rectangular) ---
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Button(
                         onClick = {
@@ -334,8 +350,8 @@ fun TicketCard(
                             }
                         },
                         enabled = !descargando,
-                        modifier = Modifier.size(70.dp), // ✅ botón cuadrado
-                        shape = CircleShape, // ✅ más moderno
+                        modifier = buttonModifier,
+                        shape = buttonShape,
                         contentPadding = PaddingValues(0.dp)
                     ) {
                         if (descargando) {
@@ -348,14 +364,14 @@ fun TicketCard(
                             Icon(
                                 Icons.Default.Download,
                                 contentDescription = "Descargar",
-                                modifier = Modifier.size(34.dp)
+                                modifier = Modifier.size(24.dp) // Icono más pequeño para el rectángulo
                             )
                         }
                     }
                     Text("Descargar", fontSize = 12.sp)
                 }
 
-                // Enviar email
+                // --- Botón Enviar email (Rectangular) ---
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Button(
                         onClick = {
@@ -369,8 +385,8 @@ fun TicketCard(
                             }
                         },
                         enabled = !enviando,
-                        modifier = Modifier.size(70.dp),
-                        shape = CircleShape,
+                        modifier = buttonModifier, // Aplicamos el modificador rectangular
+                        shape = buttonShape, // Aplicamos la forma rectangular
                         contentPadding = PaddingValues(0.dp)
                     ) {
                         if (enviando) {
@@ -383,19 +399,19 @@ fun TicketCard(
                             Icon(
                                 Icons.Default.Email,
                                 contentDescription = "Enviar",
-                                modifier = Modifier.size(34.dp)
+                                modifier = Modifier.size(24.dp) // Icono más pequeño para el rectángulo
                             )
                         }
                     }
                     Text("Enviar email", fontSize = 12.sp)
                 }
 
-                // Eliminar
+                // --- Botón Eliminar (Rectangular) ---
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     OutlinedButton(
                         onClick = { mostrarDialogoEliminar = true },
-                        modifier = Modifier.size(70.dp),
-                        shape = CircleShape,
+                        modifier = buttonModifier, // Aplicamos el modificador rectangular
+                        shape = buttonShape, // Aplicamos la forma rectangular
                         contentPadding = PaddingValues(0.dp),
                         colors = ButtonDefaults.outlinedButtonColors(
                             contentColor = MaterialTheme.colorScheme.error
@@ -404,7 +420,7 @@ fun TicketCard(
                         Icon(
                             Icons.Default.Delete,
                             contentDescription = "Eliminar",
-                            modifier = Modifier.size(34.dp),
+                            modifier = Modifier.size(24.dp), // Icono más pequeño para el rectángulo
                             tint = MaterialTheme.colorScheme.error
                         )
                     }

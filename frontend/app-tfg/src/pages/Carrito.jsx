@@ -97,6 +97,7 @@ export default function ShoppingCart({ user }) {
       });
 
       if (!res.ok) throw new Error("Error al finalizar la compra");
+      console.log("Enviando datos de compra:", JSON.stringify(res));
 
       // Actualizar el carrito tras la compra
       const ticketRes = await fetch(`${config.apiBaseUrl}/tfg/ticket/findByUsuarioId/${usuarioId}`)

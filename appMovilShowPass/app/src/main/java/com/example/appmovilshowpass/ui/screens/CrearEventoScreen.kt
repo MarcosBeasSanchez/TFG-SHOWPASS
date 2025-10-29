@@ -63,6 +63,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -71,6 +72,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.appmovilshowpass.data.remote.dto.DTOInvitadoSubida
 import com.example.appmovilshowpass.data.remote.dto.DTOeventoSubida
 import com.example.appmovilshowpass.model.Categoria
+import com.example.appmovilshowpass.utils.formatearFecha
 import com.example.appmovilshowpass.utils.imagenToBase64
 import com.example.appmovilshowpass.viewmodel.EventoViewModel
 import kotlinx.coroutines.launch
@@ -163,14 +165,16 @@ fun CrearEventoScreen(
                 LabeledInput(descripcion, { descripcion = it }, "Descripción", Icons.Default.Info)
                 LabeledInput(precioTxt, { precioTxt = it }, "Precio €", Icons.Default.AttachMoney)
                 LabeledInput(aforoTxt, { aforoTxt = it }, "Aforo Máximo", Icons.Default.People)
-                DropdownMenuCategoria(categoria) { categoria = it }
             }
 
+            SectionTitle("Categoría")
+            DropdownMenuCategoria(categoria) { categoria = it }
+
             FieldSection("Fecha y Hora") {
-                DateTimeInput("Inicio", inicioEvento) {
+                DateTimeInput("Inicio", formatearFecha(inicioEvento)) {
                     showDateTimePicker(context) { inicioEvento = it }
                 }
-                DateTimeInput("Fin", finEvento) {
+                DateTimeInput("Fin", formatearFecha(finEvento)) {
                     showDateTimePicker(context) { finEvento = it }
                 }
             }
@@ -355,7 +359,12 @@ fun LabeledInput(value: String, onValueChange: (String) -> Unit, label: String, 
 
 @Composable
 fun SectionTitle(text: String) {
-    Text(text, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+    Text(text,
+        modifier = Modifier.fillMaxWidth(),
+        fontWeight = FontWeight.Bold,
+        fontSize = 18.sp,
+        textAlign = TextAlign.Start
+    )
 }
 
 @Composable

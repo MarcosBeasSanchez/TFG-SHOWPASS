@@ -40,7 +40,7 @@ export default function VentanaPrincipal() {
   useEffect(() => {
     const fetchEventos = async () => {
       try {
-        const res = await fetch("http://localhost:8080/tfg/evento/findAll");
+        const res = await fetch(`${config.apiBaseUrl}/tfg/evento/findAll`);
         const data = await res.json();
         setEntradas(data);
         console.log("Eventos recibidos del backend:", data);
@@ -55,8 +55,8 @@ export default function VentanaPrincipal() {
     fetchEventos();
   }, []);
 
-    const primerEvento = entradasAleatorias[0];
-    const restoEventos = entradasAleatorias.slice(1);
+  const primerEvento = entradasAleatorias[0];
+  const restoEventos = entradasAleatorias.slice(1);
 
   // Obtener usuario desde localStorage para depuración
   const userFromStorage = localStorage.getItem("user")
@@ -126,8 +126,11 @@ export default function VentanaPrincipal() {
                     {primerEvento.invitados?.length ? `Invitados: ${primerEvento.invitados.map(i => i.nombre).join(", ")}` : "Sin invitados por ahora"}
                   </p>
                 </div>
-                <div className="flex justify-end gap-2 items-baseline">
+                <div className="flex flex-col gap-2 items-end sm:flex-row sm:justify-end sm:items-center">
                   <p className="font-medium text-sm text-gray-600 bg-blue-100 oscuroBox p-2 rounded-md">
+                    {primerEvento.categoria}
+                  </p>
+                  <p className="font-medium text-sm text-white bg-blue-400 oscuroBox p-2 rounded-md">
                     {Number(primerEvento.precio).toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€
                   </p>
                   <Link
@@ -170,8 +173,11 @@ export default function VentanaPrincipal() {
                   {entrada.invitados?.length ? `Invitados: ${entrada.invitados.map(i => i.nombre).join(", ")}` : "Sin invitados por ahora"}
                 </p>
               </div>
-              <div className="flex justify-end items-baseline mt-1 gap-2">
-                <p className="text-sm font-medium text-gray-600 bg-blue-100 oscuroBox p-2 rounded-md">
+              <div className="flex flex-row gap-2 items-end sm:flex-row sm:justify-end sm:items-center">
+                <p className="font-medium text-sm text-gray-600 bg-blue-100 oscuroBox p-2 rounded-md">
+                  {entrada.categoria}
+                </p>
+                <p className="text-sm font-medium text-white bg-blue-400 oscuroBox p-2 rounded-md">
                   {Number(entrada.precio).toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€
                 </p>
                 <Link
