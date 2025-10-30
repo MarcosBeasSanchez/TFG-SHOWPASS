@@ -89,7 +89,8 @@ fun VendedorMisEventosScreen(
                             navController.navigate("vendedor_editar_evento/${e.id}")
                         },
                     shape = RoundedCornerShape(14.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                    colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface)
                 ) {
 
                     Image(

@@ -1,6 +1,7 @@
 package com.example.appmovilshowpass.ui.screens
 
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -23,6 +24,9 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.RemoveShoppingCart
 import androidx.compose.material.icons.filled.ShoppingCartCheckout
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.DeleteForever
+import androidx.compose.material.icons.outlined.ShoppingCartCheckout
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -198,13 +202,21 @@ fun CarritoScreen(
                     Spacer(modifier = Modifier.height(12.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
                         OutlinedButton(
                             onClick = { carritoViewModel.vaciarCarrito(usuarioId) },
-                            shape = RoundedCornerShape(12.dp)
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                            border = BorderStroke(0.dp, MaterialTheme.colorScheme.error)
                         ) {
-                            Text("Vaciar carrito")
+                            Icon(
+                                imageVector = Icons.Outlined.Delete,
+                                contentDescription = "Borrar",
+                                modifier = Modifier.padding(start = 4.dp),
+                                tint = MaterialTheme.colorScheme.onError
+                            )
+                            Text("Vaciar carrito",color = MaterialTheme.colorScheme.onError)
                         }
 
                         Button(
@@ -212,8 +224,14 @@ fun CarritoScreen(
                                 carritoViewModel.finalizarCompra(usuarioId) {
                                     Toast.makeText(context, "✅ ¡Compra realizada!", Toast.LENGTH_SHORT).show()
                                 }
-                            }
+                            },
+                            shape = RoundedCornerShape(12.dp)
                         ) {
+                            Icon(
+                                imageVector = Icons.Outlined.ShoppingCartCheckout,
+                                contentDescription = "Finalizar",
+                                modifier = Modifier.padding(start = 4.dp),
+                            )
                             Text("Finalizar Compra")
                         }
                     }

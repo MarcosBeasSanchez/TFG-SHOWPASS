@@ -97,7 +97,7 @@ fun EventoCard(evento: Evento, navController: NavController) {
                         text = evento.categoria.name,
                         style = TextStyle(
                             fontSize = 13.sp,
-                            fontWeight = FontWeight.Normal,
+                            fontWeight = FontWeight.Bold,
                             color = Color.White
                         ),
                         modifier = Modifier
@@ -111,7 +111,7 @@ fun EventoCard(evento: Evento, navController: NavController) {
                         text = "${formatearPrecio(evento.precio)}€",
                         style = TextStyle(
                             fontSize = 13.sp,
-                            fontWeight = FontWeight.Normal,
+                            fontWeight = FontWeight.Bold,
                             color = Color.White
                         ),
                         modifier = Modifier

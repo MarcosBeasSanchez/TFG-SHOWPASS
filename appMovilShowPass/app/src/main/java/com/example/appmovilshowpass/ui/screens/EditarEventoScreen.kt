@@ -50,7 +50,9 @@ import androidx.compose.material.icons.outlined.LocalActivity
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
@@ -252,7 +254,8 @@ fun InvitadoEditorUIEdit(invitados: MutableList<DTOInvitadoSubida>) {
         invitados.forEach { inv ->
             Card(
                 Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface)
             ) {
                 Row(
                     Modifier.padding(8.dp),

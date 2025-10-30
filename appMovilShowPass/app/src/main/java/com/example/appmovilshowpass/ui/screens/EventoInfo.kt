@@ -239,11 +239,14 @@ fun EventoInfo(
 
                         }
                     }
+                    Spacer(modifier = Modifier.height(15.dp))
+                    Text("Aforo máximo", fontSize = 18.sp, modifier = Modifier.padding(vertical = 6.dp))
+                    Text("${(e.aforoMax)} personas", fontSize = 16.sp)
+                    Spacer(modifier = Modifier.height(15.dp))
 
                     // Precio y botón de carrito
                     Text("Precio", fontSize = 18.sp, modifier = Modifier.padding(vertical = 6.dp))
-                    Text("${
-                        formatearPrecio(e.precio)} €", fontSize = 16.sp)
+                    Text("PVP: ${formatearPrecio(e.precio)} €", fontSize = 16.sp)
                     Spacer(modifier = Modifier.height(30.dp))
 
 

@@ -4,6 +4,7 @@ import android.R.style.Theme
 import android.content.res.Resources
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -103,21 +104,42 @@ fun EventoCardHorizontal(evento: Evento, modifier: Modifier = Modifier) {
                 .padding(bottom = 12.dp, end = 12.dp),
             contentAlignment = Alignment.BottomEnd
         ) {
-            Text(
-                text = "${formatearPrecio(evento.precio)} €",
-                style = TextStyle(
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Normal,
-                    color = Color.White
-                ),
-                modifier = Modifier
-                    .background(
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                        shape = RoundedCornerShape(5.dp)
-                    )
-                    .padding(horizontal = 5.dp, vertical = 5.dp)
+            Row(
 
-            )
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // 1. TEXTO DE CATEGORÍA
+                Text(
+                    text = evento.categoria.name,
+                    style = TextStyle(
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    ),
+                    modifier = Modifier
+                        .background(
+                            color = MaterialTheme.colorScheme.secondary,
+                            shape = RoundedCornerShape(5.dp)
+                        )
+                        .padding(horizontal = 5.dp, vertical = 5.dp)
+                )
+
+                // 2. TEXTO DEL PRECIO
+                Text(
+                    text = "${formatearPrecio(evento.precio)} €",
+                    style = TextStyle(
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    ),
+                    modifier = Modifier
+                        .background(
+                            color = MaterialTheme.colorScheme.primaryContainer,
+                            shape = RoundedCornerShape(5.dp)
+                        )
+                        .padding(horizontal = 5.dp, vertical = 5.dp)
+                )
+            }
         }
     }
 }

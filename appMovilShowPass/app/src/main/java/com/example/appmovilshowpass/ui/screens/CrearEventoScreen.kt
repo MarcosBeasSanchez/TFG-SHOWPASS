@@ -329,7 +329,7 @@ fun DropdownMenuCategoria(
     var expanded by remember { mutableStateOf(false) }
 
     Box {
-        Button(onClick = { expanded = true }) {
+        Button(onClick = { expanded = true }, modifier = Modifier.fillMaxWidth()) {
             Text(categoriaActual.name)
         }
 

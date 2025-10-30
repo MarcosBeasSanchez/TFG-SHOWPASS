@@ -14,6 +14,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -42,7 +43,9 @@ fun AdminFab(
             modifier = Modifier.padding(end = 16.dp, bottom = 80.dp)
         ) {
             // Menú desplegable
-            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            DropdownMenu(expanded = expanded,
+                containerColor = MenuDefaults.containerColor,
+                onDismissRequest = { expanded = false }) {
                 DropdownMenuItem(
                     text = { Text("Usuarios reportados") },
                     leadingIcon = {

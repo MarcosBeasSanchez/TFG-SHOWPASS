@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Event
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.LocalActivity
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.QrCode
@@ -49,6 +50,7 @@ import com.example.appmovilshowpass.ui.screens.EditarEventoScreen
 import com.example.appmovilshowpass.ui.screens.EventAdminScreen
 import com.example.appmovilshowpass.ui.screens.EventoInfo
 import com.example.appmovilshowpass.ui.screens.EventoScreen
+import com.example.appmovilshowpass.ui.screens.InfoScreen
 import com.example.appmovilshowpass.ui.screens.LoginScreen
 import com.example.appmovilshowpass.ui.screens.RegisterScreen
 import com.example.appmovilshowpass.ui.screens.TicketsScreen
@@ -69,32 +71,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             AppMovilShowpassTheme {
-                val primaryColor = MaterialTheme.colorScheme.background.toArgb()
-                val darkIcons = MaterialTheme.colorScheme.background.luminance() > 0.5f
-
-                // Bloquear orientación vertical
-                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-
-                // Aplicamos el color dinámico a la status bar
-                SideEffect {
-                    enableEdgeToEdge(
-                        statusBarStyle = if (darkIcons) {
-                            SystemBarStyle.light(primaryColor, primaryColor)
-                        } else {
-                            SystemBarStyle.dark(primaryColor)   // iconos claros
-                        },
-                        navigationBarStyle = if (darkIcons) {
-                            SystemBarStyle.light(primaryColor, primaryColor)
-                        } else {
-                            SystemBarStyle.dark(primaryColor)
-                        }
-                    )
-                }
-
                 //  pantalla principal
                 MainScreen()
             }
-
         }
     }
 }
@@ -121,6 +100,7 @@ fun MainScreen() {
         BottomNavItem("Busqueda", Icons.Outlined.Search, "buscar"),
         BottomNavItem("Carrito", Icons.Outlined.ShoppingCart, "carrito"),
         BottomNavItem("Tickets", Icons.Outlined.QrCode, "tickets"),
+        BottomNavItem("Info", Icons.Outlined.Info, "info"),
     )
 
     Scaffold(
@@ -136,7 +116,7 @@ fun MainScreen() {
                         Text(
                             text = "SHOWPASS",
                             fontSize = 24.sp,
-                            fontWeight = FontWeight.Black,
+                            fontWeight = FontWeight.Bold,
                             fontStyle = FontStyle.Normal,
                             color = Color.White,
                             modifier = Modifier.clickable() { navController.navigate("eventos") }
@@ -182,6 +162,13 @@ fun MainScreen() {
                         icon = { Icon(item.icon, contentDescription = item.title) },
                         label = { Text(item.title, fontSize = 10.sp) },
                         selected = currentRoute == item.route,
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = MaterialTheme.colorScheme.primary,
+                            selectedTextColor = MaterialTheme.colorScheme.primary,
+                            indicatorColor = MaterialTheme.colorScheme.surfaceVariant,
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurface,
+                            unselectedTextColor = MaterialTheme.colorScheme.onSurface
+                        ),
                         onClick = {
                             navController.navigate(item.route) {
                                 popUpTo(navController.graph.findStartDestination().id) {
@@ -268,6 +255,11 @@ fun MainScreen() {
                     navController = navController,
                     onBack = { navController.popBackStack() }
                 )
+            }
+
+            composable("info") {
+                InfoScreen(authViewModel, navController)
+
             }
 
             composable("usuario") {
