@@ -13,5 +13,5 @@ data class Usuario (
     val cuenta: TarjetaBancaria? = null,
     val reportado: Boolean = false,
     val carrito: Carrito? = null,
-    val tickets: List<Ticket> = emptyList()
+    val tickets: List<Ticket> = emptyList(),
 )

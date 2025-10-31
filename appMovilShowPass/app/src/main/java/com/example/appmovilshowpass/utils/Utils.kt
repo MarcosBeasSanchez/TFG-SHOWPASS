@@ -23,6 +23,7 @@ import java.io.*
 import java.net.URL
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.set
+import com.example.appmovilshowpass.data.local.SERVER_BASE_URL_FOTOS
 import com.itextpdf.text.pdf.PdfContentByte
 import kotlinx.coroutines.Dispatchers
 import java.util.Calendar
@@ -194,7 +195,6 @@ private fun generarQR(texto: String): Bitmap {
     return bmp
 }
 
-private const val SERVER_BASE_URL = "http://192.168.1.128:8080"
 
 fun construirUrlImagen(ruta: String?): String {
     if (ruta.isNullOrBlank()) return ""
@@ -204,10 +204,10 @@ fun construirUrlImagen(ruta: String?): String {
             ruta  // ya es URL válida
 
         ruta.startsWith("/uploads/") ->
-            SERVER_BASE_URL + ruta // evitar doble slash
+            SERVER_BASE_URL_FOTOS + ruta // evitar doble slash
 
         ruta.startsWith("uploads/") ->
-            "$SERVER_BASE_URL/$ruta"
+            "$SERVER_BASE_URL_FOTOS/$ruta"
 
         ruta.startsWith("data:image/") ->
             ruta  // Base64 completo, se usa tal cual

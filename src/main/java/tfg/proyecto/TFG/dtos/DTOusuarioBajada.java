@@ -23,7 +23,7 @@ public class DTOusuarioBajada {
     private Rol rol;
     private boolean reportado;
 
-    private Long tarjetaId;
+    private	DTOtarjetaBancariaBajada cuenta;
     private Long carritoId;
     private List<Long>ticketsId; //solo coger los ID
     private List<Long>eventosCreadosId; //solo coger los ID
