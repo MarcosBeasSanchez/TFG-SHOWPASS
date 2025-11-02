@@ -4,6 +4,7 @@ import AuthViewModel
 import android.app.DatePickerDialog
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.*
@@ -11,7 +12,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import com.example.appmovilshowpass.utils.formatearFecha
+import com.example.appmovilshowpass.utils.formatearFechayHora
 import java.time.LocalDate
 import java.util.*
 
@@ -35,7 +40,7 @@ fun RegisterScreen(
     val loading = authViewModel.loading
     val error = authViewModel.error
 
-    val roles = listOf("CLIENTE", "VENDEDOR")
+    val roles = listOf("CLIENTE", "VENDEDOR") // lista de roles disponibles
     var expanded by remember { mutableStateOf(false) }
     var rolSeleccionado by remember { mutableStateOf("CLIENTE") } // valor por defecto
     // date picker
@@ -79,13 +84,17 @@ fun RegisterScreen(
             value = password,
             onValueChange = { password = it },
             label = { Text("Contraseña") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            // Oculta visualmente los caracteres
+            visualTransformation = PasswordVisualTransformation(),
+            //Sugiere al teclado que es un campo de contraseña
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
         )
         Spacer(Modifier.height(8.dp))
 
         OutlinedTextField(
-            value = fechaNacimiento,
-            onValueChange = {},
+            value = formatearFecha(fechaNacimiento, "dd/MM/yyyy"),
+            onValueChange = { },
             label = { Text("Fecha de nacimiento") },
             readOnly = true,
             modifier = Modifier.fillMaxWidth(),
@@ -97,7 +106,7 @@ fun RegisterScreen(
         )
         Spacer(Modifier.height(8.dp))
 
-        // 👉 Selector de rol con ExposedDropdownMenuBox
+        //  Selector de rol con ExposedDropdownMenuBox
         ExposedDropdownMenuBox(
             expanded = expanded,
             onExpandedChange = { expanded = !expanded }
@@ -136,6 +145,7 @@ fun RegisterScreen(
             Text(it, color = MaterialTheme.colorScheme.error)
         }
 
+
         Spacer(Modifier.height(8.dp))
 
         Button(
@@ -144,15 +154,19 @@ fun RegisterScreen(
                     Toast.makeText(context, "Completa todos los campos", Toast.LENGTH_SHORT).show()
                     return@Button
                 }
+                //debe tener @
+                if (!email.contains("@")) {
+                    Toast.makeText(context, "Correo no válido inserta: @", Toast.LENGTH_SHORT).show()
+                    return@Button
+                }
                 authViewModel.register(
                     nombre.trim(),
                     email.trim(),
                     password.trim(),
                     LocalDate.parse(fechaNacimiento).toString(),
                     rolSeleccionado
-                ) { registroExitoso ->
-
-                    if (registroExitoso) {
+                ) { resultadoRegistro ->
+                    if (resultadoRegistro) {
                         authViewModel.login(
                             context, email.trim(), password.trim()
                         ) { loginExitoso ->

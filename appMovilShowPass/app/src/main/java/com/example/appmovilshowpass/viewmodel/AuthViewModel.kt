@@ -159,6 +159,49 @@ class AuthViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Recupera el objeto Usuario completo y actualizado desde el backend.
+     * Utiliza el ID del usuario actualmente almacenado en currentUser.
+     */
+    fun fetchLoggedInUser(context: Context, onComplete: (Boolean) -> Unit = {}) {
+        val userId = currentUser?.id // Obtener el ID del usuario actual
+        if (userId == null) {
+            error = "No hay usuario logueado para actualizar."
+            onComplete(false)
+            return
+        }
+
+        loading = true
+        error = null
+        viewModelScope.launch {
+            try {
+                // Llamar al endpoint para obtener los datos del usuario por ID
+                val updatedDto: DTOusuarioBajada =
+                    RetrofitClient.usuarioApiService.getUserById(userId)
+
+                // Convertir y actualizar el estado
+                val updatedUser = updatedDto.toUsuario()
+
+                // Actualizamos la foto en DataStore y en el estado si es necesario
+                updatedUser.foto.let { foto ->
+                    if (foto.isNotEmpty()) {
+                        saveUserPhoto(context, foto)
+                    }
+                }
+
+                currentUser = updatedUser // ⭐️ ESTO REFLEJA LOS CAMBIOS EN LA UI
+
+                loading = false
+                onComplete(true)
+            } catch (e: Exception) {
+                Log.e("FetchUser", "Error al cargar el usuario por ID", e)
+                error = "Error al recargar el perfil: ${e.message ?: "Conexión fallida"}"
+                loading = false
+                onComplete(false)
+            }
+        }
+    }
+
     fun saveUserPhoto(context: Context, fotoUrl: String) {
         viewModelScope.launch {
             context.dataStore.edit { prefs ->

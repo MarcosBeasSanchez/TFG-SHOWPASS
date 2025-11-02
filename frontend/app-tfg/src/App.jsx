@@ -13,6 +13,7 @@ import UserTickets from "./pages/Tickets.jsx";
 import { useEffect, useState } from "react";
 import AdminPanel from "./pages/AdminPanel";
 import VendedorPanel from "./pages/VendedorPanel";
+import config from "./config/config";
 
 
 export default function App() {
@@ -54,6 +55,15 @@ export default function App() {
     setUser(null);
     window.location.href = "/";
   };
+
+  const getImageSrc = (img) => {
+    if (!img) return null; // si no hay imagen, devolvemos vacío
+    if (img.startsWith("data:image/")) return img; // ya es Base64 con prefijo → no hacer nada
+    if (img.startsWith("http://") || img.startsWith("https://")) return img; // es URL externa → usar tal cual
+    if (img.startsWith("/uploads/")) return `${config.apiBaseUrl}${img}`; // es ruta relativa del backend
+    return `data:image/png;base64,${img}`; // es Base64 crudo → agregamos el prefijo necesario
+  };
+
 
   return (
     <BrowserRouter>
@@ -353,7 +363,7 @@ export default function App() {
       <div className="profile-dropdown relative">
         <button onClick={() => setOpen((o) => !o)} className=" flex items-center justify-center">
           {user?.foto ? (
-            <img src={user.foto} alt="Foto perfil" className="w-10 h-10 rounded-full object-cover border hover:scale-105 transition" />
+            <img src={getImageSrc(user.foto)} alt="Foto perfil" className="w-10 h-10 rounded-full object-cover border hover:scale-105 transition" />
           ) : (
             <span
               className="material-symbols-outlined hover:bg-blue-800 rounded-full p-1 transition-colors cursor-pointer"

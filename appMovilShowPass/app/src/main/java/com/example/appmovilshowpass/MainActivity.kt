@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.PersonPin
 import androidx.compose.material.icons.outlined.Event
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.LocalActivity
@@ -29,6 +31,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -63,6 +67,7 @@ import com.example.appmovilshowpass.viewmodel.CarritoViewModel
 import com.example.appmovilshowpass.viewmodel.EventoViewModel
 import com.example.appmovilshowpass.ui.theme.AppMovilShowpassTheme
 import com.example.appmovilshowpass.ui.theme.DarkBlue
+import com.example.appmovilshowpass.ui.theme.Roboto
 import com.example.appmovilshowpass.viewmodel.TicketViewModel
 
 
@@ -116,10 +121,15 @@ fun MainScreen() {
                         Text(
                             text = "SHOWPASS",
                             fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
-                            fontStyle = FontStyle.Normal,
+                            fontWeight = FontWeight.ExtraBold,
+                            style = TextStyle(
+                                fontFamily = Roboto, // Usa la familia de fuentes que definiste
+                                fontWeight = FontWeight.ExtraBold, // Usa el peso que quieres (seleccionará roboto_extrabold.ttf)
+                                fontSize = 24.sp, // La movemos aquí para que sea parte del estilo
+                            ),
                             color = Color.White,
-                            modifier = Modifier.clickable() { navController.navigate("eventos") }
+                            modifier = Modifier.clickable()
+                            { navController.navigate("eventos") }
                         )
                         Icon(
                             imageVector = Icons.Outlined.LocalActivity,
@@ -130,11 +140,16 @@ fun MainScreen() {
                 },
                 actions = {
                     IconButton(
-                        modifier = Modifier.fillMaxHeight(),
-                        onClick = { navController.navigate("usuario") }
+                        modifier = Modifier.size(40.dp),
+                        onClick = { navController.navigate("usuario"){
+                            // Evitar múltiples copias de la pantalla en la pila
+                            launchSingleTop = true
+                            // Volver a la pantalla de eventos si ya está en la pila
+                            popUpTo("eventos") { saveState = true }
+                        } }
                     ) {
                         Icon(
-                            imageVector = Icons.Outlined.Person,
+                            imageVector = Icons.Default.AccountCircle,
                             contentDescription = "Usuario",
                             tint = Color.White
                         )

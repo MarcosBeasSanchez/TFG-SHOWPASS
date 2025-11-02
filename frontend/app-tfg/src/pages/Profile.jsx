@@ -9,9 +9,9 @@ const Profile = () => {
         foto: '',
         rol: '',
         reportado: '',
-        tarjetaId: '',
-        carritoId: '',
-        reportado: false
+        cuenta: '',
+        reportado: false,
+        showPassword: false
     });
 
     const [cuenta, setCuenta] = useState({
@@ -44,46 +44,73 @@ const Profile = () => {
         }
     };
 
+    const getImageSrc = (img) => {
+        if (!img) return null; // si no hay imagen, devolvemos vacío
+        if (img.startsWith("data:image/")) return img; // ya es Base64 con prefijo → no hacer nada
+        if (img.startsWith("http://") || img.startsWith("https://")) return img; // es URL externa → usar tal cual
+        if (img.startsWith("/uploads/")) return `${config.apiBaseUrl}${img}`; // es ruta relativa del backend
+        return `data:image/png;base64,${img}`; // es Base64 crudo → agregamos el prefijo necesario
+    };
+
     const handleSave = async () => {
         setEditing(false);
+        setEditingPassword(false);
+
         const userString = localStorage.getItem("user");
         if (!userString) return;
 
         const userObj = JSON.parse(userString);
         const userId = userObj.id;
 
-        const userToSend = { ...user };
-        if (!userToSend.password || userToSend.password.trim() === "") {
-            delete userToSend.password;
-        }
+        // Crear el objeto de usuario a enviar
+        const userToSend = {
+            id: userId,
+            nombre: user.nombre,
+            email: user.email,
+            fechaNacimiento: user.fechaNacimiento,
+            foto: user.foto,
+            // Solo incluir la contraseña si se está editando y tiene un valor
+            ...(editingPassword && user.password && { password: user.password }),
+            // INCLUIR EL OBJETO COMPLETO DE LA CUENTA BANCARIA
+            // Si el backend espera un objeto anidado, lo incluimos directamente.
+            cuenta: cuenta,
+        };
 
         try {
             const responseUser = await fetch(`${config.apiBaseUrl}/tfg/usuario/update/${userId}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(userToSend)
-            })
-            console.log("Usuario enviado al backend para actualización:", userToSend);
-            
-            const responseCuenta = await fetch(`${config.apiBaseUrl}/tfg/cuentaBancaria/update`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(cuenta)
             });
-            console.log("Cuenta enviada al backend para actualización:", cuenta);
 
-            if (responseUser.ok && responseCuenta.ok) {
-                const updatedUser = await responseUser.json();
-                const updatedCuenta = await responseCuenta.json();
-                localStorage.setItem("user", JSON.stringify(updatedUser));
-                setUser(updatedUser);
-                setCuenta(updatedCuenta);
-                alert("Usuario actualizado correctamente");
+            if (responseUser.ok) {
+                const updatedUserDTO = await responseUser.json();
+
+                setUser(prev => ({
+                    ...prev,
+                    ...updatedUserDTO,
+                    password: prev.password || '', // Mantener el campo password vacío si no se envió
+                    // Asegurar que el objeto 'cuenta' en el estado 'user' se actualice si es necesario para otros fines.
+                    cuenta: updatedUserDTO.cuenta // Esto es opcional ya que usamos el estado 'cuenta'
+                }));
+                setCuenta(updatedUserDTO.cuenta); // Actualizar el estado 'cuenta' con el objeto completo
+
+                // 5. Actualizar localStorage
+                const localUserToUpdate = { ...userObj, ...updatedUserDTO };
+                // Asegurarse de no guardar el password en localStorage
+                delete localUserToUpdate.password;
+                localStorage.setItem("user", JSON.stringify(localUserToUpdate));
+
+                alert("Usuario y Tarjeta Bancaria actualizados correctamente");
+
             } else {
-                console.error("Error actualizando usuario o cuenta bancaria");
+                const errorBody = await responseUser.json();
+                console.error("Error al actualizar usuario:", errorBody);
+                alert(`Error actualizando datos: ${errorBody.mensaje || responseUser.statusText}`);
             }
         } catch (error) {
             console.error("Error en fetch:", error);
+            alert("Ocurrió un error de conexión al guardar los datos.");
         }
     };
 
@@ -102,18 +129,9 @@ const Profile = () => {
                 console.log("Usuario cargado:", dataUser);
                 setUser(dataUser);
 
-                // 2. Si tiene tarjetaId, obtener datos de la cuenta bancaria
-                if (dataUser.tarjetaId) {
-                    const resCuenta = await fetch(`${config.apiBaseUrl}/tfg/cuentaBancaria/findById/${dataUser.tarjetaId}`);
-                    if (resCuenta.ok) {
-                        const dataCuenta = await resCuenta.json();
-                        console.log("Cuenta cargada:", dataCuenta);
-                        setCuenta(dataCuenta);
-                    } else {
-                        console.warn("No se pudo obtener la cuenta bancaria del usuario");
-                    }
+                if (dataUser.cuenta) {
+                    setCuenta(dataUser.cuenta);
                 }
-
 
             } catch (error) {
                 console.error("Error cargando usuario o cuenta bancaria:", error);
@@ -135,7 +153,7 @@ const Profile = () => {
                     <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-300 mb-4 bg-gray-100 flex items-center justify-center">
                         {user.foto ? (
                             <img
-                                src={user.foto}
+                                src={getImageSrc(user.foto)}
                                 alt="Foto de perfil"
                                 className="object-cover w-full h-full"
                             />
@@ -281,6 +299,22 @@ const Profile = () => {
                         </div>
 
                         <div className="flex flex-col gap-2">
+                            <label className="block text-gray-700 mb-1 oscuroTextoGris">Nº Tarjeta:</label>
+                            {editing ? (
+                                <input
+                                    type="text"
+                                    name="cuenta.ntarjeta"
+                                    value={cuenta?.ntarjeta ?? ""}
+                                    maxLength={16}
+                                    onChange={handleChange}
+                                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black oscuroBox"
+                                />
+                            ) : (
+                                <span className="block p-3 bg-gray-100 rounded-lg text-black oscuroBox">{cuenta?.ntarjeta || <span>&nbsp;</span>}</span>
+                            )}
+                        </div>
+
+                        <div className="flex flex-col gap-2">
                             <label className="block text-gray-700 mb-1 oscuroTextoGris">Fecha caducidad:</label>
                             {editing ? (
                                 <input
@@ -313,7 +347,7 @@ const Profile = () => {
 
                         <div className="flex flex-col gap-2">
                             <label className="block text-gray-700 mb-1 oscuroTextoGris">Saldo:</label>
-                            {editing ? (
+                            {/*editing ? (
                                 <input
                                     type="number"
                                     name="cuenta.saldo"
@@ -323,23 +357,9 @@ const Profile = () => {
                                 />
                             ) : (
                                 <span className="block p-3 bg-gray-100 rounded-lg text-black oscuroBox">{cuenta?.saldo || <span>&nbsp;</span>}</span>
-                            )}
-                        </div>
-
-                        <div className="flex flex-col gap-2">
-                            <label className="block text-gray-700 mb-1 oscuroTextoGris">Nº Tarjeta:</label>
-                            {editing ? (
-                                <input
-                                    type="text"
-                                    name="cuenta.ntarjeta"
-                                    value={cuenta?.ntarjeta ?? ""}
-                                    maxLength={16}
-                                    onChange={handleChange}
-                                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 text-black oscuroBox"
-                                />
-                            ) : (
-                                <span className="block p-3 bg-gray-100 rounded-lg text-black oscuroBox">{cuenta?.ntarjeta || <span>&nbsp;</span>}</span>
-                            )}
+                            )*/
+                                <span className="block p-3 bg-gray-100 rounded-lg text-black oscuroBox">{cuenta?.saldo ?? <span>&nbsp;</span>} €</span>
+                            }
                         </div>
                     </div>
 

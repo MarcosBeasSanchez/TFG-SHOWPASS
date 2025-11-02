@@ -137,7 +137,7 @@ export default function VentanaPrincipal() {
                     to={`/evento/${primerEvento.nombre}`}
                     className=" bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 text-center"
                   >
-                    Ver detalles
+                    Detalles
                   </Link>
                 </div>
               </div>
@@ -146,7 +146,7 @@ export default function VentanaPrincipal() {
         )}
       </div>
       {/* Mostrar resto de eventos */}
-      <div className=" max-w-5/6 mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-10 p-5 sm:p-10 ">
+      <div className=" max-w-7/8 mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-5 p-5 sm:p-10 ">
         {restoEventos.map((entrada) => (
           <div key={entrada.id} className="claro oscuro shadow-lg overflow-hidden hover:scale-101 transition transform group h-full ">
             <Link to={`/evento/${entrada.nombre}`}>
@@ -184,7 +184,7 @@ export default function VentanaPrincipal() {
                   to={`/evento/${entrada.nombre}`}
                   className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 text-center inline-block w-auto"
                 >
-                  Ver detalles
+                  Detalles
                 </Link>
               </div>
             </div>

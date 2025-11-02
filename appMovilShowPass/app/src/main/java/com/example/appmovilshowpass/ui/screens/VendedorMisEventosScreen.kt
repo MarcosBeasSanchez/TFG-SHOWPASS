@@ -34,7 +34,7 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.example.appmovilshowpass.utils.construirUrlImagen
-import com.example.appmovilshowpass.utils.formatearFechaBonita
+import com.example.appmovilshowpass.utils.formatearFechayHora
 import com.example.appmovilshowpass.viewmodel.EventoViewModel
 
 @Composable
@@ -117,7 +117,7 @@ fun VendedorMisEventosScreen(
                         Spacer(Modifier.height(4.dp))
 
                         Text(
-                            text = formatearFechaBonita(e.inicioEvento),
+                            text = formatearFechayHora(e.inicioEvento),
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.Gray
                         )

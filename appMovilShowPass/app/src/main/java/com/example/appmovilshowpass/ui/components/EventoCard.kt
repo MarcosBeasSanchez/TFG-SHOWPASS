@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.appmovilshowpass.model.Evento
-import com.example.appmovilshowpass.utils.formatearFecha
+import com.example.appmovilshowpass.utils.formatearFechayHora
 import com.example.appmovilshowpass.utils.formatearPrecio
 
 @Composable
@@ -70,15 +70,16 @@ fun EventoCard(evento: Evento, navController: NavController) {
                 )
             }
             Column(modifier = Modifier.padding(vertical = 16.dp, horizontal = 12.dp)) {
-                Text(evento.nombre, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text(evento.nombre, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+                Spacer(modifier = Modifier.height(3.dp))
                 Text(evento.localizacion, fontSize = 16.sp)
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    "Inicio Evento: " + formatearFecha(evento.inicioEvento),
+                    "Inicio Evento: " + formatearFechayHora(evento.inicioEvento),
                     fontSize = 14.sp
                 )
                 Text(
-                    "Final Evento: " + formatearFecha(evento.finEvento),
+                    "Final Evento: " + formatearFechayHora(evento.finEvento),
                     fontSize = 14.sp
                 )
                 Text(

@@ -79,7 +79,7 @@ import com.example.appmovilshowpass.data.remote.dto.toEvento
 import com.example.appmovilshowpass.model.EstadoTicket
 import com.example.appmovilshowpass.model.Evento
 import com.example.appmovilshowpass.utils.construirUrlImagen
-import com.example.appmovilshowpass.utils.formatearFecha
+import com.example.appmovilshowpass.utils.formatearFechayHora
 import com.example.appmovilshowpass.utils.formatearPrecio
 import com.example.appmovilshowpass.viewmodel.TicketViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -141,7 +141,7 @@ fun TicketsScreen(
             Text(
                 text = "Tickets",
                 fontWeight = FontWeight.Bold,
-                fontSize = 24.sp
+                fontSize = 20.sp
             )
         }
 
@@ -291,11 +291,11 @@ fun TicketCard(
             Text(evento?.nombre ?: ticket.nombreEvento, fontWeight = FontWeight.Bold, fontSize = 18.sp)
 
             if (evento != null) {
-                Text("Inicio del evento: ${formatearFecha(evento!!.inicioEvento)}", fontSize = 14.sp)
+                Text("Inicio del evento: ${formatearFechayHora(evento!!.inicioEvento)}", fontSize = 14.sp)
                 Text("Localización: ${evento!!.localizacion}", fontSize = 14.sp)
             }
 
-            Text("Fecha de compra: ${formatearFecha(ticket.fechaCompra)}", fontSize = 14.sp)
+            Text("Fecha de compra: ${formatearFechayHora(ticket.fechaCompra)}", fontSize = 14.sp)
             Text("Precio: ${formatearPrecio(ticket.precioPagado)} €", fontSize = 14.sp)
             //Text("Estado: ${ticket.estado}", fontSize = 14.sp)
             Text(

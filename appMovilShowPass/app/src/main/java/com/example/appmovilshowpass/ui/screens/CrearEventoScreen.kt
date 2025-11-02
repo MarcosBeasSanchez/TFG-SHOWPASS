@@ -72,7 +72,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.appmovilshowpass.data.remote.dto.DTOInvitadoSubida
 import com.example.appmovilshowpass.data.remote.dto.DTOeventoSubida
 import com.example.appmovilshowpass.model.Categoria
-import com.example.appmovilshowpass.utils.formatearFecha
+import com.example.appmovilshowpass.utils.formatearFechayHora
 import com.example.appmovilshowpass.utils.imagenToBase64
 import com.example.appmovilshowpass.viewmodel.EventoViewModel
 import kotlinx.coroutines.launch
@@ -171,10 +171,10 @@ fun CrearEventoScreen(
             DropdownMenuCategoria(categoria) { categoria = it }
 
             FieldSection("Fecha y Hora") {
-                DateTimeInput("Inicio", formatearFecha(inicioEvento)) {
+                DateTimeInput("Inicio", formatearFechayHora(inicioEvento)) {
                     showDateTimePicker(context) { inicioEvento = it }
                 }
-                DateTimeInput("Fin", formatearFecha(finEvento)) {
+                DateTimeInput("Fin", formatearFechayHora(finEvento)) {
                     showDateTimePicker(context) { finEvento = it }
                 }
             }

@@ -32,6 +32,9 @@ interface UsuarioApiService {
     @PUT("tfg/usuario/reportar")
     suspend fun reportUser(@Query("email") email: String): DTOUsuarioReportado
 
+    @GET("tfg/usuario/findById/{id}")
+    suspend fun getUserById(@Path("id") id: Long): DTOusuarioBajada
+
     @GET("tfg/usuario/findByEmail")
     suspend fun findUserByEmail(@Query("email") email: String): DTOUsuarioReportado
 
@@ -43,5 +46,7 @@ interface UsuarioApiService {
 
     @DELETE("tfg/usuario/delete/{id}")
     suspend fun deleteUser(@Path("id") id: Long): Int
+
+
 
 }

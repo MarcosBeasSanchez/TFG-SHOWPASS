@@ -2,14 +2,19 @@ package com.example.appmovilshowpass.ui.screens
 
 import AuthViewModel
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PersonOutline
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Key
@@ -37,6 +42,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.example.appmovilshowpass.ui.components.Cabecera
+import com.example.appmovilshowpass.ui.theme.Roboto
+import com.example.appmovilshowpass.utils.construirUrlImagen
+import com.example.appmovilshowpass.utils.formatearFecha
 import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
 
@@ -57,14 +66,17 @@ fun UsuarioScreen(
 
     // Cuando hay usuario logueado
     if (user != null) {
-
         PullToRefreshBox(
             isRefreshing = isRefreshing,
             onRefresh = {
                 scope.launch {
                     isRefreshing = true
-                    authViewModel.login(context, user.email, user.password ?: "") { success ->
-                        isRefreshing = false
+                    authViewModel.fetchLoggedInUser(context) { success ->
+                        // Si la recarga falla, puedes mostrar un Toast o un Snackbar
+                        if (!success) {
+                            Toast.makeText(context, authViewModel.error, Toast.LENGTH_SHORT).show()
+                        }
+                        isRefreshing = false // Detener el indicador de carga
                     }
                 }
             },
@@ -74,18 +86,20 @@ fun UsuarioScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(scrollState) // habilita scroll
-                    .padding(vertical = 10.dp, horizontal = 16.dp),
+                    .padding(vertical = 0.dp, horizontal = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
+                Cabecera("Perfil", Icons.Default.Person)
                 // Avatar
                 if (user.foto.isNotEmpty()) {
                     AsyncImage(
-                        model = user.foto,
+                        model = construirUrlImagen(user.foto),
                         contentDescription = "Avatar",
                         modifier = Modifier
                             .size(96.dp)
                             .padding(4.dp)
-                            .clip(CircleShape),
+                            .clip(CircleShape)
+                            .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape),
                         contentScale = ContentScale.Crop
                     )
                 } else {
@@ -117,7 +131,14 @@ fun UsuarioScreen(
                     Column(
                         modifier = Modifier.padding(16.dp)
                     ) {
-                        Text("Datos Personales", style = MaterialTheme.typography.titleMedium)
+                        Row {
+                            Icon(
+                                imageVector = Icons.Outlined.AccountCircle,
+                                contentDescription = "cuenta",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp).align(Alignment.CenterVertically))
+                            Text("Datos Personales", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 5.dp).align(Alignment.CenterVertically))
+                        }
                         HorizontalDivider(
                             Modifier.padding(vertical = 8.dp),
                             DividerDefaults.Thickness,
@@ -125,7 +146,7 @@ fun UsuarioScreen(
                         )
                         InfoRow("Nombre", user.nombre)
                         InfoRow("Email", user.email)
-                        InfoRow("Fecha de nacimiento", user.fechaNacimiento.toString())
+                        InfoRow("Fecha de nacimiento", formatearFecha(user.fechaNacimiento.toString()))
                         InfoRow("Rol", user.rol.toString())
                         InfoRow(
                             "Contraseña",
@@ -146,9 +167,14 @@ fun UsuarioScreen(
                     Column(
                         modifier = Modifier.padding(16.dp)
                     ) {
-                        Log.d("UsuarioScreen", "Usuario: ${user}")
-
-                        Text("Tarjeta Bancaria", style = MaterialTheme.typography.titleMedium)
+                        Row {
+                            Icon(
+                                imageVector = Icons.Filled.CreditCard,
+                                contentDescription = "tarjeta",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp).align(Alignment.CenterVertically))
+                            Text("Tarjeta Bancaria", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 5.dp).align(Alignment.CenterVertically))
+                        }
                         HorizontalDivider(
                             Modifier.padding(vertical = 8.dp),
                             DividerDefaults.Thickness,
@@ -236,7 +262,13 @@ fun UsuarioScreen(
             Text(
                 buildAnnotatedString {
                     append("Bienvenido a ")
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Black)) {
+                    withStyle(
+                        style = SpanStyle(
+                            fontFamily = Roboto, // Especifica la familia de fuentes Roboto
+                            fontWeight = FontWeight.ExtraBold // Selecciona el archivo roboto_extrabold.ttf
+                        )
+                    ) {
+                        // Nota: No uses Text() dentro de append, solo la String.
                         append("SHOWPASS")
                     }
                 },
@@ -266,7 +298,7 @@ fun UsuarioScreen(
                         .height(50.dp),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("Iniciar sesión")
+                    Text(text = "Iniciar sesión", fontWeight = FontWeight.SemiBold)
                     Icon(
                         imageVector = Icons.Outlined.Login,
                         contentDescription = "Iniciar sesión",
@@ -280,7 +312,7 @@ fun UsuarioScreen(
                         .height(50.dp),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("Crear cuenta")
+                    Text(text="Crear cuenta", fontWeight = FontWeight.SemiBold)
                     Icon(
                         imageVector = Icons.Outlined.PersonAdd,
                         contentDescription = "Crear cuenta",

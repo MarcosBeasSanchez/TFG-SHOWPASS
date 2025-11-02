@@ -10,6 +10,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -29,6 +30,7 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PersonOutline
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -53,10 +55,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.appmovilshowpass.ui.components.Cabecera
+import com.example.appmovilshowpass.utils.construirUrlImagen
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.util.Calendar
@@ -148,11 +154,13 @@ fun UsuarioEditScreen(
     ) { padding ->
         Column(
             modifier = Modifier
-                .padding(padding)
+                .padding(0.dp, 0.dp, 0.dp, padding.calculateBottomPadding())
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+                .padding(16.dp, 0.dp, 16.dp, 10.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // --- TÍTULO ---
+            Cabecera("Editar Perfil", Icons.Default.PersonOutline)
             // --- FOTO DE PERFIL ---
             Box(
                 modifier = Modifier
@@ -162,7 +170,7 @@ fun UsuarioEditScreen(
             ) {
                 if (foto != null) {
                     AsyncImage(
-                        model = foto,
+                        model = construirUrlImagen(foto),
                         contentDescription = "Foto de perfil",
                         modifier = Modifier
                             .size(120.dp)

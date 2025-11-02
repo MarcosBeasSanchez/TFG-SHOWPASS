@@ -1,5 +1,6 @@
 package com.example.appmovilshowpass.ui.screens
 import AuthViewModel
+import android.graphics.drawable.Icon
 import android.webkit.WebView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -46,6 +47,9 @@ import com.example.appmovilshowpass.data.local.DatosDesarrolladores
 import java.util.Calendar
 import android.webkit.WebViewClient
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
+import com.example.appmovilshowpass.ui.components.Cabecera
 import android.graphics.Color as GraphicsColor // Para evitar conflicto de nombres
 
 @Composable
@@ -60,7 +64,7 @@ fun InfoScreen(
                 .padding(0.dp)
         ) {
             item { AboutSection() }
-            item { Spacer(modifier = Modifier.height(24.dp)) }
+            item { Spacer(modifier = Modifier.height(20.dp)) }
             item { ContactSection() }
             item { Spacer(modifier = Modifier.height(32.dp)) }
             item {AppFooter(navController)}
@@ -77,15 +81,9 @@ fun AboutSection() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
-            .padding(8.dp)
+            .padding(vertical = 0.dp, horizontal = 16.dp)
     ) {
-        Text(
-            text = "Sobre Nosotros",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
+       Cabecera(texto = "Sobre Nosotros", imageVector = Icons.Default.Info)
         Text(
             text = "Somos dos estudiantes apasionados por la tecnología y el desarrollo de software. Este proyecto es nuestro Trabajo de Fin de Grado (TFG), donde hemos puesto en práctica todos los conocimientos adquiridos durante el Grado Superior de Desarrollo de Aplicaciones Multiplataforma.",
             modifier = Modifier.padding(bottom = 8.dp),
@@ -99,8 +97,8 @@ fun AboutSection() {
 
         Text(
             text = "¿Quiénes somos?",
-            style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.SemiBold,
+            fontSize = 20.sp,
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
@@ -131,8 +129,8 @@ fun ContactSection() {
     val URL = """https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d6076.256045189071!2d-3.6002503999999997!3d40.4060146!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd42255d3a247575%3A0xd8a0a40edf810cff!2sIES%20Villablanca!5e0!3m2!1ses!2ses!4v1761835115028!5m2!1ses!2ses" width="100%" height="800" ;"""
     val googleMapsIframeHtml = """
     <iframe src="$URL" 
-        style="border:1;" 
-        allowfullscreen="True" 
+        style="border:0;" 
+        allowfullscreen="False" 
         loading="lazy" 
         referrerpolicy="no-referrer-when-downgrade">
     </iframe>
@@ -145,8 +143,8 @@ fun ContactSection() {
     ) {
         Text(
             text = "Contáctanos",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 20.sp,
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .fillMaxWidth()
@@ -181,12 +179,11 @@ fun MemberContactCard(dev: Desarrollador, uriHandler: UriHandler) {
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface)
     ) {
-        // 🌟 CAMBIO CLAVE: Column con alineación horizontal centrada
         Column(
             modifier = Modifier
                 .width(150.dp)
-                .padding(12.dp), // Aplicamos el padding interno aquí
-            horizontalAlignment = Alignment.CenterHorizontally // Centra todo el contenido
+                .padding(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             AsyncImage(
                 model = dev.photo,
@@ -293,7 +290,7 @@ fun WebViewComposable(htmlContent: String, modifier: Modifier = Modifier) {
     val context = LocalContext.current
 
     AndroidView(
-        modifier = modifier,
+        modifier = modifier.clip(RoundedCornerShape(8.dp)),
         factory = {
             WebView(context).apply {
                 // Configuración para permitir JavaScript (necesario para muchos iframes)

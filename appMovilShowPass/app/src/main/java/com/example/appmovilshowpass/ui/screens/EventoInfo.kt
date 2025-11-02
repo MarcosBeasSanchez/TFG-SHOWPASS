@@ -31,7 +31,7 @@ import com.example.appmovilshowpass.data.remote.dto.toEvento
 import com.example.appmovilshowpass.model.Evento
 import com.example.appmovilshowpass.ui.components.BotonesComprarTicket
 import com.example.appmovilshowpass.utils.construirUrlImagen
-import com.example.appmovilshowpass.utils.formatearFecha
+import com.example.appmovilshowpass.utils.formatearFechayHora
 import com.example.appmovilshowpass.utils.formatearPrecio
 import com.example.appmovilshowpass.viewmodel.CarritoViewModel
 import kotlinx.coroutines.launch
@@ -90,7 +90,8 @@ fun EventoInfo(
                         .padding(14.dp)
                 ) {
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text(e.nombre, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                    Text(e.nombre, fontSize = 24.sp, fontWeight = FontWeight.SemiBold)
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(e.localizacion, fontSize = 18.sp)
                     Spacer(modifier = Modifier.height(8.dp))
                     Row(
@@ -99,13 +100,13 @@ fun EventoInfo(
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
                         Text(
-                            "Inicio: ${formatearFecha(e.inicioEvento)}",
+                            "Inicio: ${formatearFechayHora(e.inicioEvento)}",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Light,
                         )
                         Spacer(modifier = Modifier.width(16.dp))
                         Text(
-                            "Fin: ${formatearFecha(e.finEvento)}",
+                            "Fin: ${formatearFechayHora(e.finEvento)}",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Light,
                         )

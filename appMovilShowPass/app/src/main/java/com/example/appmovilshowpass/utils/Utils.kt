@@ -26,9 +26,10 @@ import androidx.core.graphics.set
 import com.example.appmovilshowpass.data.local.SERVER_BASE_URL_FOTOS
 import com.itextpdf.text.pdf.PdfContentByte
 import kotlinx.coroutines.Dispatchers
+import java.time.LocalDate
 import java.util.Calendar
 
-fun formatearFecha(fecha: String, formato: String = "dd/MM/yyyy HH:mm"): String {
+fun formatearFechayHora(fecha: String, formato: String = "dd/MM/yyyy HH:mm"): String {
     return try {
         val parsed = LocalDateTime.parse(fecha, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
         parsed.format(DateTimeFormatter.ofPattern(formato))
@@ -36,6 +37,16 @@ fun formatearFecha(fecha: String, formato: String = "dd/MM/yyyy HH:mm"): String 
         fecha
     }
 }
+
+fun formatearFecha(fecha: String, formato: String = "dd/MM/yyyy"): String {
+    return try {
+        val parsed = LocalDate.parse(fecha, DateTimeFormatter.ISO_LOCAL_DATE)
+        parsed.format(DateTimeFormatter.ofPattern(formato))
+    } catch (e: Exception) {
+        fecha
+    }
+}
+
 
 fun formatearPrecio(precio: Double): String {
     return String.format("%.2f", precio)
@@ -223,40 +234,4 @@ fun imagenToBase64(context: Context, uri: Uri): String {
     val input = context.contentResolver.openInputStream(uri)
     val bytes = input?.readBytes() ?: return ""
     return Base64.encodeToString(bytes, Base64.NO_WRAP)
-}
-
- fun formatearFechaBonita(dateIso: String?): String {
-    if (dateIso.isNullOrBlank()) return "Seleccionar fecha"
-    return try {
-        val fecha = LocalDateTime.parse(dateIso)
-        fecha.format(DateTimeFormatter.ofPattern("dd MMM yyyy - HH:mm"))
-    } catch (e: Exception) {
-        dateIso
-    }
-}
-
-/** Date+Time picker que devuelve ISO-8601 (yyyy-MM-ddTHH:mm) */
- fun showDateTimePickerEdit(
-    context: Context,
-    onSelect: (String) -> Unit
-) {
-    val cal = Calendar.getInstance()
-    DatePickerDialog(
-        context,
-        { _, year, month, day ->
-            TimePickerDialog(
-                context,
-                { _, hour, minute ->
-                    val fecha = LocalDateTime.of(year, month + 1, day, hour, minute).toString()
-                    onSelect(fecha)
-                },
-                cal.get(Calendar.HOUR_OF_DAY),
-                cal.get(Calendar.MINUTE),
-                true
-            ).show()
-        },
-        cal.get(Calendar.YEAR),
-        cal.get(Calendar.MONTH),
-        cal.get(Calendar.DAY_OF_MONTH)
-    ).show()
 }

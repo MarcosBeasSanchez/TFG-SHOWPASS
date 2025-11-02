@@ -52,9 +52,8 @@ public class ControlUsuario {
 		DTOusuarioLoginBajada dtoBajada;
 		dtoBajada = daoUsuario.login(dtologin);
 		return ResponseEntity.ok(dtoBajada);
-		
 	}
-	
+		
 	@PostMapping("insert")
 	public ResponseEntity<DTOusuarioBajada> insertarUsuario(@RequestBody DTOusuarioSubida usu) {
 		DTOusuarioBajada dtoBajada;

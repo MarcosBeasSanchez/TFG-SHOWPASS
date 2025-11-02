@@ -79,7 +79,7 @@ fun CarritoScreen(
 
     Column(modifier = Modifier.fillMaxSize()) {
 
-        // 🔹 Título superior
+        // Título superior
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -98,11 +98,11 @@ fun CarritoScreen(
             Text(
                 text = "Carrito de Compra",
                 fontWeight = FontWeight.Bold,
-                fontSize = 24.sp
+                fontSize = 20.sp
             )
         }
 
-        // 🔹 Carrito vacío
+        //  Carrito vacío
         if (carrito?.items.isNullOrEmpty()) {
             Box(
                 modifier = Modifier
@@ -174,10 +174,12 @@ fun CarritoScreen(
                 contentPadding = PaddingValues(12.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(carrito?.items ?: emptyList()) { item ->
+                items(carrito?.items ?: emptyList(),
+                    key = { item -> item.id }
+                ) { item ->
                     CarritoItemCard(
                         item = item,
-                        onEliminar = { carritoViewModel.eliminarItem(usuarioId, item.id) }
+                        onEliminar = { carritoViewModel.eliminarItem( usuarioId,item.id) }
                     )
                 }
             }
@@ -202,7 +204,7 @@ fun CarritoScreen(
                     Spacer(modifier = Modifier.height(12.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         OutlinedButton(
                             onClick = { carritoViewModel.vaciarCarrito(usuarioId) },

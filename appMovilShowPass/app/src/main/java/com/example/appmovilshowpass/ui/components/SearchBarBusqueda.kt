@@ -72,7 +72,7 @@ fun SearchBarBusqueda(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(10.dp)
+            .padding(0.dp)
     ) {
         // Barra de búsqueda siempre visible
         DockedSearchBar(

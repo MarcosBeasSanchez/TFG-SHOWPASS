@@ -64,7 +64,7 @@ import coil.compose.AsyncImagePainter.State.Empty.painter
 import coil.compose.rememberAsyncImagePainter
 import com.example.appmovilshowpass.model.Categoria
 import com.example.appmovilshowpass.utils.construirUrlImagen
-import com.example.appmovilshowpass.utils.formatearFecha
+import com.example.appmovilshowpass.utils.formatearFechayHora
 import com.example.appmovilshowpass.viewmodel.EventoViewModel
 
 
@@ -177,7 +177,7 @@ fun EditarEventoScreen(
                //  Fecha y hora inicio y fin
                 DateTimeInput(
                     text = "Inicio",
-                    value = formatearFecha(inicioEvento),
+                    value = formatearFechayHora(inicioEvento),
                     onClick = {
                         showDateTimePicker(context) { newDateTime ->
                             inicioEvento = newDateTime
@@ -186,7 +186,7 @@ fun EditarEventoScreen(
                 )
                 DateTimeInput(
                     text = "Fin",
-                    value = formatearFecha(finEvento),
+                    value = formatearFechayHora(finEvento),
                     onClick = {
                         showDateTimePicker(context) { newDateTime ->
                             finEvento = newDateTime
