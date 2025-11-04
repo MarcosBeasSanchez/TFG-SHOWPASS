@@ -234,7 +234,7 @@ fun EditarEventoScreen(
 
                     eventoViewModel.actualizarEvento(eventoId, dto) {
                         scope.launch { //  Aquí sí usamos coroutine porque showSnackbar es suspend
-                            snackbarHostState.showSnackbar("✅ Evento actualizado")
+                            snackbarHostState.showSnackbar(" Evento actualizado")
                             navController.popBackStack()
                         }
                     }

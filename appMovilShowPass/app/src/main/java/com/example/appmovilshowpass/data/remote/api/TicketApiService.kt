@@ -15,7 +15,7 @@ interface TicketApiService {
     @GET("tfg/ticket/findByUsuarioId/{usuarioId}")
     suspend fun obtenerTicketsPorUsuario(@Path("usuarioId")usuarioId: Long): List<DTOTicketBajada>
 
-    @POST("tfg/ticket/enviarPdfEmail")
+    @POST("tfg/utilidades/enviarPdfEmail")
     suspend fun enviarPdfEmail(@Body body: Map<String, String>): Response<Map<String, String>>
 
 

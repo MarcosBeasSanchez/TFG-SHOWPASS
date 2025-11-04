@@ -110,6 +110,8 @@ fun UsuarioScreen(
                         modifier = Modifier.size(96.dp)
                     )
                 }
+                Log.d("INVITADO_IMG", "ORIGINAL: ${user.foto}")
+
 
 
                 Spacer(Modifier.height(12.dp))

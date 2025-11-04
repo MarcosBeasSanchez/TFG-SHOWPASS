@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Celebration
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Email
@@ -173,10 +174,12 @@ fun TicketsScreen(
                         style = MaterialTheme.typography.titleMedium
                     )
                     Text(
-                        text = "Explora eventos y vive la diversión 🎉",
+                        text = "Explora eventos y vive la diversión",
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.Gray
                     )
+
+                    Icon(Icons.Default.Celebration, contentDescription = null)
 
                     Spacer(modifier = Modifier.height(12.dp))
 
@@ -249,10 +252,10 @@ fun TicketCard(
     var descargando by remember { mutableStateOf(false) }
     var mostrarDialogoEliminar by remember { mutableStateOf(false) }
 
-    // 🔹 Estado para el evento cargado desde el API
+    //  Estado para el evento cargado desde el API
     var evento by remember { mutableStateOf<Evento?>(null) }
 
-    // 🔹 Cargar el evento cuando se crea el composable
+    //  Cargar el evento cuando se crea el composable
     LaunchedEffect(ticket.eventoId) {
         try {
             val dtoEvento = RetrofitClient.eventoApiService.findById(ticket.eventoId)
@@ -273,7 +276,7 @@ fun TicketCard(
                 .fillMaxWidth()
                 .padding(12.dp)
         ) {
-            // 🔹 Imagen del evento si ya se cargó
+            //  Imagen del evento si ya se cargó
             if (evento?.imagen?.isNotEmpty() == true) {
                 Image(
                     painter = rememberAsyncImagePainter(construirUrlImagen(evento!!.imagen)),
@@ -287,7 +290,7 @@ fun TicketCard(
                 Spacer(Modifier.height(10.dp))
             }
 
-            // 🔹 Información básica
+            //  Información básica
             Text(evento?.nombre ?: ticket.nombreEvento, fontWeight = FontWeight.Bold, fontSize = 18.sp)
 
             if (evento != null) {
@@ -320,7 +323,7 @@ fun TicketCard(
 
             Spacer(Modifier.height(10.dp))
 
-            // 🔹 Botones de acción
+            //  Botones de acción
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -399,7 +402,7 @@ fun TicketCard(
                             Icon(
                                 Icons.Default.Email,
                                 contentDescription = "Enviar",
-                                modifier = Modifier.size(24.dp) // Icono más pequeño para el rectángulo
+                                modifier = Modifier.size(24.dp)
                             )
                         }
                     }
@@ -431,7 +434,7 @@ fun TicketCard(
         }
     }
 
-    // 🔹 Diálogo de confirmación
+    //  Diálogo de confirmación
     if (mostrarDialogoEliminar) {
         AlertDialog(
             onDismissRequest = { mostrarDialogoEliminar = false },

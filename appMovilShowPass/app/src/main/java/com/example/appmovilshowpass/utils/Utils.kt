@@ -29,6 +29,7 @@ import com.itextpdf.text.pdf.PdfContentByte
 import com.itextpdf.text.pdf.PdfPCell
 import com.itextpdf.text.pdf.PdfPTable
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import java.time.LocalDate
 import java.util.Calendar
 
@@ -67,123 +68,188 @@ fun generarTicketPdf(
     eventoImagenUrl: String?
 ): String {
     val file = File(context.cacheDir, "ticket_${ticket.id}.pdf")
-    val document = Document(PageSize.A5)
-    val writer = PdfWriter.getInstance(document, FileOutputStream(file))
+    val document = Document(PageSize.A5, 30f, 30f, 30f, 30f)
+    PdfWriter.getInstance(document, FileOutputStream(file))
     document.open()
 
-    val azul = BaseColor(0, 45, 98)
-    val grisFondo = BaseColor(245, 245, 245)
-    val fontTitulo = Font(Font.FontFamily.HELVETICA, 18f, Font.BOLD, azul)
-    val fontEvento = Font(Font.FontFamily.HELVETICA, 16f, Font.BOLD, BaseColor.YELLOW)
-    val fontTexto = Font(Font.FontFamily.HELVETICA, 10f, Font.NORMAL, BaseColor.WHITE)
-    val fontTextoNegro = Font(Font.FontFamily.HELVETICA, 10f, Font.NORMAL, BaseColor.BLACK)
-    val fontPeque = Font(Font.FontFamily.HELVETICA, 8f, Font.ITALIC, BaseColor.GRAY)
+    // Colores
+    val azulOscuro = BaseColor(0, 45, 98)
+    val grisFondo = BaseColor(240, 240, 240)
+    val amarilloTitulo = BaseColor(255, 204, 0)
+    val grisTexto = BaseColor(120, 120, 120)
 
-    val tableMain = PdfPTable(1)
-    tableMain.widthPercentage = 100f
+    // Fuentes
+    val fontHeaderAzul = Font(Font.FontFamily.HELVETICA, 18f, Font.BOLD, azulOscuro)
+    val fontEvento = Font(Font.FontFamily.HELVETICA, 16f, Font.BOLD, amarilloTitulo)
+    val fontTextoBlanco = Font(Font.FontFamily.HELVETICA, 10f, Font.BOLD, BaseColor.WHITE)
+    val fontNegro = Font(Font.FontFamily.HELVETICA, 11f, Font.NORMAL, BaseColor.BLACK)
+    val fontNegroBold = Font(Font.FontFamily.HELVETICA, 11f, Font.BOLD, BaseColor.BLACK)
+    val fontGris = Font(Font.FontFamily.HELVETICA, 11f, Font.NORMAL, grisTexto)
 
-    // ---Encabezado SHOWPASS ---
-    val header = PdfPCell(Phrase("SHOWPASS", fontTitulo))
-    header.backgroundColor = BaseColor(230, 236, 247)
-    header.horizontalAlignment = Element.ALIGN_LEFT
-    header.border = Rectangle.NO_BORDER
-    header.paddingTop = 10f
-    header.paddingBottom = 10f
-
-    tableMain.addCell(header)
-
-    // ---Sección principal azul ---
-    val tableEvent = PdfPTable(floatArrayOf(1f, 2f, 1f))
-    tableEvent.widthPercentage = 100f
-
-    val cellEventBg = PdfPCell()
-    cellEventBg.backgroundColor = azul
-    cellEventBg.colspan = 3
-    cellEventBg.border = Rectangle.NO_BORDER
-    cellEventBg.paddingTop = 8f
-    cellEventBg.paddingBottom = 8f
-
-
-    // Imagen del evento
-    val imgCell = PdfPCell()
-    imgCell.border = Rectangle.NO_BORDER
-    imgCell.backgroundColor = azul
-    eventoImagenUrl?.let { url ->
-        val img = cargarImagen(construirUrlImagen(url))
-        img?.scaleToFit(100f, 100f)
-        img?.let { imgCell.addElement(it) }
+    // ======= Encabezado con rectángulo gris =======
+    val headTable = PdfPTable(1).apply { widthPercentage = 100f }
+    val headCell = PdfPCell(Phrase("SHOWPASS", fontHeaderAzul)).apply {
+        backgroundColor = grisFondo
+        border = Rectangle.NO_BORDER
+        setPadding(12f)
+        horizontalAlignment = Element.ALIGN_LEFT
     }
-    tableEvent.addCell(imgCell)
+    headTable.addCell(headCell)
+    document.add(headTable)
+    document.add(Paragraph("\n"))
 
-    // Datos del evento
-    val info = Paragraph()
-    info.add(Chunk("${ticket.nombreEvento}\n", fontEvento))
-    info.add(Chunk("Inicio del evento: $eventoFecha\n", fontTexto))
-    info.add(Chunk("Fecha de compra: ${ticket.fechaCompra}\n", fontTexto))
-    info.add(Chunk("Precio: ${String.format("%.2f €", ticket.precioPagado)}", fontTexto))
+    // ======= Bloque azul principal =======
+    val tablaAzul = PdfPTable(floatArrayOf(1.3f, 2f, 1.2f)).apply {
+        widthPercentage = 100f
+        spacingBefore = 4f
+        spacingAfter = 6f
+    }
 
-    val infoCell = PdfPCell(info)
-    infoCell.border = Rectangle.NO_BORDER
-    infoCell.backgroundColor = azul
-    tableEvent.addCell(infoCell)
+    val alturaFila = 110f
 
-    // Código QR
-    val qrCell = PdfPCell()
-    qrCell.border = Rectangle.NO_BORDER
-    qrCell.backgroundColor = azul
-    val qrImg = cargarImagen(construirUrlImagen(ticket.codigoQR))
-    qrImg?.scaleToFit(90f, 90f)
-    qrImg?.let { qrCell.addElement(it) }
-    tableEvent.addCell(qrCell)
+    // Imagen del evento (izquierda)
+    val imgCell = PdfPCell().apply {
+        backgroundColor = azulOscuro
+        border = Rectangle.NO_BORDER
+        setPadding(10f)
+        setFixedHeight(alturaFila)
+        horizontalAlignment = Element.ALIGN_CENTER
+        verticalAlignment = Element.ALIGN_MIDDLE
+    }
+    eventoImagenUrl?.let { url ->
+        val fullUrl = construirUrlImagen(url)
+        Log.d("TicketPDF", "Cargando imagen evento desde: $fullUrl")
+        val img = cargarImagen(fullUrl)
+        if (img != null) {
+            img.scaleToFit(85f, 75f) // más pequeña para no salirse
+            img.alignment = Element.ALIGN_CENTER
+            imgCell.addElement(img)
+        } else Log.e("TicketPDF", " Imagen evento no cargada")
+    }
+    tablaAzul.addCell(imgCell)
 
-    tableMain.addCell(tableEvent)
+    // Texto del evento (centro)
+    val infoEvento = Paragraph().apply {
+        add(Chunk("${ticket.nombreEvento}\n", fontEvento))
+        add(Chunk("Inicio del evento: ${formatearFechaFlexible(eventoFecha)}\n", fontTextoBlanco))
+        add(Chunk("Fecha de compra: ${formatearFechaFlexible(ticket.fechaCompra)}\n", fontTextoBlanco))
+        add(Chunk("Precio: ${"%.2f €".format(ticket.precioPagado)}", fontTextoBlanco))
+        setLeading(0f, 1.2f) // interlineado
+    }
+    val infoCell = PdfPCell(infoEvento).apply {
+        backgroundColor = azulOscuro
+        border = Rectangle.NO_BORDER
+        setPadding(12f)
+        setFixedHeight(alturaFila)
+        verticalAlignment = Element.ALIGN_MIDDLE
+    }
+    tablaAzul.addCell(infoCell)
 
-    // ---Sección inferior---
-    val infoInferior = """
-        ID Ticket: ${ticket.id}
-        Usuario ID: ${ticket.usuarioId}
-        Evento ID: ${ticket.eventoId}
-        Nombre del evento: ${ticket.nombreEvento}
-        Inicio del evento: $eventoFecha
-    """.trimIndent()
+    // QR (derecha)
+    val qrCell = PdfPCell().apply {
+        backgroundColor = azulOscuro
+        border = Rectangle.NO_BORDER
+        setPadding(6f)
+        setFixedHeight(alturaFila)
+        horizontalAlignment = Element.ALIGN_CENTER
+        verticalAlignment = Element.ALIGN_MIDDLE
+    }
+    val qrUrl = construirUrlImagen(ticket.codigoQR)
+    Log.d("TicketPDF", "🔳 Cargando QR desde: $qrUrl")
+    val qrImg = cargarImagen(qrUrl)
+    if (qrImg != null) {
+        qrImg.scaleToFit(85f, 95f)
+        qrImg.alignment = Element.ALIGN_CENTER
+        qrCell.addElement(qrImg)
+    } else Log.e("TicketPDF", "❌ QR no cargado")
+    tablaAzul.addCell(qrCell)
 
-    val bottomCell = PdfPCell(Phrase(infoInferior, fontTextoNegro))
-    bottomCell.backgroundColor = grisFondo
-    bottomCell.border = Rectangle.NO_BORDER
-    bottomCell.paddingTop = 10f
-    bottomCell.paddingBottom = 10f
-    tableMain.addCell(bottomCell)
+    document.add(tablaAzul)
 
-    val note = PdfPCell(Phrase("Prohibida la reventa. No reembolsable. Mostrar en la entrada del evento.", fontPeque))
-    note.border = Rectangle.NO_BORDER
-    note.horizontalAlignment = Element.ALIGN_CENTER
-    tableMain.addCell(note)
+    // ======= Bloque gris inferior =======
+    val parInfo = Paragraph().apply {
+        add(Chunk("ID Ticket: ", fontNegroBold));   add(Chunk("${ticket.id}\n", fontNegro))
+        add(Chunk("Usuario ID: ", fontNegroBold));  add(Chunk("${ticket.usuarioId}\n", fontNegro))
+        add(Chunk("Evento ID: ", fontNegroBold));   add(Chunk("${ticket.eventoId}\n", fontNegro))
+        add(Chunk("Nombre del evento: ", fontNegroBold)); add(Chunk("${ticket.nombreEvento}\n", fontNegro))
+        add(Chunk("Inicio del evento: ", fontNegroBold)); add(Chunk("${formatearFechaFlexible(eventoFecha)}\n\n", fontNegro))
+        add(Chunk("Prohibida la reventa. No reembolsable. Mostrar en la entrada del evento.", fontGris))
+        setLeading(0f, 1.25f)
+    }
 
-    document.add(tableMain)
+    val celdaGris = PdfPCell(parInfo).apply {
+        backgroundColor = grisFondo
+        border = Rectangle.NO_BORDER
+        setPadding(12f)
+        setMinimumHeight(90f)
+    }
+
+    PdfPTable(1).apply {
+        widthPercentage = 100f
+        addCell(celdaGris)
+        document.add(this)
+    }
+
     document.close()
-
     val pdfBytes = file.readBytes()
     return Base64.encodeToString(pdfBytes, Base64.NO_WRAP)
 }
 
 /**
- * Carga una imagen desde URL o Base64 (devuelve Image de iText)
+ * Carga imagen desde URL o Base64 (con logs).
  */
 private fun cargarImagen(ruta: String?): Image? {
     if (ruta.isNullOrBlank()) return null
     return try {
         val bytes = when {
-            ruta.startsWith("http") -> URL(ruta).openStream().use { it.readBytes() }
-            ruta.startsWith("data:image") -> {
-                val base64 = ruta.substringAfter(",")
-                Base64.decode(base64, Base64.DEFAULT)
+            ruta.startsWith("http") -> {
+                runBlocking(Dispatchers.IO) {
+                    try {
+                        URL(ruta).openStream().use { it.readBytes() }
+                    } catch (e: Exception) {
+                        Log.e("TicketPDF", "Error al descargar imagen: ${e.message}")
+                        ByteArray(0)
+                    }
+                }
             }
+            ruta.startsWith("data:image") -> Base64.decode(ruta.substringAfter(","), Base64.DEFAULT)
             else -> Base64.decode(ruta, Base64.DEFAULT)
         }
-        Image.getInstance(bytes)
+        if (bytes.isNotEmpty()) Image.getInstance(bytes) else null
     } catch (e: Exception) {
-        Log.e("PDF", "Error cargando imagen: ${e.message}")
+        Log.e("TicketPDF", "Error cargando imagen: ${e.message}")
         null
+    }
+}
+
+/**
+ * Formatea fecha a dd/M/yyyy, HH:mm:ss
+ */
+private fun formatearFechaFlexible(fecha: String): String {
+    val salida = DateTimeFormatter.ofPattern("d/M/yyyy, HH:mm:ss")
+    val candidatos = listOf(
+        "yyyy-MM-dd'T'HH:mm:ss",
+        "yyyy-MM-dd'T'HH:mm",
+        "yyyy-MM-dd HH:mm:ss",
+        "yyyy-MM-dd HH:mm"
+    )
+    for (pat in candidatos) {
+        try {
+            val entrada = DateTimeFormatter.ofPattern(pat)
+            val parsed = LocalDateTime.parse(fecha.take(19).replace('T',' '), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm[:ss]".replace("[:ss]", if (fecha.length>=19) ":ss" else "")))
+            return parsed.format(salida)
+        } catch (_: Exception) {}
+        try {
+            val entrada = DateTimeFormatter.ofPattern(pat)
+            return LocalDateTime.parse(fecha.substring(0, minOf(fecha.length, pat.length)), entrada).format(salida)
+        } catch (_: Exception) {}
+    }
+    // último intento: si viene como 2025-11-02T09:00
+    return try {
+        val entrada = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")
+        LocalDateTime.parse(fecha.substring(0, 16), entrada).format(salida)
+    } catch (_: Exception) {
+        fecha // tal cual si no se pudo
     }
 }
 

@@ -128,7 +128,7 @@ fun CrearEventoScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            // ✅ 💎 Portada bonita igual que en EditarEvento
+            //  Portada bonita igual que en EditarEvento
             Card(
                 Modifier.fillMaxWidth().height(210.dp),
                 shape = RoundedCornerShape(12.dp)
@@ -158,7 +158,7 @@ fun CrearEventoScreen(
                 Text("Seleccionar Imagen Principal")
             }
 
-            // ✅ Campos
+            //  Campos
             FieldSection("Información del Evento") {
                 LabeledInput(nombre, { nombre = it }, "Nombre", Icons.Default.Event)
                 LabeledInput(localizacion, { localizacion = it }, "Localización", Icons.Default.Place)
@@ -179,7 +179,7 @@ fun CrearEventoScreen(
                 }
             }
 
-            // ✅ Carrusel igual con preview como Editar
+            // Carrusel igual con preview como Editar
             FieldSection("Carrusel de imágenes") {
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                     items(carrusel) { img ->
@@ -201,7 +201,7 @@ fun CrearEventoScreen(
                 }
             }
 
-            // ✅ Invitados estilo tarjeta igual EditarEvento
+            //  Invitados estilo tarjeta igual EditarEvento
             InvitadoEditorUIEdit(invitados)
 
             Button(
@@ -228,7 +228,7 @@ fun CrearEventoScreen(
 
                     eventoViewModel.crearEvento(dto) {
                         scope.launch {
-                            snackbarHostState.showSnackbar("✅ Evento creado")
+                            snackbarHostState.showSnackbar("Evento creado")
                             navController.popBackStack()
                         }
                     }
@@ -243,7 +243,7 @@ fun CrearEventoScreen(
 }
 
 
-// ✅ Helpers visuales reutilizables
+// Helpers visuales reutilizables
 
 @Composable
 fun FieldSection(title: String, content: @Composable ColumnScope.() -> Unit) {
@@ -290,7 +290,7 @@ fun InvitadoEditorUI(invitados: MutableList<DTOInvitadoSubida>) {
         }) { Text("Agregar Invitado") }
 
         if (invitados.isNotEmpty()) {
-            Text("✅ ${invitados.size} invitados añadidos")
+            Text(" ${invitados.size} invitados añadidos")
         }
     }
 }

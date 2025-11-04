@@ -15,6 +15,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -22,6 +25,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -49,16 +53,18 @@ fun EventAdminScreen(
     onBack: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
-    // Estado que guarda todos los eventos
     var eventos by remember { mutableStateOf<List<Evento>>(emptyList()) }
-    // Estado para la barra de búsqueda
     var search by remember { mutableStateOf("") }
 
-    // Cuando se abre la pantalla, pedimos al backend todos los eventos
+    // Controla si se muestra el diálogo y cuál evento se está eliminando
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var eventoSeleccionado by remember { mutableStateOf<Evento?>(null) }
+
+    // Cargar todos los eventos al entrar
     LaunchedEffect(Unit) {
         scope.launch {
             val dtoEventos = RetrofitClient.eventoApiService.obtenerTodosEventos()
-            eventos = dtoEventos.map { it.toEvento() } // Convertimos DTO -> Modelo
+            eventos = dtoEventos.map { it.toEvento() }
         }
     }
 
@@ -66,8 +72,7 @@ fun EventAdminScreen(
         modifier = Modifier
             .padding(8.dp)
             .fillMaxSize()
-    )
-    {
+    ) {
         // Barra de búsqueda
         OutlinedTextField(
             value = search,
@@ -77,6 +82,7 @@ fun EventAdminScreen(
                 .fillMaxWidth()
                 .padding(8.dp)
         )
+
         Divider(modifier = Modifier.padding(vertical = 8.dp))
 
         // Lista de eventos
@@ -84,17 +90,16 @@ fun EventAdminScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(8.dp)
-        )
-        {
-            items(eventos.filter { it.nombre.contains(search, ignoreCase = true) })
-            { evento ->
+        ) {
+            items(eventos.filter { it.nombre.contains(search, ignoreCase = true) }) { evento ->
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    elevation = CardDefaults.cardElevation(3.dp)
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(0.dp)
+                        modifier = Modifier.padding(8.dp)
                     ) {
                         // Imagen del evento
                         AsyncImage(
@@ -102,7 +107,7 @@ fun EventAdminScreen(
                             contentDescription = "Imagen evento",
                             modifier = Modifier
                                 .size(72.dp)
-                                .clip(RoundedCornerShape(0.dp)),
+                                .clip(RoundedCornerShape(8.dp)),
                             contentScale = ContentScale.Crop
                         )
 
@@ -110,34 +115,17 @@ fun EventAdminScreen(
 
                         // Info del evento
                         Column(Modifier.weight(1f)) {
-                            Text(evento.nombre, style = MaterialTheme.typography.titleMedium)
-                            Text(evento.localizacion, style = MaterialTheme.typography.bodySmall)
+                            Text(evento.nombre, style = MaterialTheme.typography.titleMedium, color = Color.Black)
+                            Text(evento.localizacion, style = MaterialTheme.typography.bodySmall, color = Color.DarkGray)
                         }
 
-                        // Botón para eliminar evento
-                        IconButton(onClick = {
-                            scope.launch {
-                                // Llamada al backend para eliminar el evento
-                                try {
-                                    val response =
-                                        RetrofitClient.eventoApiService.deleteEvento(evento.id)
-
-                                    if (response.isSuccessful) {
-                                        // Recargar eventos
-                                        val dtoEventos =
-                                            RetrofitClient.eventoApiService.obtenerTodosEventos()
-                                        eventos = dtoEventos.map { it.toEvento() }
-                                    } else {
-                                        Log.e(
-                                            "EventosAdminScreen",
-                                            "Error al eliminar, código: ${response.code()}"
-                                        )
-                                    }
-                                } catch (e: Exception) {
-                                    Log.e("EventosAdminScreen", "Error al eliminar evento", e)
-                                }
+                        // Botón eliminar
+                        IconButton(
+                            onClick = {
+                                eventoSeleccionado = evento
+                                showDeleteDialog = true
                             }
-                        }) {
+                        ) {
                             Icon(
                                 Icons.Default.Delete,
                                 contentDescription = "Eliminar evento",
@@ -148,6 +136,51 @@ fun EventAdminScreen(
                 }
                 Spacer(modifier = Modifier.height(10.dp))
             }
+        }
+
+        // 🧩 Mostrar el diálogo de confirmación
+        if (showDeleteDialog && eventoSeleccionado != null) {
+            AlertDialog(
+                onDismissRequest = { showDeleteDialog = false },
+                title = {
+                    Text("Eliminar evento", color = Color.Black)
+                },
+                text = {
+                    Text(
+                        "¿Estás seguro de eliminar el evento \"${eventoSeleccionado?.nombre}\"? Esta acción no se puede deshacer.",
+                        color = Color.Black
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            scope.launch {
+                                try {
+                                    // Llamada al backend para eliminar el evento
+                                    RetrofitClient.eventoApiService.deleteEvento(eventoSeleccionado!!.id)
+                                    // Refrescar la lista
+                                    val dtoEventos = RetrofitClient.eventoApiService.obtenerTodosEventos()
+                                    eventos = dtoEventos.map { it.toEvento() }
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                } finally {
+                                    showDeleteDialog = false
+                                    eventoSeleccionado = null
+                                }
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFCDD2))
+                    ) {
+                        Text("Eliminar", color = Color.Black)
+                    }
+                },
+                dismissButton = {
+                    OutlinedButton(onClick = { showDeleteDialog = false }) {
+                        Text("Cancelar", color = Color.Black)
+                    }
+                },
+                containerColor = Color.White
+            )
         }
     }
 }

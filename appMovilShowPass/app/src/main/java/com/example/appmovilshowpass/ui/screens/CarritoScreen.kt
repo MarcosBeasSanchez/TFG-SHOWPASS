@@ -202,39 +202,65 @@ fun CarritoScreen(
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(12.dp))
+
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
+                        // 🔹 Botón "Vaciar carrito"
                         OutlinedButton(
                             onClick = { carritoViewModel.vaciarCarrito(usuarioId) },
                             shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-                            border = BorderStroke(0.dp, MaterialTheme.colorScheme.error)
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.error,
+                                contentColor = MaterialTheme.colorScheme.onError
+                            ),
+                            border = BorderStroke(0.dp, Color.Transparent),
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(52.dp), // altura suficiente para que el texto no se corte
+                            contentPadding = PaddingValues(vertical = 10.dp, horizontal = 12.dp) // mejora legibilidad
                         ) {
                             Icon(
                                 imageVector = Icons.Outlined.Delete,
                                 contentDescription = "Borrar",
-                                modifier = Modifier.padding(start = 4.dp),
+                                modifier = Modifier.padding(end = 6.dp),
                                 tint = MaterialTheme.colorScheme.onError
                             )
-                            Text("Vaciar carrito",color = MaterialTheme.colorScheme.onError)
+                            Text(
+                                text = "Vaciar carrito",
+                                color = MaterialTheme.colorScheme.onError,
+                                maxLines = 1
+                            )
                         }
 
+                        Spacer(modifier = Modifier.width(16.dp)) // 🔸 espacio entre botones
+
+                        // 🔹 Botón "Finalizar compra"
                         Button(
                             onClick = {
                                 carritoViewModel.finalizarCompra(usuarioId) {
                                     Toast.makeText(context, "✅ ¡Compra realizada!", Toast.LENGTH_SHORT).show()
                                 }
                             },
-                            shape = RoundedCornerShape(12.dp)
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(52.dp), // misma altura
+                            contentPadding = PaddingValues(vertical = 10.dp, horizontal = 12.dp)
                         ) {
                             Icon(
                                 imageVector = Icons.Outlined.ShoppingCartCheckout,
                                 contentDescription = "Finalizar",
-                                modifier = Modifier.padding(start = 4.dp),
+                                modifier = Modifier.padding(end = 6.dp)
                             )
-                            Text("Finalizar Compra")
+                            Text(
+                                text = "Finalizar compra",
+                                maxLines = 1
+                            )
                         }
                     }
                 }

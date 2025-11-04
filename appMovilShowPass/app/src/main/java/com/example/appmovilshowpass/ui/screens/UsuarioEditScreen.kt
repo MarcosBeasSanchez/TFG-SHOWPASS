@@ -3,8 +3,12 @@ package com.example.appmovilshowpass.ui.screens
 import AuthViewModel
 import android.app.DatePickerDialog
 import android.content.Context
+import android.graphics.BitmapFactory
+import android.util.Base64
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -53,6 +57,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -63,6 +68,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.appmovilshowpass.ui.components.Cabecera
 import com.example.appmovilshowpass.utils.construirUrlImagen
+import com.example.appmovilshowpass.utils.imagenToBase64
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.util.Calendar
@@ -101,7 +107,11 @@ fun UsuarioEditScreen(
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
-        foto = uri?.toString() ?: ""
+        uri?.let {
+            val base64 = imagenToBase64(context, it)
+            foto = "data:image/png;base64,$base64"
+            Log.d("EDITAR_USUARIO", "Nueva foto seleccionada (Base64): ${foto.take(60)}...")
+        }
     }
 
 
@@ -168,16 +178,41 @@ fun UsuarioEditScreen(
                     .padding(vertical = 8.dp),
                 contentAlignment = Alignment.Center
             ) {
-                if (foto != null) {
-                    AsyncImage(
-                        model = construirUrlImagen(foto),
-                        contentDescription = "Foto de perfil",
-                        modifier = Modifier
-                            .size(120.dp)
-                            .clip(CircleShape)
-                            .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape),
-                        contentScale = ContentScale.Crop
-                    )
+                if (foto.isNotBlank()) {
+                    val imageBitmap = remember(foto) {
+                        try {
+                            if (foto.startsWith("data:image/")) {
+                                val base64Data = foto.substringAfter("base64,")
+                                val imageBytes = Base64.decode(base64Data, Base64.DEFAULT)
+                                BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)?.asImageBitmap()
+                            } else null
+                        } catch (e: Exception) {
+                            Log.e("EDITAR_USUARIO", "Error decodificando imagen: ${e.message}")
+                            null
+                        }
+                    }
+
+                    if (imageBitmap != null) {
+                        Image(
+                            bitmap = imageBitmap,
+                            contentDescription = "Foto de perfil",
+                            modifier = Modifier
+                                .size(120.dp)
+                                .clip(CircleShape)
+                                .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        AsyncImage(
+                            model = construirUrlImagen(foto),
+                            contentDescription = "Foto de perfil",
+                            modifier = Modifier
+                                .size(120.dp)
+                                .clip(CircleShape)
+                                .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
                 } else {
                     Icon(
                         imageVector = Icons.Default.Person,
@@ -189,6 +224,7 @@ fun UsuarioEditScreen(
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
+
 
                 IconButton(
                     onClick = { launcher.launch("image/*") },
@@ -318,6 +354,7 @@ fun UsuarioEditScreen(
                                 contentDescription = null
                             )
                         },
+
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                         trailingIcon = {
