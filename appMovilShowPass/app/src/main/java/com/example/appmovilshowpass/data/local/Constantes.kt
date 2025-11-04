@@ -7,7 +7,7 @@ const val PORT = "8080"
 const val BASE_URL = "http://$LOCALHOST:$PORT/"
 
 const val SERVER_BASE_URL_FOTOS = "http://$LOCALHOST:$PORT"
-
+   
 
 // Otras constantes de la aplicación
 const val DEFAULT_TIMEOUT_SECONDS = 30

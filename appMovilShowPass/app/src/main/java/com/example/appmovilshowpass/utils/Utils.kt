@@ -24,7 +24,10 @@ import java.net.URL
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.set
 import com.example.appmovilshowpass.data.local.SERVER_BASE_URL_FOTOS
+import com.example.appmovilshowpass.data.remote.dto.DTOTicketBajada
 import com.itextpdf.text.pdf.PdfContentByte
+import com.itextpdf.text.pdf.PdfPCell
+import com.itextpdf.text.pdf.PdfPTable
 import kotlinx.coroutines.Dispatchers
 import java.time.LocalDate
 import java.util.Calendar
@@ -52,158 +55,136 @@ fun formatearPrecio(precio: Double): String {
     return String.format("%.2f", precio)
 }
 
+
 /**
- * Genera un PDF simple con la info de un ticket y lo devuelve como Base64 para enviar al backend.
- */
-/**
- * Genera un ticket en formato PDF con:
- *  - Logo y título
- *  - Imagen del evento
- *  - Información del evento (nombre, fecha, id)
- *  - Código QR centrado
- *  - Pie de página
- *
+ * Genera un ticket en formato PDF
  * Devuelve el PDF en Base64 (útil para enviarlo por email).
  */
 fun generarTicketPdf(
     context: Context,
-    eventoNombre: String,
-    ticketId: String,
-    eventoFecha: String = "",
-    eventoImagenUrl: String? = null
+    ticket: DTOTicketBajada,
+    eventoFecha: String,
+    eventoImagenUrl: String?
 ): String {
-    val file = File(context.cacheDir, "$ticketId.pdf")
-    val document = Document(PageSize.A6)
+    val file = File(context.cacheDir, "ticket_${ticket.id}.pdf")
+    val document = Document(PageSize.A5)
     val writer = PdfWriter.getInstance(document, FileOutputStream(file))
     document.open()
 
-    val canvas: PdfContentByte = writer.directContent
-    val azul = BaseColor(0, 102, 204)
+    val azul = BaseColor(0, 45, 98)
+    val grisFondo = BaseColor(245, 245, 245)
+    val fontTitulo = Font(Font.FontFamily.HELVETICA, 18f, Font.BOLD, azul)
+    val fontEvento = Font(Font.FontFamily.HELVETICA, 16f, Font.BOLD, BaseColor.YELLOW)
+    val fontTexto = Font(Font.FontFamily.HELVETICA, 10f, Font.NORMAL, BaseColor.WHITE)
+    val fontTextoNegro = Font(Font.FontFamily.HELVETICA, 10f, Font.NORMAL, BaseColor.BLACK)
+    val fontPeque = Font(Font.FontFamily.HELVETICA, 8f, Font.ITALIC, BaseColor.GRAY)
 
-    val fontTitulo = Font(Font.FontFamily.HELVETICA, 14f, Font.BOLD, azul)
-    val fontTexto = Font(Font.FontFamily.HELVETICA, 10f, Font.NORMAL, BaseColor.BLACK)
-    val fontPeque = Font(Font.FontFamily.HELVETICA, 8f, Font.ITALIC, BaseColor.DARK_GRAY)
+    val tableMain = PdfPTable(1)
+    tableMain.widthPercentage = 100f
 
-    // --- 🟦 Dibuja borde redondeado doble ---
-    val rect = document.pageSize
-    val margen = 8f
-    val cb = canvas
-    cb.setColorStroke(azul)
+    // ---Encabezado SHOWPASS ---
+    val header = PdfPCell(Phrase("SHOWPASS", fontTitulo))
+    header.backgroundColor = BaseColor(230, 236, 247)
+    header.horizontalAlignment = Element.ALIGN_LEFT
+    header.border = Rectangle.NO_BORDER
+    header.paddingTop = 10f
+    header.paddingBottom = 10f
 
-    // Borde externo grueso
-    cb.setLineWidth(5f)
-    cb.roundRectangle(margen, margen, rect.width - 2 * margen, rect.height - 2 * margen, 16f)
-    cb.stroke()
+    tableMain.addCell(header)
 
-    // Borde interno fino
-    cb.setLineWidth(1.5f)
-    cb.roundRectangle(margen + 5, margen + 5, rect.width - 2 * (margen + 5), rect.height - 2 * (margen + 5), 12f)
-    cb.stroke()
+    // ---Sección principal azul ---
+    val tableEvent = PdfPTable(floatArrayOf(1f, 2f, 1f))
+    tableEvent.widthPercentage = 100f
 
-    // --- 🎟️ Título ---
-    val titulo = Paragraph("🎟 SHOWPASS TICKET", fontTitulo)
-    titulo.alignment = Element.ALIGN_CENTER
-    document.add(titulo)
-    document.add(Paragraph("\n"))
+    val cellEventBg = PdfPCell()
+    cellEventBg.backgroundColor = azul
+    cellEventBg.colspan = 3
+    cellEventBg.border = Rectangle.NO_BORDER
+    cellEventBg.paddingTop = 8f
+    cellEventBg.paddingBottom = 8f
 
-    // --- 🔵 Línea separadora ---
-    val line = Paragraph("─".repeat(40), fontTexto)
-    line.alignment = Element.ALIGN_CENTER
-    document.add(line)
-    document.add(Paragraph("\n"))
 
-    // --- 🖼 Imagen del evento ---
-    eventoImagenUrl?.let { raw ->
-        try {
-            Log.d("TicketPDF", "Imagen del ticket: ${raw.take(60)}")
-
-            val imageBytes: ByteArray = if (raw.startsWith("http")) {
-                kotlinx.coroutines.runBlocking(Dispatchers.IO) {
-                    try {
-                        URL(raw).openStream().use { it.readBytes() }
-                    } catch (e: Exception) {
-                        Log.e("TicketPDF", "❌ Error descargando imagen: ${e.message}")
-                        ByteArray(0)
-                    }
-                }
-            } else {
-                Base64.decode(raw, Base64.DEFAULT)
-            }
-
-            if (imageBytes.isNotEmpty()) {
-                val bmp = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-                val stream = ByteArrayOutputStream()
-                bmp.compress(Bitmap.CompressFormat.JPEG, 90, stream)
-                val img = Image.getInstance(stream.toByteArray())
-                img.scaleToFit(180f, 100f) // 📏 Imagen más pequeña
-                img.alignment = Element.ALIGN_CENTER
-                document.add(img)
-                document.add(Paragraph("\n"))
-            }
-
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Log.e("TicketPDF", "❌ Error cargando imagen: ${e.message}")
-        }
+    // Imagen del evento
+    val imgCell = PdfPCell()
+    imgCell.border = Rectangle.NO_BORDER
+    imgCell.backgroundColor = azul
+    eventoImagenUrl?.let { url ->
+        val img = cargarImagen(construirUrlImagen(url))
+        img?.scaleToFit(100f, 100f)
+        img?.let { imgCell.addElement(it) }
     }
+    tableEvent.addCell(imgCell)
 
-    // --- 📄 Información del ticket ---
-    val info = Paragraph("", fontTexto)
-    info.alignment = Element.ALIGN_CENTER
-    info.add("Evento: $eventoNombre\n")
-    if (eventoFecha.isNotBlank()) info.add("Fecha evento: $eventoFecha\n")
-    val fechaCompra = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
-    info.add("Fecha compra: $fechaCompra\n")
-    info.add("Ticket ID: $ticketId\n")
-    document.add(info)
-    document.add(Paragraph("\n"))
+    // Datos del evento
+    val info = Paragraph()
+    info.add(Chunk("${ticket.nombreEvento}\n", fontEvento))
+    info.add(Chunk("Inicio del evento: $eventoFecha\n", fontTexto))
+    info.add(Chunk("Fecha de compra: ${ticket.fechaCompra}\n", fontTexto))
+    info.add(Chunk("Precio: ${String.format("%.2f €", ticket.precioPagado)}", fontTexto))
 
-    // --- 🔲 Código QR ---
-    val qrBitmap = generarQR(ticketId)
-    val qrStream = ByteArrayOutputStream()
-    qrBitmap.compress(Bitmap.CompressFormat.PNG, 100, qrStream)
-    val qrImage = Image.getInstance(qrStream.toByteArray())
-    qrImage.scaleToFit(90f, 90f)
-    qrImage.alignment = Element.ALIGN_CENTER
-    document.add(qrImage)
-    document.add(Paragraph("\n"))
+    val infoCell = PdfPCell(info)
+    infoCell.border = Rectangle.NO_BORDER
+    infoCell.backgroundColor = azul
+    tableEvent.addCell(infoCell)
 
-    // --- 🔵 Línea separadora inferior ---
-    val lineBottom = Paragraph("─".repeat(40), fontTexto)
-    lineBottom.alignment = Element.ALIGN_CENTER
-    document.add(lineBottom)
-    document.add(Paragraph("\n"))
+    // Código QR
+    val qrCell = PdfPCell()
+    qrCell.border = Rectangle.NO_BORDER
+    qrCell.backgroundColor = azul
+    val qrImg = cargarImagen(construirUrlImagen(ticket.codigoQR))
+    qrImg?.scaleToFit(90f, 90f)
+    qrImg?.let { qrCell.addElement(it) }
+    tableEvent.addCell(qrCell)
 
-    // --- 🎵 Pie ---
-    val pie = Paragraph("Muestra este ticket en la entrada 🎶", fontPeque)
-    pie.alignment = Element.ALIGN_CENTER
-    document.add(pie)
+    tableMain.addCell(tableEvent)
 
+    // ---Sección inferior---
+    val infoInferior = """
+        ID Ticket: ${ticket.id}
+        Usuario ID: ${ticket.usuarioId}
+        Evento ID: ${ticket.eventoId}
+        Nombre del evento: ${ticket.nombreEvento}
+        Inicio del evento: $eventoFecha
+    """.trimIndent()
+
+    val bottomCell = PdfPCell(Phrase(infoInferior, fontTextoNegro))
+    bottomCell.backgroundColor = grisFondo
+    bottomCell.border = Rectangle.NO_BORDER
+    bottomCell.paddingTop = 10f
+    bottomCell.paddingBottom = 10f
+    tableMain.addCell(bottomCell)
+
+    val note = PdfPCell(Phrase("Prohibida la reventa. No reembolsable. Mostrar en la entrada del evento.", fontPeque))
+    note.border = Rectangle.NO_BORDER
+    note.horizontalAlignment = Element.ALIGN_CENTER
+    tableMain.addCell(note)
+
+    document.add(tableMain)
     document.close()
 
     val pdfBytes = file.readBytes()
     return Base64.encodeToString(pdfBytes, Base64.NO_WRAP)
 }
 
-
-    /**
- * Genera una imagen QR Bitmap a partir de un texto.
- * Usado para incluir el código QR dentro del PDF.
+/**
+ * Carga una imagen desde URL o Base64 (devuelve Image de iText)
  */
-private fun generarQR(texto: String): Bitmap {
-    val size = 300
-    val qrCodeWriter = QRCodeWriter()
-    val bitMatrix = qrCodeWriter.encode(texto, BarcodeFormat.QR_CODE, size, size)
-    val width = bitMatrix.width
-    val height = bitMatrix.height
-    val bmp = createBitmap(width, height, Bitmap.Config.RGB_565)
-    for (x in 0 until width) {
-        for (y in 0 until height) {
-            bmp[x, y] =
-                if (bitMatrix[x, y]) android.graphics.Color.BLACK else android.graphics.Color.WHITE
+private fun cargarImagen(ruta: String?): Image? {
+    if (ruta.isNullOrBlank()) return null
+    return try {
+        val bytes = when {
+            ruta.startsWith("http") -> URL(ruta).openStream().use { it.readBytes() }
+            ruta.startsWith("data:image") -> {
+                val base64 = ruta.substringAfter(",")
+                Base64.decode(base64, Base64.DEFAULT)
+            }
+            else -> Base64.decode(ruta, Base64.DEFAULT)
         }
+        Image.getInstance(bytes)
+    } catch (e: Exception) {
+        Log.e("PDF", "Error cargando imagen: ${e.message}")
+        null
     }
-    return bmp
 }
 
 
