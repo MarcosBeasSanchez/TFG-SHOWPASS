@@ -47,11 +47,11 @@ import com.example.appmovilshowpass.model.BottomNavItem
 import com.example.appmovilshowpass.model.Rol
 import com.example.appmovilshowpass.ui.components.AdminFab
 import com.example.appmovilshowpass.ui.components.VendedorFab
+import com.example.appmovilshowpass.ui.screens.AdminBorrarEventosScreen
+import com.example.appmovilshowpass.ui.screens.AdminReportScreen
 import com.example.appmovilshowpass.ui.screens.BusquedaScreen
 import com.example.appmovilshowpass.ui.screens.CarritoScreen
-import com.example.appmovilshowpass.ui.screens.CrearEventoScreen
-import com.example.appmovilshowpass.ui.screens.EditarEventoScreen
-import com.example.appmovilshowpass.ui.screens.EventAdminScreen
+
 import com.example.appmovilshowpass.ui.screens.EventoInfo
 import com.example.appmovilshowpass.ui.screens.EventoScreen
 import com.example.appmovilshowpass.ui.screens.InfoScreen
@@ -60,7 +60,9 @@ import com.example.appmovilshowpass.ui.screens.RegisterScreen
 import com.example.appmovilshowpass.ui.screens.TicketsScreen
 import com.example.appmovilshowpass.ui.screens.UsuarioEditScreen
 import com.example.appmovilshowpass.ui.screens.UsuarioScreen
-import com.example.appmovilshowpass.ui.screens.UsuariosReportScreen
+import com.example.appmovilshowpass.ui.screens.VendedorCrearEventoScreen
+import com.example.appmovilshowpass.ui.screens.VendedorEditarEventoScreen
+
 import com.example.appmovilshowpass.ui.screens.VendedorMisEventosScreen
 import com.example.appmovilshowpass.viewmodel.BusquedaViewModel
 import com.example.appmovilshowpass.viewmodel.CarritoViewModel
@@ -201,7 +203,7 @@ fun MainScreen() {
 
             if (authViewModel.currentUser?.rol == Rol.ADMIN) {
                 AdminFab(
-                    onUsersClick = { navController.navigate("admin_usuarios") },
+                    onUsersClick = { navController.navigate("admin_report") },
                     onEventsClick = { navController.navigate("admin_eventos") }
                 )
             }
@@ -314,19 +316,19 @@ fun MainScreen() {
                     }
                 )
             }
-            composable("admin_usuarios") {
-                UsuariosReportScreen(
+            composable("admin_report") {
+                AdminReportScreen(
                     authViewModel = authViewModel,
                     onBack = { navController.popBackStack() }
                 )
             }
             composable("admin_eventos") {
-                EventAdminScreen(
+                AdminBorrarEventosScreen(
                     onBack = { navController.popBackStack() }
                 )
             }
             composable("vendedor_crear") {
-                CrearEventoScreen(authViewModel, navController)
+                VendedorCrearEventoScreen(authViewModel, navController)
             }
             composable("vendedor_editar") {
                 VendedorMisEventosScreen(authViewModel, navController)
@@ -340,7 +342,7 @@ fun MainScreen() {
 
                 val id = backStackEntry.arguments?.getLong("id") ?: 0L
 
-                EditarEventoScreen(
+                VendedorEditarEventoScreen(
                     eventoId = id,
                     authViewModel = authViewModel,
                     navController = navController,

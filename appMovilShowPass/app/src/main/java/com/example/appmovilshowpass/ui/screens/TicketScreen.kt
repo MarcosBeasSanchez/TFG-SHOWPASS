@@ -179,8 +179,6 @@ fun TicketsScreen(
                         color = Color.Gray
                     )
 
-                    Icon(Icons.Default.Celebration, contentDescription = null)
-
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Button(

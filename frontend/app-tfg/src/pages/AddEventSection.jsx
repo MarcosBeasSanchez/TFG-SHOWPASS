@@ -167,13 +167,13 @@ const AddEventSection = () => {
                     </select>
 
                     <label>Imagen principal:</label>
-                    <input type="file" name="imagen" onChange={handleChange} className="p-2  bg-gray-200 rounded text-black oscuroBox" />
+                    <input type="file" name="imagen" accept=".png, .jpg, .jpeg, image/png, image/jpeg" onChange={handleChange} className="p-2  bg-gray-200 rounded text-black oscuroBox" />
 
                     <label>Descripción:</label>
                     <textarea name="descripcion" value={formData.descripcion} onChange={handleChange} className="h-32 p-2  bg-gray-200 rounded text-black md:col-span-2 oscuroBox" />
 
                     <label>Carrusel de imágenes:</label>
-                    <input type="file" multiple onChange={handleCarruselChange} className="w-1/2 p-2 bg-gray-200 rounded text-black md:col-span-2 oscuroBox" />
+                    <input type="file" multiple  accept=".png, .jpg, .jpeg, image/png, image/jpeg" onChange={handleCarruselChange} className="w-1/2 p-2 bg-gray-200 rounded text-black md:col-span-2 oscuroBox" />
                     <div className="flex flex-wrap gap-2 md:col-span-2">
                         {formData.carrusels.map((file, idx) => (
                             <div key={idx} className="relative w-24 h-24">

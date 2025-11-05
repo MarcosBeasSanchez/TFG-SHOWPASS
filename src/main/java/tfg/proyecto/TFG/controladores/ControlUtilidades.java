@@ -3,6 +3,7 @@ package tfg.proyecto.TFG.controladores;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Base64;
 import java.util.Map;
 
@@ -14,8 +15,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletResponse;
 import tfg.proyecto.TFG.servicios.IServicioPdfEmail;
 import tfg.proyecto.TFG.servicios.IServicioTicket;
+import org.springframework.http.MediaType;
 
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
@@ -24,6 +27,7 @@ public class ControlUtilidades {
 
 	@Autowired
 	IServicioPdfEmail daoMail;
+	
 
 	@PostMapping("/enviarPdfEmail")
 	public String enviarPdfEmail(@RequestBody Map<String, String> payload) throws MessagingException, IOException {

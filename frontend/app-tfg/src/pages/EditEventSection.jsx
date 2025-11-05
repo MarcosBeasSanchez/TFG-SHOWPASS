@@ -272,7 +272,7 @@ const EditEventSection = () => {
                         </div>
                     </div>
 
-                    {/* 🔸 Precio / Categoría */}
+                    {/*  Precio / Categoría */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 oscuro">
                         <div>
                             <label className="block font-semibold mb-1">Precio</label>
@@ -312,7 +312,7 @@ const EditEventSection = () => {
                             <input
                                 type="file"
                                 name="imagen"
-                                accept="image/*"
+                                accept=".png, .jpg, .jpeg, image/png, image/jpeg"
                                 onChange={handleChange}
                                 className="w-full  p-2 rounded bg-gray-100 oscuroBox cursor-pointer"
                             />
@@ -333,7 +333,7 @@ const EditEventSection = () => {
                                 type="file"
                                 name="carrusels"
                                 multiple
-                                accept="image/*"
+                                accept=".png, .jpg, .jpeg, image/png, image/jpeg"
                                 onChange={handleChange}
                                 className="w-full p-2 rounded bg-gray-100 oscuroBox cursor-pointer"
                             />
@@ -358,7 +358,7 @@ const EditEventSection = () => {
                         </div>
                     </div>
 
-                    {/* 🔸 Invitados */}
+                    {/*  Invitados */}
                     <div>
                         <label className="block font-bold text-lg mb-4">Invitados</label>
 
@@ -409,7 +409,7 @@ const EditEventSection = () => {
                                             <input
                                                 type="file"
                                                 name="fotoURL"
-                                                accept="image/*"
+                                                accept=".png, .jpg, .jpeg, image/png, image/jpeg"
                                                 onChange={(e) => handleInvitadoChange(idx, e)}
                                                 className="w-full p-2 rounded bg-gray-100 oscuroBox cursor-pointer"
                                             />
@@ -448,7 +448,7 @@ const EditEventSection = () => {
                     </div>
 
 
-                    {/* 🔹 Guardar */}
+                    {/*  Guardar */}
                     <div className="flex justify-end">
                         <button
                             type="submit"

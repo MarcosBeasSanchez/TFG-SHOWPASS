@@ -80,11 +80,11 @@ fun generarTicketPdf(
 
     // Fuentes
     val fontHeaderAzul = Font(Font.FontFamily.HELVETICA, 18f, Font.BOLD, azulOscuro)
-    val fontEvento = Font(Font.FontFamily.HELVETICA, 16f, Font.BOLD, amarilloTitulo)
-    val fontTextoBlanco = Font(Font.FontFamily.HELVETICA, 10f, Font.BOLD, BaseColor.WHITE)
-    val fontNegro = Font(Font.FontFamily.HELVETICA, 11f, Font.NORMAL, BaseColor.BLACK)
-    val fontNegroBold = Font(Font.FontFamily.HELVETICA, 11f, Font.BOLD, BaseColor.BLACK)
-    val fontGris = Font(Font.FontFamily.HELVETICA, 11f, Font.NORMAL, grisTexto)
+    val fontEvento = Font(Font.FontFamily.HELVETICA, 12f, Font.BOLD, amarilloTitulo )
+    val fontTextoBlanco = Font(Font.FontFamily.HELVETICA, 7f, Font.BOLD, BaseColor.WHITE)
+    val fontNegro = Font(Font.FontFamily.HELVETICA, 8f, Font.NORMAL, BaseColor.BLACK)
+    val fontNegroBold = Font(Font.FontFamily.HELVETICA, 8f, Font.BOLD, BaseColor.BLACK)
+    val fontGris = Font(Font.FontFamily.HELVETICA, 8f, Font.NORMAL, grisTexto)
 
     // ======= Encabezado con rectángulo gris =======
     val headTable = PdfPTable(1).apply { widthPercentage = 100f }
@@ -99,10 +99,15 @@ fun generarTicketPdf(
     document.add(Paragraph("\n"))
 
     // ======= Bloque azul principal =======
-    val tablaAzul = PdfPTable(floatArrayOf(1.3f, 2f, 1.2f)).apply {
+    val tablaAzul = PdfPTable(floatArrayOf(1f, 2.3f, 1f)).apply {
         widthPercentage = 100f
         spacingBefore = 4f
         spacingAfter = 6f
+
+
+        this.tableEvent = null
+        this.defaultCell.cellEvent = null // Limpiar eventos que puedan añadir padding/spacing
+        this.defaultCell.borderWidth = 0f // Asegurar que el borde no añada grosor
     }
 
     val alturaFila = 110f
@@ -111,7 +116,7 @@ fun generarTicketPdf(
     val imgCell = PdfPCell().apply {
         backgroundColor = azulOscuro
         border = Rectangle.NO_BORDER
-        setPadding(10f)
+        setPadding(2f)
         setFixedHeight(alturaFila)
         horizontalAlignment = Element.ALIGN_CENTER
         verticalAlignment = Element.ALIGN_MIDDLE
@@ -121,7 +126,7 @@ fun generarTicketPdf(
         Log.d("TicketPDF", "Cargando imagen evento desde: $fullUrl")
         val img = cargarImagen(fullUrl)
         if (img != null) {
-            img.scaleToFit(85f, 75f) // más pequeña para no salirse
+            img.scaleToFit(75f, 65f) // más pequeña para no salirse
             img.alignment = Element.ALIGN_CENTER
             imgCell.addElement(img)
         } else Log.e("TicketPDF", " Imagen evento no cargada")
@@ -134,12 +139,12 @@ fun generarTicketPdf(
         add(Chunk("Inicio del evento: ${formatearFechaFlexible(eventoFecha)}\n", fontTextoBlanco))
         add(Chunk("Fecha de compra: ${formatearFechaFlexible(ticket.fechaCompra)}\n", fontTextoBlanco))
         add(Chunk("Precio: ${"%.2f €".format(ticket.precioPagado)}", fontTextoBlanco))
-        setLeading(0f, 1.2f) // interlineado
+        setLeading(18f, 0f) // interlineado
     }
     val infoCell = PdfPCell(infoEvento).apply {
         backgroundColor = azulOscuro
         border = Rectangle.NO_BORDER
-        setPadding(12f)
+        setPadding(2f)
         setFixedHeight(alturaFila)
         verticalAlignment = Element.ALIGN_MIDDLE
     }
@@ -149,7 +154,7 @@ fun generarTicketPdf(
     val qrCell = PdfPCell().apply {
         backgroundColor = azulOscuro
         border = Rectangle.NO_BORDER
-        setPadding(6f)
+        setPadding(2f)
         setFixedHeight(alturaFila)
         horizontalAlignment = Element.ALIGN_CENTER
         verticalAlignment = Element.ALIGN_MIDDLE
@@ -158,7 +163,7 @@ fun generarTicketPdf(
     Log.d("TicketPDF", "🔳 Cargando QR desde: $qrUrl")
     val qrImg = cargarImagen(qrUrl)
     if (qrImg != null) {
-        qrImg.scaleToFit(85f, 95f)
+        qrImg.scaleToFit(75f, 85f)
         qrImg.alignment = Element.ALIGN_CENTER
         qrCell.addElement(qrImg)
     } else Log.e("TicketPDF", "❌ QR no cargado")
@@ -181,7 +186,7 @@ fun generarTicketPdf(
         backgroundColor = grisFondo
         border = Rectangle.NO_BORDER
         setPadding(12f)
-        setMinimumHeight(90f)
+        setMinimumHeight(300f)
     }
 
     PdfPTable(1).apply {

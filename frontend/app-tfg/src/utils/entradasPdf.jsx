@@ -3,6 +3,16 @@ import config from '../config/config';
 import { useEffect } from "react";
 
 
+ // Función para detectar si la imagen es URL o Base64
+  const getImageSrc = (img) => {
+    if (!img) return null; // si no hay imagen, devolvemos vacío
+    if (img.startsWith("data:image/")) return img; // ya es Base64 con prefijo → no hacer nada
+    if (img.startsWith("http://") || img.startsWith("https://")) return img; // es URL externa → usar tal cual
+    if (img.startsWith("/uploads/")) return `${config.apiBaseUrl}${img}`; // es ruta relativa del backend
+    return `data:image/png;base64,${img}`; // es Base64 crudo → agregamos el prefijo necesario
+  };
+
+
 async function loadImageAsBase64(url) {
     const response = await fetch(url);
     if (!response.ok) throw new Error("No se pudo cargar la imagen");
@@ -32,8 +42,12 @@ async function hacerPDF(ticket, evento, ticketQR) {
     doc.setFillColor(0, 51, 102);
     doc.rect(margin, margin + 70, contentWidth, 150, "F");
 
+    // Imagen del evento
     if (evento.imagenPrincipalUrl) {
-        doc.addImage(evento.imagenPrincipalUrl, "JPEG", margin + 10, margin + 85, 120, 120);
+        doc.addImage(getImageSrc(evento.imagenPrincipalUrl) , "JPEG", margin + 10, margin + 85, 120, 120);
+    }else{
+        const placeholder = await loadImageAsBase64('https://www.freeiconspng.com/images/no-image-icon');
+        doc.addImage(placeholder, "PNG", margin + 10, margin + 85, 120, 120);
     }
 
     doc.setFontSize(18);

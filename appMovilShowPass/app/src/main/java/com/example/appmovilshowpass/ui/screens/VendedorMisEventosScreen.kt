@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Celebration
+import androidx.compose.material.icons.filled.EventAvailable
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -45,6 +46,7 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.example.appmovilshowpass.R
+import com.example.appmovilshowpass.ui.components.Cabecera
 import com.example.appmovilshowpass.utils.construirUrlImagen
 import com.example.appmovilshowpass.utils.formatearFechayHora
 import com.example.appmovilshowpass.viewmodel.EventoViewModel
@@ -85,11 +87,7 @@ fun VendedorMisEventosScreen(
             .padding(16.dp)
     ) {
         // Título de pantalla
-        Text(
-            "Mis Eventos",
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(bottom = 12.dp)
-        )
+        Cabecera("Mis Eventos", Icons.Default.EventAvailable)
 
         if (eventos.isEmpty()) {
             //  Muestra vista vacía cuando no hay eventos
@@ -156,7 +154,7 @@ fun VendedorMisEventosScreen(
                             },
                         shape = RoundedCornerShape(14.dp),
                         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-                        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface)
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                     ) {
                         Image(
                             painter = rememberAsyncImagePainter(

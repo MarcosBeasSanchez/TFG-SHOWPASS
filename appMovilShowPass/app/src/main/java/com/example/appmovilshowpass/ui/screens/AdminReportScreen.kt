@@ -1,7 +1,6 @@
 package com.example.appmovilshowpass.ui.screens
 
 import AuthViewModel
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -18,20 +17,15 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.DeleteSweep
-import androidx.compose.material.icons.filled.ReportOff
+import androidx.compose.material.icons.filled.Report
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -50,12 +44,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.appmovilshowpass.data.remote.api.RetrofitClient
 import com.example.appmovilshowpass.data.remote.dto.DTOUsuarioReportado
+import com.example.appmovilshowpass.ui.components.Cabecera
 import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UsuariosReportScreen(
+fun AdminReportScreen(
     authViewModel: AuthViewModel,
     onBack: () -> Unit
 ) {
@@ -79,15 +74,7 @@ fun UsuariosReportScreen(
             .padding(16.dp)
             .fillMaxSize()
     ) {
-        // 🔹 Título principal
-        Text(
-            text = "Usuarios",
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            text = "Administración de Usuarios",
-            modifier = Modifier.padding(bottom = 12.dp)
-        )
+        Cabecera(texto = "Administrar usuarios", imageVector = Icons.Default.Report)
 
         //  Buscador
         Row(
@@ -131,7 +118,7 @@ fun UsuariosReportScreen(
 
         Spacer(Modifier.height(12.dp))
 
-        // 🔸 Usuario encontrado
+        //  Usuario encontrado
         usuarioEncontrado?.let { usuario ->
             val colorBorde = if (usuario.reportado) Color(0xFFFF7043) else Color.LightGray
             val textoReportado = if (usuario.reportado) "Sí" else "No"
@@ -139,13 +126,13 @@ fun UsuariosReportScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 border = BorderStroke(1.dp, colorBorde),
-                colors = CardDefaults.cardColors(containerColor = Color.White)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
             ) {
                 Column(Modifier.padding(16.dp)) {
-                    Text("ID: ${usuario.id}", color = Color.Black)
-                    Text("Email: ${usuario.email}", color = Color.Black)
-                    Text("Nombre: ${usuario.nombre}", color = Color.Black)
-                    Text("Reportado: $textoReportado", color = Color.Black)
+                    Text("ID: ${usuario.id}")
+                    Text("Email: ${usuario.email}")
+                    Text("Nombre: ${usuario.nombre}")
+                    Text("Reportado: $textoReportado")
 
                     Spacer(Modifier.height(10.dp))
 
@@ -171,7 +158,7 @@ fun UsuariosReportScreen(
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xD0FD0000)),
                             modifier = Modifier.weight(1f)
                         ) {
-                            Text("Eliminar usuario", color = Color.Black)
+                            Text("Eliminar usuario",color = Color.White)
                         }
                     }
                 }
@@ -266,9 +253,10 @@ fun UsuariosReportScreen(
         //  Lista de usuarios reportados (vertical)
         Text(
             text = "Usuarios Reportados (${usuarios.size})",
-
             fontWeight = FontWeight.SemiBold
         )
+
+        Divider( modifier = Modifier.padding(vertical = 8.dp))
 
         if (usuarios.isEmpty()) {
             Text(
@@ -285,11 +273,11 @@ fun UsuariosReportScreen(
                     Card(
                         border = BorderStroke(1.dp, Color.Red),
                         modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = Color.White)
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                     ) {
                         Column(Modifier.padding(12.dp)) {
-                            Text(usuario.nombre, fontWeight = FontWeight.Bold, color = Color.Black)
-                            Text(usuario.email, color = Color.Black)
+                            Text(usuario.nombre, fontWeight = FontWeight.Bold)
+                            Text(usuario.email)
                             Box(
                                 modifier = Modifier
                                     .padding(top = 6.dp)

@@ -39,28 +39,22 @@ import kotlinx.coroutines.launch
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.People
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.CropSquare
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.LocalActivity
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImagePainter.State.Empty.painter
 import coil.compose.rememberAsyncImagePainter
 import com.example.appmovilshowpass.model.Categoria
 import com.example.appmovilshowpass.utils.construirUrlImagen
@@ -70,7 +64,7 @@ import com.example.appmovilshowpass.viewmodel.EventoViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditarEventoScreen(
+fun VendedorEditarEventoScreen(
     eventoId: Long,
     authViewModel: AuthViewModel,
     navController: NavController,

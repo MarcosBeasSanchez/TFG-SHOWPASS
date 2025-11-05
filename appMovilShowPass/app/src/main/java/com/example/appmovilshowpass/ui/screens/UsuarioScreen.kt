@@ -241,6 +241,7 @@ fun UsuarioScreen(
                         tint = Color.White
                     )
                 }
+                Spacer(Modifier.height(12.dp))
             }
         }
     } else {

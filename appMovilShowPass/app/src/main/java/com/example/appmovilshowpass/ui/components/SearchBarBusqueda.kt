@@ -124,18 +124,17 @@ fun SearchBarBusqueda(
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = "Buscar",
-                            tint = Color.Gray,
-                            modifier = Modifier.size(80.dp)
+                        Image(
+                            painter = painterResource(id = R.drawable.busqueda),
+                            contentDescription = "busqueda",
+                            modifier = Modifier.size(275.dp)
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
 
                         Text(
                             text = "Encuentra conciertos, festivales y más",
-                            style = MaterialTheme.typography.bodyLarge.copy(
+                            style = MaterialTheme.typography.bodyMedium.copy(
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Medium
                             ),

@@ -1,5 +1,6 @@
 package tfg.proyecto.TFG.servicios;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -127,21 +128,29 @@ public class ServicioCarritoImpl implements IServicioCarrito{
 	    @Transactional
 	    public DTOCarritoBajada finalizarCompra(Long usuarioId) {
 	        Carrito carrito = obtenerOCrearCarrito(usuarioId);
+	        Usuario usu = usuarioDAO.findById(usuarioId).get();
+	        BigDecimal total = BigDecimal.ZERO;
+	    
 
 	        if (carrito.getItems().isEmpty()) {
 	            throw new RuntimeException("El carrito está vacío");
 	        }
 
 	        for (CarritoItem item : carrito.getItems()) {
+	        	
 	            for (int i = 0; i < item.getCantidad(); i++) {
+	            	
 	                DTOticketSubida dto = DTOticketSubida.builder()
 	                        .usuarioId(usuarioId)
 	                        .eventoId(item.getEvento().getId())
 	                        .precioPagado(item.getPrecioUnitario())
 	                        .build();
+	                
 	                servicioTicket.insert(dto);
 	            }
 	        }
+	        //Actualizar saldo del usuario
+	       
 
 	        // Vaciar carrito después de compra
 	        itemDAO.deleteAll(carrito.getItems());

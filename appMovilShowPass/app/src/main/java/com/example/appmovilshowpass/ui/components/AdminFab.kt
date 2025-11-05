@@ -14,6 +14,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -78,6 +79,7 @@ fun AdminFab(
         FloatingActionButton(
             onClick = { expanded = true },
             contentColor = Color.White,
+            containerColor = MaterialTheme.colorScheme.secondary,
             shape = FloatingActionButtonDefaults.largeShape
         ) {
             Icon(
