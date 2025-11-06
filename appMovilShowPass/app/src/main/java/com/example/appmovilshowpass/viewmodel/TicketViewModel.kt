@@ -34,17 +34,17 @@ class TicketViewModel: ViewModel() {
     fun cargarTickets(usuarioId: Long) {
         viewModelScope.launch {
             try {
-                Log.d("TicketVM", "🔎 Cargando tickets del usuario $usuarioId...")
+                Log.d("TicketVM", "Cargando tickets del usuario $usuarioId...")
                 val result = RetrofitClient.ticketApiService.obtenerTicketsPorUsuario(usuarioId)
-                Log.d("TicketVM", "📌 Tickets recibidos: ${result.size}")
+                Log.d("TicketVM", "Tickets recibidos: ${result.size}")
                 result.forEach {
-                    Log.d("TicketVM", "🎫 Ticket -> id=${it.id}, evento=${it.nombreEvento}, precio=${it.precioPagado}")
+                    Log.d("TicketVM", "Ticket -> id=${it.id}, evento=${it.nombreEvento}, precio=${it.precioPagado}")
                 }
 
                 _tickets.value = result
 
             } catch (e: Exception) {
-                Log.e("TicketVM", "❌ Error al cargar tickets: ${e.message}")
+                Log.e("TicketVM", "Error al cargar tickets: ${e.message}")
             }
         }
     }
@@ -68,7 +68,7 @@ class TicketViewModel: ViewModel() {
                     eventoImagenUrl = construirUrlImagen(evento.imagen)
                 )
 
-                // 🔹 3. Guardar en carpeta Descargas
+                // 3.Guardar en carpeta Descargas
                 val pdfBytes = Base64.decode(pdfBase64, Base64.NO_WRAP)
                 val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
                 val safeName = evento.nombre.replace("[^a-zA-Z0-9-_]".toRegex(), "_")
@@ -89,7 +89,7 @@ class TicketViewModel: ViewModel() {
     }
 
     /**
-     * Genera el ticket y lo envía por correo electrónico usando el backend.
+     *  Genera el ticket y lo envía por correo electrónico usando el backend.
      */
     fun enviarTicketPorEmail(context: Context, email: String, ticket: DTOTicketBajada) {
         viewModelScope.launch {

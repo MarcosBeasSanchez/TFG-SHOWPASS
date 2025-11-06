@@ -17,6 +17,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import java.util.ArrayList;
 
 @Entity
 @Data
@@ -40,5 +41,6 @@ public class Carrito {
     private Usuario usuario;
 
     @OneToMany(mappedBy = "carrito", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CarritoItem> items;
+    @Builder.Default
+    private List<CarritoItem> items = new ArrayList<>();
 }

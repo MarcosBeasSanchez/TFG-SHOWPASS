@@ -140,63 +140,26 @@ public class ControlTicket {
         return ResponseEntity.ok(ticket);
     }
 
-    /**
-     * Obtener la imagen QR directamente (image/png)
-     */
-    @GetMapping("/{id}/qr")
-    public ResponseEntity<Map<String, String>> obtenerQR(@PathVariable Long id) {
-        DTOticketBajada ticket = daoTicket.findById(id);
-
-        if (ticket.getCodigoQR() == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
-        //coge la ruta absoluta da igual el sistema operativo
-        Path rutaAbsoluta = Paths.get(System.getProperty("user.dir"), ticket.getCodigoQR());
-
-        try {
-            byte[] imagen = Files.readAllBytes(rutaAbsoluta);
-            String base64 = Base64.getEncoder().encodeToString(imagen);
-            Map<String, String> respuesta = Map.of("codigoQR", "data:image/png;base64," + base64);
-            return ResponseEntity.ok(respuesta);
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
-    }
-    
-    
-    @PostMapping("/enviarPdfEmail")
-    public ResponseEntity<Map<String, String>> sendPdfEmail(@RequestBody Map<String, String> payload) {
-        try {
-            String email = payload.get("email");
-            String ticketId = payload.get("ticketId");
-            String eventoNombre = payload.get("eventoNombre");
-            String pdfBase64 = payload.get("pdfBase64");
-
-            // Convertir el Base64 en archivo PDF temporal
-            byte[] pdfBytes = Base64.getDecoder().decode(pdfBase64);
-            File pdfFile = File.createTempFile("ticket-", ".pdf");
-            try (FileOutputStream fos = new FileOutputStream(pdfFile)) {
-                fos.write(pdfBytes);
-            }
-
-            //  HTML en formato válido para Java
-            String subject = "Tu entrada para " + eventoNombre + " - Ticket ID " + ticketId;
-            String body = "<h2>🎫 Ticket Confirmado</h2>"
-                    + "<p>Tu entrada para <b>" + eventoNombre + "</b> ya está lista ✅</p>"
-                    + "<p>Se adjunta el ticket en formato PDF.</p>";
-
-            emailServices.sendPdfEmail(email, subject, body, pdfFile);
-
-            return ResponseEntity.ok(
-                    Map.of("mensaje", "📨 Ticket enviado correctamente a " + email)
-            );
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", " Error enviando el correo: " + e.getMessage()));
-        }
-    }
-    
-    
+//    /**
+//     * Obtener la imagen QR directamente (image/png)
+//     */
+//    @GetMapping("/{id}/qr")
+//    public ResponseEntity<Map<String, String>> obtenerQR(@PathVariable Long id) {
+//        DTOticketBajada ticket = daoTicket.findById(id);
+//
+//        if (ticket.getCodigoQR() == null) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+//        }
+//        //coge la ruta absoluta da igual el sistema operativo
+//        Path rutaAbsoluta = Paths.get(System.getProperty("user.dir"), ticket.getCodigoQR());
+//
+//        try {
+//            byte[] imagen = Files.readAllBytes(rutaAbsoluta);
+//            String base64 = Base64.getEncoder().encodeToString(imagen);
+//            Map<String, String> respuesta = Map.of("codigoQR", "data:image/png;base64," + base64);
+//            return ResponseEntity.ok(respuesta);
+//        } catch (IOException e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+//        }
+//    }  
 }

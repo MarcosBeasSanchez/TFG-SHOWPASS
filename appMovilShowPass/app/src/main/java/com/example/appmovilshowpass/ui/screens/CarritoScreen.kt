@@ -266,7 +266,7 @@ fun CarritoScreen(
                                 modifier = Modifier.padding(end = 6.dp)
                             )
                             Text(
-                                text = "Finalizar compra",
+                                text = "Finalizar",
                                 maxLines = 1
                             )
                         }

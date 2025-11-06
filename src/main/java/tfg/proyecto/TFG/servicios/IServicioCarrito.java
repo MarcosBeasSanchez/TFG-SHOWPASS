@@ -1,8 +1,6 @@
 package tfg.proyecto.TFG.servicios;
 
 import tfg.proyecto.TFG.dtos.DTOCarritoBajada;
-import tfg.proyecto.TFG.dtos.DTOCarritoSubida;
-import tfg.proyecto.TFG.dtos.DTOeventoSubida;
 
 public interface IServicioCarrito {
 	

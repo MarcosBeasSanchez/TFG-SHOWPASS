@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import tfg.proyecto.TFG.modelo.Carrito;
+import tfg.proyecto.TFG.modelo.EstadoCarrito;
 import tfg.proyecto.TFG.modelo.Usuario;
 
 @Repository
@@ -17,4 +18,6 @@ public interface RepositorioCarrito extends CrudRepository<Carrito, Long>{
 
     @Query("SELECT c FROM Carrito c WHERE c.usuario.id = :usuarioId AND c.estado = 'ACTIVO'")
     Optional<Carrito> findActivoByUsuarioId(@Param("usuarioId") Long usuarioId);
+
+    Optional<Carrito> findByUsuarioIdAndEstado(Long usuarioId, EstadoCarrito estado);
 }

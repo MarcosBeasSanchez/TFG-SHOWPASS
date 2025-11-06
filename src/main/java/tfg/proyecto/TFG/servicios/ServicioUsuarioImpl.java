@@ -1,24 +1,17 @@
 package tfg.proyecto.TFG.servicios;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import jakarta.transaction.Transactional;
 import tfg.proyecto.TFG.config.DtoConverter;
 import tfg.proyecto.TFG.config.JwtUtil;
 import tfg.proyecto.TFG.dtos.DTOUsuarioReportado;
 import tfg.proyecto.TFG.dtos.DTOeventoBajada;
 import tfg.proyecto.TFG.dtos.DTOusuarioBajada;
-import tfg.proyecto.TFG.dtos.DTOusuarioBajadaMinimo;
 import tfg.proyecto.TFG.dtos.DTOusuarioLogin;
 import tfg.proyecto.TFG.dtos.DTOusuarioLoginBajada;
 import tfg.proyecto.TFG.dtos.DTOusuarioModificarSubida;
@@ -248,7 +241,7 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 			Usuario usu = u.get();
 			List<Evento> eventos = usu.getEventosCreados();
 
-			// 🚨 Mapear la lista de entidades a una lista de DTOs 🚨
+			//Mapear la lista de entidades a una lista de DTOs
 			return dtoConverter.mapAll(eventos, DTOeventoBajada.class);
 		}
 

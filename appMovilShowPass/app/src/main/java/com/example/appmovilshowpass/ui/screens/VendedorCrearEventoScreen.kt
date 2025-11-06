@@ -7,6 +7,7 @@ import android.util.Base64
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,12 +28,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddPhotoAlternate
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.Place
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -40,6 +43,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -69,6 +73,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.appmovilshowpass.data.remote.dto.DTOInvitadoSubida
 import com.example.appmovilshowpass.data.remote.dto.DTOeventoSubida
 import com.example.appmovilshowpass.model.Categoria
+import com.example.appmovilshowpass.ui.components.InvitadoEditorUIEdit
 import com.example.appmovilshowpass.utils.formatearFechayHora
 import com.example.appmovilshowpass.utils.imagenToBase64
 import com.example.appmovilshowpass.viewmodel.EventoViewModel
@@ -178,20 +183,58 @@ fun VendedorCrearEventoScreen(
 
             // Carrusel igual con preview como Editar
             FieldSection("Carrusel de imágenes") {
+                var imagenAEliminar by remember { mutableStateOf<String?>(null) }
+
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                     items(carrusel) { img ->
-                        Card(Modifier.size(110.dp), shape = RoundedCornerShape(10.dp)) {
-                            Image(
-                                painter = rememberAsyncImagePainter(
-                                    Base64.decode(img, Base64.DEFAULT)
-                                ),
-                                null,
-                                Modifier.fillMaxSize(),
-                                contentScale = ContentScale.Crop
-                            )
+
+                        Box(
+                            modifier = Modifier.size(110.dp)
+                        ) {
+
+                            Card(
+                                modifier = Modifier.fillMaxSize(),
+                                shape = RoundedCornerShape(10.dp)
+                            ) {
+                                Image(
+                                    painter = rememberAsyncImagePainter(
+                                        Base64.decode(img, Base64.DEFAULT)
+                                    ),
+                                    contentDescription = null,
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+
+                            IconButton(
+                                onClick = { imagenAEliminar = img },
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .background(Color.Black.copy(alpha = 0.4f), RoundedCornerShape(50))
+                                    .size(26.dp)
+                            ) {
+                                Icon(Icons.Default.Close, null, tint = Color.White, modifier = Modifier.size(16.dp))
+                            }
                         }
                     }
                 }
+                if (imagenAEliminar != null) {
+                    AlertDialog(
+                        onDismissRequest = { imagenAEliminar = null },
+                        title = { Text("Eliminar imagen") },
+                        text = { Text("¿Seguro que deseas quitar esta imagen del carrusel?") },
+                        confirmButton = {
+                            Button(onClick = {
+                                carrusel.remove(imagenAEliminar)
+                                imagenAEliminar = null
+                            }) { Text("Eliminar") }
+                        },
+                        dismissButton = {
+                            OutlinedButton(onClick = { imagenAEliminar = null }) { Text("Cancelar") }
+                        }
+                    )
+                }
+
                 OutlinedButton({ pickCarrusel.launch("image/*") }, Modifier.fillMaxWidth()) {
                     Icon(Icons.Default.AddPhotoAlternate, null)
                     Text("Añadir al Carrusel")
@@ -249,49 +292,6 @@ fun FieldSection(title: String, content: @Composable ColumnScope.() -> Unit) {
         content()
     }
 }
-
-
-@Composable
-fun InvitadoEditorUI(invitados: MutableList<DTOInvitadoSubida>) {
-    var nombre by remember { mutableStateOf("") }
-    var apellidos by remember { mutableStateOf("") }
-    var descripcion by remember { mutableStateOf("") }
-    var imagenBase64 by remember { mutableStateOf<String?>(null) }
-
-    val context = LocalContext.current
-    val imagePicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        uri?.let { imagenBase64 = imagenToBase64(context, uri) }
-    }
-
-    Column {
-        Text("Invitados", fontWeight = FontWeight.Bold)
-
-        OutlinedTextField(value = nombre, onValueChange = { nombre = it }, label = { Text("Nombre") })
-        OutlinedTextField(value = apellidos, onValueChange = { apellidos = it }, label = { Text("Apellidos") })
-        OutlinedTextField(value = descripcion, onValueChange = { descripcion = it }, label = { Text("Descripción") })
-
-        Spacer(modifier = Modifier.padding(20.dp))
-
-        Button(onClick = { imagePicker.launch("image/*") }) { Text("Añadir Foto") }
-
-        Spacer(modifier = Modifier.padding(20.dp))
-
-        Button(onClick = {
-            if (nombre.isNotBlank() && imagenBase64 != null) {
-                invitados.add(DTOInvitadoSubida(id = null,nombre, apellidos, imagenBase64!!, descripcion))
-                nombre = ""
-                apellidos = ""
-                descripcion = ""
-                imagenBase64 = null
-            }
-        }) { Text("Agregar Invitado") }
-
-        if (invitados.isNotEmpty()) {
-            Text(" ${invitados.size} invitados añadidos")
-        }
-    }
-}
-
 fun showDateTimePicker(
     context: Context,
     onDateTimeSelected: (String) -> Unit

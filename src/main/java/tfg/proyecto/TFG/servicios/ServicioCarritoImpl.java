@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import tfg.proyecto.TFG.config.DtoConverter;
 import tfg.proyecto.TFG.dtos.DTOCarritoBajada;
@@ -33,6 +35,10 @@ public class ServicioCarritoImpl implements IServicioCarrito{
 	    @Autowired private RepositorioUsuario usuarioDAO;
 	    @Autowired private ServicioTicketImpl servicioTicket;
 	    @Autowired private DtoConverter dtoConverter;
+	    
+	    
+	    @PersistenceContext
+	    private EntityManager em;
 
     ServicioCarritoImpl(PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
@@ -47,64 +53,66 @@ public class ServicioCarritoImpl implements IServicioCarrito{
 	    @Override
 	    @Transactional
 	    public DTOCarritoBajada agregarItemAlCarrito(Long usuarioId, Long eventoId, int cantidad) {
-	        Carrito carrito = obtenerOCrearCarrito(usuarioId);
-	        Evento evento = eventoDAO.findById(eventoId)
-	                .orElseThrow(() -> new RuntimeException("Evento no encontrado"));
+	    	  Carrito carrito = obtenerOCrearCarrito(usuarioId);
+	    	    Evento evento = eventoDAO.findById(eventoId)
+	    	            .orElseThrow(() -> new RuntimeException("Evento no encontrado"));
 
-	        Optional<CarritoItem> existente = itemDAO.findByCarritoAndEvento(carrito.getId(), eventoId);
+	    	    CarritoItem nuevo = CarritoItem.builder()
+	    	            .carrito(carrito)
+	    	            .evento(evento)
+	    	            .cantidad(cantidad)
+	    	            .precioUnitario(evento.getPrecio())
+	    	            .build();
 
-	        if (existente.isPresent()) {
-	            CarritoItem item = existente.get();
-	            item.setCantidad(item.getCantidad() + cantidad);
-	            itemDAO.save(item);
-	        } else {
-	            CarritoItem nuevo = CarritoItem.builder()
-	                    .carrito(carrito)
-	                    .evento(evento)
-	                    .cantidad(cantidad)
-	                    .precioUnitario(evento.getPrecio())
-	                    .build();
-	            itemDAO.save(nuevo);
-	        }
+	    	    carrito.getItems().add(nuevo);
 
-	        carrito = carritoDAO.findById(carrito.getId()).get();
-	        return dtoConverter.map(carrito, DTOCarritoBajada.class);
+	    	    carritoDAO.save(carrito);
+
+	    	    // Recargar carrito desde BD con items actualizados
+	    	    Carrito carritoActualizado = carritoDAO.findById(carrito.getId()).get();
+	    	    return dtoConverter.map(carritoActualizado, DTOCarritoBajada.class);
 	    }
 
 	    @Override
 	    @Transactional
 	    public DTOCarritoBajada actualizarItem(Long usuarioId, Long itemId, int cantidad) {
-	        Carrito carrito = obtenerOCrearCarrito(usuarioId);
+	    	Carrito carrito = obtenerOCrearCarrito(usuarioId);
 	        CarritoItem item = itemDAO.findById(itemId)
 	                .orElseThrow(() -> new RuntimeException("Item no encontrado"));
 
-	        if (!item.getCarrito().getId().equals(carrito.getId())) {
+	        if (!item.getCarrito().getId().equals(carrito.getId()))
 	            throw new RuntimeException("El item no pertenece a este carrito");
-	        }
 
 	        item.setCantidad(cantidad);
 	        itemDAO.save(item);
 
-	        return dtoConverter.map(carrito, DTOCarritoBajada.class);
+	        // ✅Recargar carrito
+	        Carrito carritoActualizado = carritoDAO.findById(carrito.getId()).get();
+	        return dtoConverter.map(carritoActualizado, DTOCarritoBajada.class);
 	    }
 
 	    @Override
 	    @Transactional
 	    public DTOCarritoBajada eliminarItem(Long usuarioId, Long itemId) {
-	        Carrito carrito = obtenerOCrearCarrito(usuarioId);
-	        
-	        itemDAO.findById(itemId).ifPresent(item -> {
-	        	
-	            if (item.getCarrito().getId().equals(carrito.getId())) {
-	            	System.out.println("ENTRO EN EL IF : ");
-	                carrito.getItems().remove(item);
-	                itemDAO.delete(item);
-	            }
-	        });
+	    	 CarritoItem item = itemDAO.findById(itemId)
+	    	            .orElseThrow(() -> new RuntimeException("Item no encontrado"));
 
-	        carritoDAO.save(carrito);
-	        return dtoConverter.map(carrito, DTOCarritoBajada.class);
-	    }
+	    	    if (!item.getCarrito().getUsuario().getId().equals(usuarioId))
+	    	        throw new RuntimeException("No tienes permiso para eliminar este item");
+
+	    	    //  Eliminar el item
+	    	    itemDAO.delete(item);
+
+	    	    //  Forzar sincronización con la BD
+	    	    em.flush();
+	    	    em.clear();  // Limpia el contexto para que Hibernate recargue desde la BD
+
+	    	    // Recargar carrito limpio desde BD
+	    	    Carrito carritoActualizado = carritoDAO.findByUsuarioIdAndEstado(usuarioId, EstadoCarrito.ACTIVO)
+	    	            .orElseThrow(() -> new RuntimeException("Carrito no encontrado"));
+
+	    	    return dtoConverter.map(carritoActualizado, DTOCarritoBajada.class);
+	        }
 
 	    @Override
 	    @Transactional

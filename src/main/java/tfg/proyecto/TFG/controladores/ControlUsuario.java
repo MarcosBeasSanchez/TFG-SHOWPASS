@@ -107,7 +107,7 @@ public class ControlUsuario {
     }
     
     @GetMapping("findAllEventosCreados/{id}")
- // 🚨 El tipo de retorno debe ser List<EventoDTO> 🚨
+ // El tipo de retorno debe ser List<EventoDTO> 
  public ResponseEntity<List<DTOeventoBajada>> findAllEventosCreadosPorUnUsuario(@PathVariable Long id){
      
      // El servicio ahora devuelve List<EventoDTO>

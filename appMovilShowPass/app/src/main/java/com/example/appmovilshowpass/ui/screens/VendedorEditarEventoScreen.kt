@@ -5,6 +5,7 @@ import android.util.Base64
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -14,6 +15,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddPhotoAlternate
 import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -48,6 +50,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.ui.Alignment
@@ -57,6 +60,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.appmovilshowpass.model.Categoria
+import com.example.appmovilshowpass.ui.components.InvitadoEditorUIEdit
 import com.example.appmovilshowpass.utils.construirUrlImagen
 import com.example.appmovilshowpass.utils.formatearFechayHora
 import com.example.appmovilshowpass.viewmodel.EventoViewModel
@@ -191,12 +195,58 @@ fun VendedorEditarEventoScreen(
 
             SectionTitle("Carrusel")
 
+            var imagenAEliminar by remember { mutableStateOf<String?>(null) }
+
             LazyRow(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                 items(carrusel) { img ->
-                    Card(Modifier.size(110.dp), shape = RoundedCornerShape(10.dp)) {
-                        SafeImage(model = img, modifier = Modifier.fillMaxSize())
+                    Box(Modifier.size(110.dp)) {
+
+                        Card(
+                            Modifier.fillMaxSize(),
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            SafeImage(model = img, modifier = Modifier.fillMaxSize())
+                        }
+
+                        IconButton(
+                            onClick = { imagenAEliminar = img },
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .background(Color.Black.copy(alpha = 0.4f), RoundedCornerShape(50))
+                                .size(26.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.Close,
+                                contentDescription = "Eliminar Imagen",
+                                tint = Color.White,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
                     }
                 }
+            }
+
+
+
+            if (imagenAEliminar != null) {
+                AlertDialog(
+                    onDismissRequest = { imagenAEliminar = null },
+                    title = { Text("Eliminar imagen") },
+                    text = { Text("¿Seguro que quieres eliminar esta imagen del carrusel?") },
+                    confirmButton = {
+                        Button(onClick = {
+                            carrusel.remove(imagenAEliminar)
+                            imagenAEliminar = null
+                        }) {
+                            Text("Eliminar")
+                        }
+                    },
+                    dismissButton = {
+                        OutlinedButton(onClick = { imagenAEliminar = null }) {
+                            Text("Cancelar")
+                        }
+                    }
+                )
             }
 
             OutlinedButton({ pickCarrusel.launch("image/*") }, Modifier.fillMaxWidth()) {
@@ -238,138 +288,6 @@ fun VendedorEditarEventoScreen(
         }
     }
 }
-
-@Composable
-fun InvitadoEditorUIEdit(invitados: MutableList<DTOInvitadoSubida>) {
-    var mostrarDialogo by remember { mutableStateOf(false) }
-    var invitadoEditando by remember { mutableStateOf<DTOInvitadoSubida?>(null) }
-
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        invitados.forEach { inv ->
-            Card(
-                Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface)
-            ) {
-                Row(
-                    Modifier.padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-
-                    Card(Modifier.size(60.dp), shape = RoundedCornerShape(50)) {
-                        SafeImage(model = inv.fotoURL, modifier = Modifier.fillMaxSize())
-                    }
-
-
-                    Column(Modifier.weight(1f)) {
-                        Text(inv.nombre ?: "Invitado", fontWeight = FontWeight.Bold)
-                        Text(inv.apellidos ?: "", style = androidx.compose.material3.MaterialTheme.typography.bodySmall)
-                    }
-
-                    Button(onClick = {
-                        invitadoEditando = inv
-                        mostrarDialogo = true
-                    }) {
-                        Icon(
-                            imageVector = Icons.Outlined.Edit,
-                            contentDescription = "Icono"
-                        )
-                    }
-
-                    OutlinedButton(onClick = { invitados.remove(inv) }
-                    , colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Red)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Close,
-                            contentDescription = "Icono",
-                            tint = Color.Red
-                        )
-                    }
-                }
-            }
-        }
-
-        OutlinedButton(
-            onClick = {
-            invitadoEditando = DTOInvitadoSubida(null, "", "", "", "")
-            mostrarDialogo = true }
-            , modifier = Modifier.fillMaxWidth().align(Alignment.End)
-
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.Add,
-                contentDescription = "Icono"
-            )
-            Text("Agregar Invitado", Modifier.padding(start = 6.dp))
-
-        }
-
-        if (mostrarDialogo) {
-            InvitadoDialogEditor(invitadoEditando!!, { mostrarDialogo = false }) { actualizado ->
-                if (!invitados.contains(actualizado)) invitados.add(actualizado)
-                mostrarDialogo = false
-            }
-        }
-    }
-}
-
-@Composable
-fun InvitadoDialogEditor(
-    invitadoInicial: DTOInvitadoSubida,
-    onDismiss: () -> Unit,
-    onSave: (DTOInvitadoSubida) -> Unit
-) {
-    var nombre by remember { mutableStateOf(invitadoInicial.nombre ?: "") }
-    var apellidos by remember { mutableStateOf(invitadoInicial.apellidos ?: "") }
-    var descripcion by remember { mutableStateOf(invitadoInicial.descripcion ?: "") }
-    var foto by remember { mutableStateOf(invitadoInicial.fotoURL ?: "") }
-    val context = LocalContext.current
-
-    val picker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        uri?.let { foto = "data:image/png;base64," + imagenToBase64(context, it)
-        }
-    }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Invitado") },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                OutlinedTextField(nombre, { nombre = it }, Modifier.fillMaxWidth(), label = { Text("Nombre") })
-                OutlinedTextField(apellidos, { apellidos = it }, Modifier.fillMaxWidth(), label = { Text("Apellidos") })
-                OutlinedTextField(descripcion, { descripcion = it }, Modifier.fillMaxWidth(), label = { Text("Descripción") })
-
-                OutlinedButton(onClick = { picker.launch("image/*") }, Modifier.fillMaxWidth()) {
-                    Icon(Icons.Default.Image, null)
-                    Spacer(Modifier.width(8.dp))
-                    Text("Cambiar Foto")
-                }
-            }
-        },
-        confirmButton = {
-            Button(onClick = {
-                onSave(
-                    DTOInvitadoSubida(
-                        id = invitadoInicial.id,
-                        nombre = nombre,
-                        apellidos = apellidos,
-                        descripcion = descripcion,
-                        fotoURL = foto
-                    )
-                )
-            }) {
-                Text("Guardar")
-            }
-        },
-        dismissButton = {
-            OutlinedButton(onClick = onDismiss) { Text("Cancelar") }
-        },
-        shape = RoundedCornerShape(16.dp)
-    )
-}
-
-
 
 @Composable
 fun SafeImage(

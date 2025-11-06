@@ -43,7 +43,7 @@ public class ServicioInvitadoImpl implements IServicioInvitado{
             	        dto.getFotoURL(),
             	        "invitados/" + eventoId
             	);
-            	System.out.println("✅ [BACKEND] Invitado imagen guardada: " + rutaFoto);
+            	System.out.println("[BACKEND] Invitado imagen guardada: " + rutaFoto);
 
                 Invitado invitado = Invitado.builder()
                         .nombre(dto.getNombre())
