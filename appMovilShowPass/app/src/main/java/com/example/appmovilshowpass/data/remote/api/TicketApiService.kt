@@ -8,6 +8,7 @@ import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface TicketApiService {
 
@@ -24,5 +25,9 @@ interface TicketApiService {
 
     @DELETE("tfg/ticket/delete/{id}")
     suspend fun eliminarTicket(@Path("id") id: Long): Response<Map<String, Any>>
+
+    // Valida el ticket por el campo contenidoQR
+    @GET("tfg/ticket/validarQR")
+    suspend fun validarCodigoQR(@Query("contenidoQR") codigoQR: String): Response<Boolean>
 
 }

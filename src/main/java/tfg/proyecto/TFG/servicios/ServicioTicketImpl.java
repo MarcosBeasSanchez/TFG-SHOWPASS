@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,8 +29,8 @@ import tfg.proyecto.TFG.repositorio.RepositorioUsuario;
 @Service
 public class ServicioTicketImpl implements IServicioTicket{
 	
-	 @Autowired  
-	 RepositorioTicket ticketDAO;
+	 	@Autowired  
+	 	RepositorioTicket ticketDAO;
 	    @Autowired  
 	    RepositorioEvento eventoDAO;
 	    @Autowired  
@@ -65,12 +68,25 @@ public class ServicioTicketImpl implements IServicioTicket{
 	        ticket.setFechaCompra(LocalDateTime.now());
 
 	        // Guardar primero para generar ID
-	        ticket = ticketDAO.save(ticket);
+	        //ticket = ticketDAO.save(ticket);
 
 	        // Generar QR
-	        String contenidoQR = "TICKET-" + ticket.getId() + "-USUARIO-" + usuario.getId();
-	        byte[] imagenQR = qrCodeGenerator.generarQRBytes(contenidoQR, 300, 300);
+	        //String contenidoQR = "TICKET-" + ticket.getId() + "-USUARIO-" + usuario.getId();
+	        //ticket.setContenidoQr(contenidoQR);
+	        
+	        //UUID
+	        String claveValidacion = UUID.randomUUID().toString();
+	        //ticket.setContenidoQr(claveValidacion); // Almacena el UUID en el campo codigoQR
+	        
+	        String contenidoQR = claveValidacion; //contenido aleatorio
+	        String urlValidacion = "http://localhost:8080/tfg/ticket/validarQR?contenidoQR=" + claveValidacion;
+	        ticket.setContenidoQR(contenidoQR); //Clave 
+	        ticket.setUrlQR(urlValidacion); //URL completa
+
+	        //Generar imagen QR
+	        byte[] imagenQR = qrCodeGenerator.generarQRBytes(urlValidacion, 300, 300);
 	        String qrBase64 = Base64.getEncoder().encodeToString(imagenQR);
+	       
 
 	        // Guardar QR en disco
 	        try {
@@ -82,7 +98,6 @@ public class ServicioTicketImpl implements IServicioTicket{
 
 	        // Guardar ticket con QR
 	        ticket = ticketDAO.save(ticket);
-
 	        //  Devolver DTO de bajada
 	        return dtoConverter.map(ticket, DTOticketBajada.class);
 	    }
@@ -107,8 +122,33 @@ public class ServicioTicketImpl implements IServicioTicket{
 	        return dtoConverter.mapAll(ticketDAO.findByEventoId(eventoId), DTOticketBajada.class);
 	    }
 
-	    @Override public boolean validarCodigoQR(String codigoQR) {
-	        return ticketDAO.existsByCodigoQR(codigoQR);
+	    /**
+	     * Valida el código QR. Si es válido y no ha sido usado, lo marca como USADO.
+	     * @param codigoQR El código a validar.
+	     * @return true si el ticket fue validado y marcado como USADO; false si no existe o ya estaba usado/anulado.
+	     */
+	    @Transactional // ¡Crucial para asegurar que la actualización se guarde!
+	    public boolean validarYUsarCodigoQR(String contenidoQR) {
+	    	
+	        // 1. Buscar el Ticket: Debe existir y estar en estado VALIDO
+	        Optional<Ticket> ticketOpt = ticketDAO.findByContenidoQRAndEstado(contenidoQR, EstadoTicket.VALIDO);
+
+	        
+	        if (ticketOpt.isPresent()) {
+	            
+	            // 2. Si se encuentra (válido), procedemos a marcarlo como USADO
+	            Ticket ticket = ticketOpt.get();
+	            
+	            // Actualizar el estado
+	            ticket.setEstado(EstadoTicket.USADO);
+	         
+	            // 3. Guardar la actualización en la base de datos
+	            ticketDAO.save(ticket);
+	            
+	            return true; // Éxito: Ticket validado y su estado actualizado a USADO
+	        }
+	        // Fallo: El código no existe O su estado ya era USADO/ANULADO.
+	        return false; 
 	    }
 
 	    @Override public boolean eliminarTodosLosTicketsPorUsuario(Long usuarioId) {

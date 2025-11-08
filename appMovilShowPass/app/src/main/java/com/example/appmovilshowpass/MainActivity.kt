@@ -1,12 +1,15 @@
 package com.example.appmovilshowpass
 
 import AuthViewModel
+import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -57,6 +60,7 @@ import com.example.appmovilshowpass.ui.screens.EventoScreen
 import com.example.appmovilshowpass.ui.screens.InfoScreen
 import com.example.appmovilshowpass.ui.screens.LoginScreen
 import com.example.appmovilshowpass.ui.screens.RegisterScreen
+import com.example.appmovilshowpass.ui.screens.ResultadoQRScreen
 import com.example.appmovilshowpass.ui.screens.TicketsScreen
 import com.example.appmovilshowpass.ui.screens.UsuarioEditScreen
 import com.example.appmovilshowpass.ui.screens.UsuarioScreen
@@ -73,13 +77,44 @@ import com.example.appmovilshowpass.ui.theme.Roboto
 import com.example.appmovilshowpass.viewmodel.TicketViewModel
 
 
+
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Procesar el intent (si la app fue abierta desde un enlace)
+        handleIntent(intent)
+
         setContent {
             AppMovilShowpassTheme {
                 //  pantalla principal
                 MainScreen()
+                // Intent de prueba para el QR
+                ResultadoQRScreen()
+            }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleIntent(intent)
+    }
+
+    /*
+    *  Maneja el Intent recibido para procesar enlaces profundos (deep links).
+    *  Extrae el parámetro "contenidoQR" de la URL y llama al ViewModel para validar el QR.
+    * */
+    private fun handleIntent(intent: Intent) {
+        val data = intent.data
+        data?.let {
+            val contenidoQR = it.getQueryParameter("contenidoQR")
+            if (contenidoQR != null) {
+                Log.d("DeepLink", "Contenido QR recibido: $contenidoQR")
+
+                val ticketViewModel: TicketViewModel by viewModels()
+                // Llamar al metdo del ViewModel para validar el QR
+                ticketViewModel.validarQr(contenidoQR)
             }
         }
     }
@@ -89,11 +124,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
-
-
     // AuthViewModel global para toda la pantalla (una sola instancia)
     val authViewModel: AuthViewModel = viewModel()
-
     val context = LocalContext.current
 
     // Cargar la foto guardada en DataStore al iniciar

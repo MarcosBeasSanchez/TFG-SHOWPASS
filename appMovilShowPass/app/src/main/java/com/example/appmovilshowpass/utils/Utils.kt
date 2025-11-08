@@ -1,28 +1,23 @@
 package com.example.appmovilshowpass.utils
 
+import android.R
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Context
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import android.util.Base64
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.icu.text.NumberFormat
 import android.net.Uri
 import android.util.Log
-import androidx.compose.ui.text.intl.Locale
+
 import com.itextpdf.text.*
 import com.itextpdf.text.pdf.PdfWriter
-import com.google.zxing.BarcodeFormat
-import com.google.zxing.qrcode.QRCodeWriter
+
 import java.io.*
 import java.net.URL
-import androidx.core.graphics.createBitmap
-import androidx.core.graphics.set
+
 import com.example.appmovilshowpass.data.local.SERVER_BASE_URL_FOTOS
 import com.example.appmovilshowpass.data.remote.dto.DTOTicketBajada
 import com.itextpdf.text.pdf.PdfContentByte
@@ -31,7 +26,7 @@ import com.itextpdf.text.pdf.PdfPTable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import java.time.LocalDate
-import java.util.Calendar
+import java.lang.Exception
 
 fun formatearFechayHora(fecha: String, formato: String = "dd/MM/yyyy HH:mm"): String {
     return try {
@@ -280,7 +275,6 @@ fun construirUrlImagen(ruta: String?): String {
             "data:image/png;base64,$ruta"
     }
 }
-
 
 fun imagenToBase64(context: Context, uri: Uri): String {
     val input = context.contentResolver.openInputStream(uri)

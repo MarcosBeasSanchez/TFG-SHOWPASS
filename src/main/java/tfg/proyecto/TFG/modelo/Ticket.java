@@ -29,7 +29,9 @@ public class Ticket {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String codigoQR;
+    private String codigoQR; // Ruta IMG a la bbdd
+    private String contenidoQR; // UUID
+    private String urlQR; // url para abrir qr en el movil
     private LocalDateTime fechaCompra;
     private double precioPagado;
 

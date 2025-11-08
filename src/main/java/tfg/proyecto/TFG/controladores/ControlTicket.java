@@ -97,13 +97,6 @@ public class ControlTicket {
         return new ResponseEntity<>(tickets, HttpStatus.OK);
     }
 	
-	@GetMapping("validarQR")
-    public ResponseEntity<Boolean> validarCodigoQR(@RequestParam String codigoQR) {
-        boolean valido = daoTicket.validarCodigoQR(codigoQR);
-        return new ResponseEntity<>(valido, HttpStatus.OK);
-    }
-	
-	
 	@DeleteMapping("delete/all/{usuarioId}")
 	public ResponseEntity<Map<String, Object>> eliminarTodosLosTicketsPorUsuario(@PathVariable Long usuarioId) {		Map<String, Object> response = new HashMap<>();
 
@@ -140,26 +133,36 @@ public class ControlTicket {
         return ResponseEntity.ok(ticket);
     }
 
-//    /**
-//     * Obtener la imagen QR directamente (image/png)
-//     */
-//    @GetMapping("/{id}/qr")
-//    public ResponseEntity<Map<String, String>> obtenerQR(@PathVariable Long id) {
-//        DTOticketBajada ticket = daoTicket.findById(id);
-//
-//        if (ticket.getCodigoQR() == null) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-//        }
-//        //coge la ruta absoluta da igual el sistema operativo
-//        Path rutaAbsoluta = Paths.get(System.getProperty("user.dir"), ticket.getCodigoQR());
-//
-//        try {
-//            byte[] imagen = Files.readAllBytes(rutaAbsoluta);
-//            String base64 = Base64.getEncoder().encodeToString(imagen);
-//            Map<String, String> respuesta = Map.of("codigoQR", "data:image/png;base64," + base64);
-//            return ResponseEntity.ok(respuesta);
-//        } catch (IOException e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-//        }
-//    }  
+    /**
+     * Obtener la imagen QR directamente (image/png)
+     */
+    @GetMapping("/{id}/qr")
+    public ResponseEntity<Map<String, String>> obtenerQR(@PathVariable Long id) {
+        DTOticketBajada ticket = daoTicket.findById(id);
+
+        if (ticket.getCodigoQR() == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        //coge la ruta absoluta da igual el sistema operativo
+        Path rutaAbsoluta = Paths.get(System.getProperty("user.dir"), ticket.getCodigoQR());
+
+        try {
+            byte[] imagen = Files.readAllBytes(rutaAbsoluta);
+            String base64 = Base64.getEncoder().encodeToString(imagen);
+            Map<String, String> respuesta = Map.of("codigoQR", "data:image/png;base64," + base64);
+            return ResponseEntity.ok(respuesta);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+    /*
+     * Valida el QR obtenido y develve un TRUE O FALSE
+     * */
+    @GetMapping("validarQR")
+    public ResponseEntity<Boolean> validarCodigoQR(@RequestParam String contenidoQR) {
+        // Llama a la función que realiza la validación Y la actualización (uso)
+        boolean validadoYUsado = daoTicket.validarYUsarCodigoQR(contenidoQR);
+        // Devuelve 'true' si fue exitoso (validado y marcado) o 'false' si falló.
+        return new ResponseEntity<>(validadoYUsado, HttpStatus.OK);
+    }
 }

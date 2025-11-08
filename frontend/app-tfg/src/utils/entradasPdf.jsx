@@ -46,7 +46,7 @@ async function hacerPDF(ticket, evento, ticketQR) {
     if (evento.imagenPrincipalUrl) {
         doc.addImage(getImageSrc(evento.imagenPrincipalUrl) , "JPEG", margin + 10, margin + 85, 120, 120);
     }else{
-        const placeholder = await loadImageAsBase64('https://www.freeiconspng.com/images/no-image-icon');
+        const placeholder = await loadImageAsBase64('https://via.placeholder.com/120x120.png?text=No+Image');
         doc.addImage(placeholder, "PNG", margin + 10, margin + 85, 120, 120);
     }
 
@@ -112,7 +112,8 @@ async function descargarPDF(ticket) {
         if (!qr.ok) throw new Error("Error obteniendo el código QR del backend");
         const qrData = await qr.json();
         ticket.codigoQR = qrData.codigoQR;
-        console.log("Código QR recibido del backend para PDF:", ticket.codigoQR);
+        ticket.contenidoQR = qrData.contenidoQR;
+        console.log("Código QR recibido del backend para PDF:", ticket.codigoQR, ticket.contenidoQR);
 
 
         // Crear y guardar el PDF con los datos del evento

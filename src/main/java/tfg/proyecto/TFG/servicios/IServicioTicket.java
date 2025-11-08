@@ -12,7 +12,7 @@ public interface IServicioTicket {
 	DTOticketBajada obtnerTicketPorId(Long id);
 	List<DTOticketBajada> obtnerTicketsPorUsuarioId(Long usuarioId);
 	List<DTOticketBajada> obtnerTicketsPorEventoId(Long eventoId);
-	boolean validarCodigoQR(String codigoQR);
 	boolean eliminarTodosLosTicketsPorUsuario(Long usuarioId);
 	DTOticketBajada findById(Long id);
+	boolean validarYUsarCodigoQR(String codigoQR);
 }

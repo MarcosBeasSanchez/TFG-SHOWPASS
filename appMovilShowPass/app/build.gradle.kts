@@ -78,6 +78,7 @@ dependencies {
     implementation(libs.firebase.crashlytics.buildtools)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.foundation.layout)
 
 
 

@@ -15,6 +15,8 @@ import tfg.proyecto.TFG.modelo.EstadoTicket;
 public class DTOticketBajada {
 	private Long id;
     private String codigoQR;
+    private String contenidoQR;
+    private String urlQR;
     private LocalDateTime fechaCompra;
     private double precioPagado;
     private EstadoTicket estado;

@@ -61,7 +61,6 @@ interface EventoApiService {
     @GET("tfg/evento/findByVendedor/{idVendedor}")
     suspend fun getEventosByVendedor(@Path("idVendedor") id: Long): List<DTOeventoBajada>
 
-
     @PUT("tfg/evento/updateMovil/{id}")
     suspend fun actualizarEvento(
         @Path("id") id: Long,
