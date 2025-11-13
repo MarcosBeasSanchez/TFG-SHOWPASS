@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -28,7 +31,10 @@ import tfg.proyecto.TFG.config.FileUtils;
 import tfg.proyecto.TFG.dtos.DTOInvitadoSubida;
 import tfg.proyecto.TFG.dtos.DTOeventoBajada;
 import tfg.proyecto.TFG.dtos.DTOeventoSubida;
+import tfg.proyecto.TFG.dtos.EventoRecomendadoDTO;
 import tfg.proyecto.TFG.modelo.Categoria;
+import tfg.proyecto.TFG.modelo.Evento;
+import tfg.proyecto.TFG.repositorio.RepositorioEvento;
 import tfg.proyecto.TFG.repositorio.RepositorioInvitado;
 import tfg.proyecto.TFG.servicios.IServicioEvento;
 
@@ -39,9 +45,17 @@ import tfg.proyecto.TFG.servicios.IServicioEvento;
 public class ControlEvento {
 	
 	@Autowired
-	IServicioEvento daoEvento;
+	IServicioEvento eventoServicio;
 	
-	 @Autowired RepositorioInvitado invitadoDAO;
+	@Autowired 
+	RepositorioInvitado invitadoDAO;
+	
+	
+	@Autowired
+	RepositorioEvento eventoDAO;
+	
+	private final RestTemplate restTemplate = new RestTemplate();
+
 
 	
 	//Con parametros porque multifilePart y JSOn Da error
@@ -94,7 +108,7 @@ public class ControlEvento {
 	            dto.setImagenesCarruselUrls(carruselBase64);
 	        }
 
-	        DTOeventoBajada evento = daoEvento.insert(dto);
+	        DTOeventoBajada evento = eventoServicio.insert(dto);
 	        return new ResponseEntity<>(evento, HttpStatus.CREATED);
 
 	    } catch (Exception e) {
@@ -109,7 +123,7 @@ public class ControlEvento {
 	        @RequestBody DTOeventoSubida dto
 	) {
 	    try {
-	        DTOeventoBajada evento = daoEvento.insert(dto);
+	        DTOeventoBajada evento = eventoServicio.insert(dto);
 	        return ResponseEntity.status(HttpStatus.CREATED).body(evento);
 	    } catch (Exception e) {
 	        e.printStackTrace();
@@ -121,7 +135,7 @@ public class ControlEvento {
 	
 	@GetMapping("findAll")
     public ResponseEntity<List<DTOeventoBajada>> obtenerTodosEventos() {
-        List<DTOeventoBajada> lista = daoEvento.obtenerTodosLosEventos();
+        List<DTOeventoBajada> lista = eventoServicio.obtenerTodosLosEventos();
         return new ResponseEntity<>(lista, HttpStatus.OK);
     }
 	
@@ -129,7 +143,7 @@ public class ControlEvento {
 	@PutMapping("update/{id}")
     public ResponseEntity<DTOeventoBajada> actualizarEvento(@PathVariable Long id, @RequestBody DTOeventoSubida dto) {
         try {
-            DTOeventoBajada actualizado = daoEvento.actualizarEvento(id, dto);
+            DTOeventoBajada actualizado = eventoServicio.actualizarEvento(id, dto);
             return new ResponseEntity<>(actualizado, HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -139,7 +153,7 @@ public class ControlEvento {
 	@PutMapping("updateMovil/{id}")
     public ResponseEntity<DTOeventoBajada> actualizarEventoMovil(@PathVariable Long id, @RequestBody DTOeventoSubida dto) {
         try {
-            DTOeventoBajada actualizado = daoEvento.actualizarEventoMovil(id, dto);
+            DTOeventoBajada actualizado = eventoServicio.actualizarEventoMovil(id, dto);
             return new ResponseEntity<>(actualizado, HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -149,7 +163,7 @@ public class ControlEvento {
 	
 	@DeleteMapping("delete/{id}")
     public ResponseEntity<Void> eliminarEvento(@PathVariable Long id) {
-        boolean eliminado = daoEvento.eliminarEvento(id);
+        boolean eliminado = eventoServicio.eliminarEvento(id);
         if (eliminado) {
             return new ResponseEntity<>(HttpStatus.OK);
         } else {
@@ -160,7 +174,7 @@ public class ControlEvento {
 	@GetMapping("findByNombre") 
     public ResponseEntity<DTOeventoBajada> obtenerPorNombre(@RequestParam String nombre) {
         try {
-            DTOeventoBajada evento = daoEvento.obtnerPorElNombre(nombre);
+            DTOeventoBajada evento = eventoServicio.obtnerPorElNombre(nombre);
             return new ResponseEntity<>(evento, HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -171,7 +185,7 @@ public class ControlEvento {
 		@GetMapping("findById") 
 	    public ResponseEntity<DTOeventoBajada> obtenerPorId(@RequestParam Long id) {
 	        try {
-	            DTOeventoBajada evento = daoEvento.obtnerPorElId(id);
+	            DTOeventoBajada evento = eventoServicio.obtnerPorElId(id);
 	            return new ResponseEntity<>(evento, HttpStatus.OK);
 	        } catch (RuntimeException e) {
 	            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -183,7 +197,7 @@ public class ControlEvento {
 		 try {
 		       
 		        Categoria catEnum = Categoria.valueOf(categoria.toUpperCase());
-		        List<DTOeventoBajada> eventos = daoEvento.obtenerPorCategoria(catEnum);
+		        List<DTOeventoBajada> eventos = eventoServicio.obtenerPorCategoria(catEnum);
 		        return new ResponseEntity<>(eventos, HttpStatus.OK);
 		    } catch (IllegalArgumentException e) {
 		        
@@ -195,7 +209,7 @@ public class ControlEvento {
 	@GetMapping("filterByNombre")
 	public ResponseEntity<List<DTOeventoBajada>> busquedaParcialPorNombre(@RequestParam String nombre) {
 	    try {
-	        List<DTOeventoBajada> eventos = daoEvento.buscarPorNombreConteniendo(nombre);
+	        List<DTOeventoBajada> eventos = eventoServicio.buscarPorNombreConteniendo(nombre);
 	        return new ResponseEntity<>(eventos, HttpStatus.OK);
 	    } catch (RuntimeException e) {
 	        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -204,17 +218,28 @@ public class ControlEvento {
 	
 	@GetMapping("findByVendedor/{idVendedor}")
 	public ResponseEntity<List<DTOeventoBajada>> findByVendedor(@PathVariable Long idVendedor) {
-	    return ResponseEntity.ok(daoEvento.obtenerPorVendedor(idVendedor));
+	    return ResponseEntity.ok(eventoServicio.obtenerPorVendedor(idVendedor));
 	}
 	
-
-	    @DeleteMapping("deleteInvitado/{id}")
-	    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-	        if (invitadoDAO.existsById(id)) {
-	            invitadoDAO.deleteById(id);
-	            return ResponseEntity.ok().build();
-	        }
-	        return ResponseEntity.notFound().build();
-	    }
+	@DeleteMapping("deleteInvitado/{id}")
+	public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+		if (invitadoDAO.existsById(id)) {
+			invitadoDAO.deleteById(id);
+			return ResponseEntity.ok().build();
+		}
+		return ResponseEntity.notFound().build();
+	}
 	
+	
+	
+	@GetMapping("/recomendacionUsuario/{userId}")
+    public ResponseEntity<List<EventoRecomendadoDTO>> obtenerRecomendacionesUsuario(@PathVariable Long userId) {
+        return ResponseEntity.ok(eventoServicio.obtenerRecomendacionesUsuario(userId));
+    }
+
+    @GetMapping("/recomendacionEvento/{eventoId}")
+    public ResponseEntity<List<EventoRecomendadoDTO>> obtenerSimilaresEvento(@PathVariable Long eventoId) {
+        return ResponseEntity.ok(eventoServicio.obtenerSimilaresEvento(eventoId));
+	
+    }
 }

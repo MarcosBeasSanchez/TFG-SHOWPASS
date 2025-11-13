@@ -4,6 +4,7 @@ import java.util.List;
 
 import tfg.proyecto.TFG.dtos.DTOeventoBajada;
 import tfg.proyecto.TFG.dtos.DTOeventoSubida;
+import tfg.proyecto.TFG.dtos.EventoRecomendadoDTO;
 import tfg.proyecto.TFG.modelo.Categoria;
 
 public interface IServicioEvento {
@@ -19,5 +20,7 @@ public interface IServicioEvento {
 	List<DTOeventoBajada> obtenerPorVendedor(Long vendedorId);
 	
 	DTOeventoBajada actualizarEventoMovil(Long id,  DTOeventoSubida eventodto);
-
+	
+	List<EventoRecomendadoDTO> obtenerRecomendacionesUsuario(Long userId);
+	List<EventoRecomendadoDTO> obtenerSimilaresEvento(Long eventoId);
 }

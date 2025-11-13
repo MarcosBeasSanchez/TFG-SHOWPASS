@@ -3,16 +3,20 @@ package tfg.proyecto.TFG.servicios;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import jakarta.transaction.Transactional;
 import tfg.proyecto.TFG.config.DtoConverter;
 import tfg.proyecto.TFG.dtos.DTOEventoImagenSubida;
 import tfg.proyecto.TFG.dtos.DTOeventoBajada;
 import tfg.proyecto.TFG.dtos.DTOeventoSubida;
+import tfg.proyecto.TFG.dtos.EventoRecomendadoDTO;
 import tfg.proyecto.TFG.modelo.Categoria;
 import tfg.proyecto.TFG.modelo.Evento;
 import tfg.proyecto.TFG.modelo.Rol;
@@ -31,6 +35,11 @@ public class ServicioEventoImpl implements IServicioEvento{
 	@Autowired
 	DtoConverter dtoConverter;
 	
+	@Value("${microservicio.recomendacion.url:http://127.0.0.1:8000}")
+    private  String microServicioURL;  
+
+    private final RestTemplate restTemplate = new RestTemplate();
+	
 
 @Autowired  RepositorioEventoImagen eventoImagenDAO;
 	    @Autowired  RepositorioUsuario usuarioDAO;
@@ -38,6 +47,7 @@ public class ServicioEventoImpl implements IServicioEvento{
 	    @Autowired  ServicioEventoImagenImpl servicioEventoImagen;
 	    @Autowired ServicioInvitadoImpl servicioInvitado;
 	    @Autowired RepositorioInvitado invitadoDAO;
+	    
 
 
 	    @Override
@@ -325,6 +335,58 @@ public class ServicioEventoImpl implements IServicioEvento{
             return dto;
         }).collect(Collectors.toList());
 	}
+	
+	
+	
+	
+	@Override
+	public List<EventoRecomendadoDTO> obtenerRecomendacionesUsuario(Long userId) {
+		// TODO Auto-generated method stub
+		 String url = microServicioURL + "/recommendations?userId=" + userId;
+
+		 // Llamamos al microservicio  devuelve {"eventos_recomendados": [1, 3, 5]}
+		    Map<String, List<Integer>> response = restTemplate.getForObject(url, Map.class);
+		    List<Integer> ids = response.get("eventos_recomendados");
+
+		    if (ids == null || ids.isEmpty()) return List.of();
+
+		    // 🔹 Convertimos Integer → Long
+		    List<Long> idsLong = ids.stream()
+		            .map(Integer::longValue)
+		            .collect(Collectors.toList());
+
+		    // Consultamos la BD usando los IDs devueltos
+		    List<Evento> eventos = (List<Evento>) eventoDAO.findAllById(idsLong);
+
+		    // Mapeamos con DtoConverter a EventoRecomendadoDTO
+		    return eventos.stream()
+		            .map(e -> dtoConverter.map(e, EventoRecomendadoDTO.class))
+		            .collect(Collectors.toList());
+	}
+	
+	
+	
+	@Override
+	public List<EventoRecomendadoDTO> obtenerSimilaresEvento(Long eventoId) {
+		// TODO Auto-generated method stub
+		 String url = microServicioURL + "/recommendations/event?eventoId=" + eventoId;
+
+		 Map<String, List<Integer>> response = restTemplate.getForObject(url, Map.class);
+		    List<Integer> ids = response.get("eventos_similares");
+
+		    if (ids == null || ids.isEmpty()) return List.of();
+
+		    List<Long> idsLong = ids.stream()
+		            .map(Integer::longValue)
+		            .collect(Collectors.toList());
+
+		    List<Evento> eventos = (List<Evento>) eventoDAO.findAllById(idsLong);
+
+		    return eventos.stream()
+		            .map(e -> dtoConverter.map(e, EventoRecomendadoDTO.class))
+		            .collect(Collectors.toList());
+	}
+	
 	
 	
 }

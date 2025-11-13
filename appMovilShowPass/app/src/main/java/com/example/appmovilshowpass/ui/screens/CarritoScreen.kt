@@ -22,10 +22,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Event
-import androidx.compose.material.icons.filled.RemoveShoppingCart
 import androidx.compose.material.icons.filled.ShoppingCartCheckout
 import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material.icons.outlined.ShoppingCartCheckout
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -41,24 +39,30 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.example.appmovilshowpass.model.CarritoItem
+import com.example.appmovilshowpass.ui.components.EventoRecomendadoCarritoCard
 import com.example.appmovilshowpass.utils.construirUrlImagen
 import com.example.appmovilshowpass.utils.formatearPrecio
 import com.example.appmovilshowpass.viewmodel.CarritoViewModel
+import com.example.appmovilshowpass.viewmodel.EventoViewModel
 import com.example.appmovilshowpass.viewmodel.TicketViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -73,14 +77,23 @@ fun CarritoScreen(
     val total = carritoViewModel.total.collectAsState().value
     val context = LocalContext.current
 
-    // Cargar carrito al abrir
+    // ViewModel de recomendaciones
+    val eventoViewModel: EventoViewModel = viewModel()
+    val recomendaciones by eventoViewModel.recomendados.collectAsState()
+
+
+    //  Estados internos
+    //compraFinalizada = true → mostrar recomendaciones aunque carrito esté vacío
+
+    var compraFinalizada by remember { mutableStateOf(false) }
+
+    // Cargar carrito al abrir pantalla
     LaunchedEffect(Unit) {
         carritoViewModel.cargarCarrito(usuarioId)
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
 
-        // Título superior
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -92,69 +105,91 @@ fun CarritoScreen(
                 imageVector = Icons.Default.ShoppingCartCheckout,
                 contentDescription = "Carrito",
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .size(32.dp)
-                    .padding(end = 8.dp)
+                modifier = Modifier.size(32.dp)
             )
             Text(
                 text = "Carrito de Compra",
                 fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
+                fontSize = 20.sp,
+                modifier = Modifier.padding(start = 8.dp)
             )
         }
 
-        //  Carrito vacío
-        if (carrito?.items.isNullOrEmpty()) {
 
-            // 1. Contenedor principal
+        // 1. MOSTRAR RECOMENDACIONES (solo si finalizó compra)
+        if (compraFinalizada && recomendaciones.isNotEmpty()) {
+
+            // Título centrado
+            Text(
+                text = "Eventos que podrían interesarte",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .padding(vertical = 20.dp)
+                    .fillMaxWidth(),
+                textAlign = TextAlign.Center
+            )
+
+            // LISTA EN VERTICAL, CENTRADA
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp)
+            ) {
+                items(recomendaciones) { evento ->
+                    EventoRecomendadoCarritoCard(
+                        evento = evento,
+                        navController = navController
+                    )
+                }
+            }
+
+            return@Column // << OBLIGATORIO PARA NO MOSTRAR MÁS NADA
+        }
+
+
+        //    2. CARRITO VACÍO NORMAL (NO FINALIZÓ COMPRA)
+
+        if (carrito?.items.isNullOrEmpty() && !compraFinalizada) {
+
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    // Quitar padding aquí, ya que el Card ya lo aplica, o usar solo 16.dp si es necesario
                     .padding(horizontal = 16.dp, vertical = 32.dp),
                 contentAlignment = Alignment.Center
             ) {
-
-                //  Tarjeta con estilo elevado y moderno
                 Card(
-                    modifier = Modifier
-                        .fillMaxWidth(0.9f) // Ocupa la mayoría del ancho
-                        .padding(vertical = 16.dp),
-                    shape = RoundedCornerShape(8.dp), // Esquinas más grandes para estilo moderno
-                    elevation = CardDefaults.cardElevation(defaultElevation = 10.dp),
+                    modifier = Modifier.fillMaxWidth(0.9f),
+                    shape = RoundedCornerShape(8.dp),
+                    elevation = CardDefaults.cardElevation(10.dp),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                 ) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(32.dp), // Relleno interno generoso
-                        verticalArrangement = Arrangement.Center,
+                            .padding(32.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        //  Título de impacto (usando headline o title large)
+
                         Text(
                             text = "Tu carrito está vacío",
-                            style = MaterialTheme.typography.titleMedium, // Título claro y robusto
-                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.titleMedium,
                             textAlign = TextAlign.Center
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        //  Animación o Imagen (usa el GIF, pero con un buen tamaño)
-                        coil.compose.AsyncImage(
+                        AsyncImage(
                             model = "https://i.giphy.com/giXLnhxp60zEEIkq8K.webp",
-                            contentDescription = "Carrito vacío animado",
-                            contentScale = ContentScale.Fit,
-                            modifier = Modifier
-                                .size(200.dp) // Tamaño óptimo para la animació
+                            contentDescription = null,
+                            modifier = Modifier.size(200.dp)
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        //  Mensaje de apoyo
                         Text(
-                            text = "¡Añade entradas de eventos para empezar tu compra!",
+                            text = "¡Añade entradas para comenzar tu compra!",
                             style = MaterialTheme.typography.bodyMedium,
                             color = Color.Gray,
                             textAlign = TextAlign.Center
@@ -174,102 +209,99 @@ fun CarritoScreen(
                 }
             }
 
+            return@Column
+        }
 
-        } else {
-            //  Lista de ítems del carrito
-            LazyColumn(
-                modifier = Modifier.weight(1f),
-                contentPadding = PaddingValues(12.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(carrito?.items ?: emptyList(),
-                    key = { item -> item.id }
-                ) { item ->
-                    CarritoItemCard(
-                        item = item,
-                        onEliminar = { carritoViewModel.eliminarItem( usuarioId,item.id) }
-                    )
-                }
+        //  3. MOSTRAR ITEMS SI EL CARRITO TIENE CONTENIDO
+
+        LazyColumn(
+            modifier = Modifier.weight(1f),
+            contentPadding = PaddingValues(12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(carrito?.items ?: emptyList(), key = { it.id }) { item ->
+                CarritoItemCard(
+                    item = item,
+                    onEliminar = { carritoViewModel.eliminarItem(usuarioId, item.id) }
+                )
             }
+        }
 
-            // Footer: total y botón de pagar
-            Surface(
-                tonalElevation = 6.dp,
-                shadowElevation = 4.dp,
-                color = MaterialTheme.colorScheme.surfaceVariant
+
+         //   FOOTER CON TOTAL + BOTÓN FINALIZAR COMPRA
+
+
+        Surface(
+            tonalElevation = 6.dp,
+            shadowElevation = 4.dp,
+            color = MaterialTheme.colorScheme.surfaceVariant
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+
+                Text(
+                    text = "Total: ${"%.2f".format(total)} €",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "Total: ${"%.2f".format(total)} €",
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
 
-                    Row(
+                    // Vaciar carrito
+                    OutlinedButton(
+                        onClick = { carritoViewModel.vaciarCarrito(usuarioId) },
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.error,
+                            contentColor = MaterialTheme.colorScheme.onError
+                        ),
+                        border = BorderStroke(0.dp, Color.Transparent),
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 8.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                            .weight(1f)
+                            .height(52.dp)
                     ) {
-                        // Botón "Vaciar carrito"
-                        OutlinedButton(
-                            onClick = { carritoViewModel.vaciarCarrito(usuarioId) },
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.error,
-                                contentColor = MaterialTheme.colorScheme.onError
-                            ),
-                            border = BorderStroke(0.dp, Color.Transparent),
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(52.dp), // altura suficiente para que el texto no se corte
-                            contentPadding = PaddingValues(vertical = 10.dp, horizontal = 12.dp) // mejora legibilidad
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.Delete,
-                                contentDescription = "Borrar",
-                                modifier = Modifier.padding(end = 6.dp),
-                                tint = MaterialTheme.colorScheme.onError
-                            )
-                            Text(
-                                text = "Vaciar carrito",
-                                color = MaterialTheme.colorScheme.onError,
-                                maxLines = 1
-                            )
-                        }
+                        Icon(Icons.Outlined.Delete, contentDescription = null)
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Vaciar")
+                    }
 
-                        Spacer(modifier = Modifier.width(16.dp))
+                    Spacer(modifier = Modifier.width(16.dp))
 
-                        // Botón "Finalizar compra"
-                        Button(
-                            onClick = {
-                                carritoViewModel.finalizarCompra(usuarioId) {
-                                    Toast.makeText(context, "✅ ¡Compra realizada!", Toast.LENGTH_SHORT).show()
-                                }
-                            },
-                            shape = RoundedCornerShape(12.dp),
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(52.dp), // misma altura
-                            contentPadding = PaddingValues(vertical = 10.dp, horizontal = 12.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.ShoppingCartCheckout,
-                                contentDescription = "Finalizar",
-                                modifier = Modifier.padding(end = 6.dp)
-                            )
-                            Text(
-                                text = "Finalizar",
-                                maxLines = 1
-                            )
-                        }
+                    // Finalizar compra
+                    Button(
+                        onClick = {
+                            carritoViewModel.finalizarCompra(usuarioId) {
+
+                                Toast.makeText(
+                                    context,
+                                    " ¡Compra realizada!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+
+                                // Guardamos estado para activar recomendaciones
+                                compraFinalizada = true
+
+                                eventoViewModel.recomendarPorUsuario(usuarioId)
+                            }
+                        },
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(52.dp)
+                    ) {
+                        Icon(Icons.Outlined.ShoppingCartCheckout, null)
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Finalizar")
                     }
                 }
             }
@@ -278,7 +310,7 @@ fun CarritoScreen(
 }
 
 
-
+//  CARD DE ITEM DEL CARRITO
 @Composable
 fun CarritoItemCard(
     item: CarritoItem,
@@ -294,7 +326,8 @@ fun CarritoItemCard(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(10.dp)
         ) {
-            // Imagen del evento
+
+            // Imagen
             if (!item.imagenEvento.isNullOrBlank()) {
                 Image(
                     painter = rememberAsyncImagePainter(construirUrlImagen(item.imagenEvento)),
@@ -312,30 +345,23 @@ fun CarritoItemCard(
                         .background(Color.LightGray),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Event,
-                        contentDescription = "Evento sin imagen",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    Icon(Icons.Default.Event, null)
                 }
             }
 
             Spacer(modifier = Modifier.width(12.dp))
 
             Column(modifier = Modifier.weight(1f)) {
+
+                Text(item.nombreEvento, fontWeight = FontWeight.Bold)
+
                 Text(
-                    text = item.nombreEvento,
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Text(
-                    text = "Cantidad: ${item.cantidad}",
-                    style = MaterialTheme.typography.bodySmall,
+                    "Cantidad: ${item.cantidad}",
                     color = Color.Gray
                 )
+
                 Text(
-                    text = "Precio: ${formatearPrecio(item.precioUnitario * item.cantidad)} €",
-                    style = MaterialTheme.typography.bodyMedium,
+                    "Precio: ${formatearPrecio(item.precioUnitario * item.cantidad)} €",
                     color = MaterialTheme.colorScheme.primary
                 )
             }

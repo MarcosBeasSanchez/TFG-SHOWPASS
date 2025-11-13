@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.appmovilshowpass.data.remote.api.RetrofitClient
+import com.example.appmovilshowpass.data.remote.dto.DTOEventoRecomendado
 import com.example.appmovilshowpass.data.remote.dto.DTOeventoSubida
 import com.example.appmovilshowpass.data.remote.dto.toEvento
 import com.example.appmovilshowpass.model.Evento
@@ -23,6 +24,10 @@ class EventoViewModel : ViewModel() {
 
     private val _mensaje = MutableStateFlow<String?>(null)
     val mensaje: StateFlow<String?> get() = _mensaje
+
+
+    private val _recomendados = MutableStateFlow<List<DTOEventoRecomendado>>(emptyList())
+    val recomendados: StateFlow<List<DTOEventoRecomendado>> get() = _recomendados
 
 
     init {
@@ -122,6 +127,34 @@ class EventoViewModel : ViewModel() {
                 e.printStackTrace()
                 _mensaje.value = " Error al actualizar evento"
             } finally {
+                _loading.value = false
+            }
+        }
+    }
+
+    fun recomendarPorEvento(eventoId: Long ){
+        viewModelScope.launch {
+            try {
+                _loading.value = true
+                val listaRecomendada = RetrofitClient.eventoApiService.obtenerRecomendacioPorEvento(eventoId)
+                _recomendados.value = listaRecomendada
+            }catch (e: Exception){
+                e.printStackTrace()
+            }finally {
+                _loading.value = false
+            }
+        }
+    }
+
+    fun recomendarPorUsuario(userId: Long){
+        viewModelScope.launch {
+            try {
+                _loading.value = true
+                val listaRecomendada = RetrofitClient.eventoApiService.obtenerRecomendacioPorUsuario(userId)
+                _recomendados.value = listaRecomendada
+            }catch (e: Exception){
+                e.printStackTrace()
+            }finally {
                 _loading.value = false
             }
         }

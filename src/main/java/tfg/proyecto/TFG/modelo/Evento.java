@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
@@ -75,6 +76,7 @@ public class Evento implements TieneId{
 
     @OneToMany(mappedBy = "evento", cascade = CascadeType.ALL)
     @ToString.Exclude
+    @JsonManagedReference
     private List<Ticket> tickets;
 	
 }

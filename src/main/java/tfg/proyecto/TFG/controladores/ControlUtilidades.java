@@ -3,22 +3,30 @@ package tfg.proyecto.TFG.controladores;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.StreamSupport;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.mail.MessagingException;
-import jakarta.servlet.http.HttpServletResponse;
+import tfg.proyecto.TFG.dtos.DTOEventoDataIA;
+import tfg.proyecto.TFG.dtos.DTOInvitadoBajada;
+import tfg.proyecto.TFG.dtos.DTOUsuarioDataIA;
+import tfg.proyecto.TFG.dtos.DTOticketBajada;
+import tfg.proyecto.TFG.repositorio.RepositorioEvento;
+import tfg.proyecto.TFG.repositorio.RepositorioTicket;
+import tfg.proyecto.TFG.repositorio.RepositorioUsuario;
 import tfg.proyecto.TFG.servicios.IServicioPdfEmail;
-import tfg.proyecto.TFG.servicios.IServicioTicket;
-import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
@@ -27,6 +35,14 @@ public class ControlUtilidades {
 
 	@Autowired
 	IServicioPdfEmail daoMail;
+	
+	@Autowired
+	RepositorioEvento eventoDAO;
+	@Autowired
+	RepositorioUsuario usuarioDAO;
+	@Autowired
+	RepositorioTicket ticketDAO;
+
 	
 
 	@PostMapping("/enviarPdfEmail")
@@ -78,4 +94,54 @@ public class ControlUtilidades {
 
 		return "Correo enviado a " + email;
 	}
+	
+	
+	
+	
+	@GetMapping("/data")
+	public ResponseEntity<Map<String, Object>> getRecommendationData() {
+	    // Usuarios con sus tickets
+	    List<DTOUsuarioDataIA> usuarios = StreamSupport.stream(usuarioDAO.findAll().spliterator(), false)
+	        .map(u -> new DTOUsuarioDataIA(
+	            u.getId(),
+	            u.getNombre(),
+	            u.getTickets().stream()
+	                .map(t -> new DTOticketBajada(
+	                    t.getId(),
+	                    t.getCodigoQR(),
+	                    t.getContenidoQR(),
+	                    t.getUrlQR(),
+	                    t.getFechaCompra(),
+	                    t.getPrecioPagado(),
+	                    t.getEstado(),
+	                    t.getUsuario().getId(),
+	                    t.getUsuario().getNombre(),
+	                    t.getEvento().getId(),
+	                    t.getEvento().getNombre()
+	                ))
+	                .toList()
+	        ))
+	        .toList();
+
+	    // Eventos
+	    List<DTOEventoDataIA> eventos = StreamSupport.stream(eventoDAO.findAll().spliterator(), false)
+	        .map(e -> new DTOEventoDataIA(
+	            e.getId(),
+	            e.getCategoria(),
+	            e.getDescripcion(),
+	            e.getLocalizacion(),
+	            e.getInvitados().stream()
+	                .map(i -> new DTOInvitadoBajada(i.getId(), i.getNombre(), null, null, null))
+	                .toList()
+	        ))
+	        .toList();
+
+	    // Respuesta final
+	    Map<String, Object> data = new HashMap<>();
+	    data.put("usuarios", usuarios);
+	    data.put("eventos", eventos);
+
+	    return ResponseEntity.ok(data);
+	    }
+	
 }

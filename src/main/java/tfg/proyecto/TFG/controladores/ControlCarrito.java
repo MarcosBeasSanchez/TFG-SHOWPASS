@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import tfg.proyecto.TFG.dtos.DTOCarritoBajada;
 import tfg.proyecto.TFG.servicios.IServicioCarrito;
@@ -25,6 +26,9 @@ public class ControlCarrito {
 
     @Autowired
     private IServicioCarrito carritoService;
+    
+    private final RestTemplate restTemplate = new RestTemplate();
+
     
     // Buscar un carrito
     @GetMapping("/{usuarioId}")
@@ -76,6 +80,7 @@ public class ControlCarrito {
     //  Finalizar compra
     @PostMapping("/finalizar/{usuarioId}")
     public ResponseEntity<DTOCarritoBajada> finalizarCompra(@PathVariable Long usuarioId) {
+    	 restTemplate.getForObject("http://localhost:8000/reload", String.class);
         return ResponseEntity.ok(carritoService.finalizarCompra(usuarioId));
     }
 }

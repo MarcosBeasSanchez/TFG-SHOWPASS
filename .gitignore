@@ -34,3 +34,12 @@ build/
 
 ### uploads ### Carpeta con archivos subidos
 uploads/
+
+# Python venvs
+venv/
+recomendacionServicio/venv/
+
+
+# Python cache
+__pycache__/
+*.pyc

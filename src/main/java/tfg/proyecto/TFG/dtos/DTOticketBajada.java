@@ -1,6 +1,5 @@
 package tfg.proyecto.TFG.dtos;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import lombok.AllArgsConstructor;

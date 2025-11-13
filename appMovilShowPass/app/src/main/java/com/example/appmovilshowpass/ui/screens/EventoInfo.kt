@@ -24,23 +24,27 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.appmovilshowpass.data.remote.api.RetrofitClient
 import com.example.appmovilshowpass.data.remote.dto.toEvento
 import com.example.appmovilshowpass.model.Evento
 import com.example.appmovilshowpass.ui.components.BotonesComprarTicket
+import com.example.appmovilshowpass.ui.components.EventoRecomendadoCard
 import com.example.appmovilshowpass.utils.construirUrlImagen
 import com.example.appmovilshowpass.utils.formatearFechayHora
 import com.example.appmovilshowpass.utils.formatearPrecio
 import com.example.appmovilshowpass.viewmodel.CarritoViewModel
+import com.example.appmovilshowpass.viewmodel.EventoViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventoInfo(
     eventoId: Long, authViewModel: AuthViewModel,
-    carritoViewModel: CarritoViewModel = viewModel()
+    carritoViewModel: CarritoViewModel = viewModel(),
+    navController: NavController
 ) {
     val context = LocalContext.current
     var evento by remember { mutableStateOf<Evento?>(null) }
@@ -50,12 +54,18 @@ fun EventoInfo(
     // Snackbar
     val snackbarHostState = remember { SnackbarHostState() }
 
+    val eventoViewModel: EventoViewModel = viewModel()
+    val recomendaciones by eventoViewModel.recomendados.collectAsState()
+
+
     // Llamada al backend
     LaunchedEffect(eventoId) {
         scope.launch {
             try {
                 val response = RetrofitClient.eventoApiService.findById(eventoId)
                 evento = response.toEvento()
+
+                eventoViewModel.recomendarPorEvento(eventoId)
             } catch (e: Exception) {
                 e.printStackTrace()
                 snackbarHostState.showSnackbar("Error al cargar evento")
@@ -244,6 +254,35 @@ fun EventoInfo(
                     Text("Aforo máximo", fontSize = 18.sp, modifier = Modifier.padding(vertical = 6.dp))
                     Text("${(e.aforoMax)} personas", fontSize = 16.sp)
                     Spacer(modifier = Modifier.height(15.dp))
+
+
+                    Log.d("recomendacion", " ${recomendaciones}")
+
+
+                    // eventos recomendados
+                    if (recomendaciones.isNotEmpty()) {
+                        Text(
+                            "Eventos recomendados",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
+
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            contentPadding = PaddingValues(horizontal = 12.dp)
+                        ) {
+                            items(recomendaciones) { rec ->
+                                EventoRecomendadoCard(
+                                    evento = rec,
+                                    navController = navController
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(25.dp))
+                    }
+
 
                     // Precio y botón de carrito
                     Text("Precio", fontSize = 18.sp, modifier = Modifier.padding(vertical = 6.dp))

@@ -1,5 +1,6 @@
 package com.example.appmovilshowpass.data.remote.api
 
+import com.example.appmovilshowpass.data.remote.dto.DTOEventoRecomendado
 import com.example.appmovilshowpass.data.remote.dto.DTOeventoBajada
 import retrofit2.http.GET
 import com.example.appmovilshowpass.data.remote.dto.DTOUsuarioReportado
@@ -69,6 +70,13 @@ interface EventoApiService {
 
     @DELETE("tfg/evento/deleteInvitado/{id}")
     suspend fun eliminarInvitado(@Path("id") id: Long)
+
+    @GET("tfg/evento/recomendacionUsuario/{userId}")
+    suspend fun obtenerRecomendacioPorUsuario(@Path("userId") id: Long): List<DTOEventoRecomendado>
+
+    @GET("tfg/evento/recomendacionEvento/{eventoId}")
+    suspend fun obtenerRecomendacioPorEvento(@Path("eventoId") id: Long): List<DTOEventoRecomendado>
+
 }
 
 
