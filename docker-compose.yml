@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  # Servicio 1: Backend (Java Spring Boot)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: showpass_backend
+    ports:
+      - "8080:8080"
+    # Asegura que el backend espere a que el servicio de recomendación esté listo
+    depends_on:
+      - recomendacion-servicio
+    # Si necesitas variables de entorno (p. ej., conexión a BD, puerto del servicio de recomendación)
+    environment:
+      # --- VARIABLES CLAVE PARA LA CONEXIÓN EXTERNA ---
+      # Define la IP del HOST que la App Móvil debe usar. 
+      # Cambia por la IP de tu máquina en la red local.
+      BACKEND_HOST_IP: 0.0.0.0 #NO ESTA EN USO ACTUALMENTE
+      # Variable para el servicio interno de FastAPI:
+      #URL_RECOMENDACION_SERVICE: http://recomendacion-servicio:8000
+      SPRING_PROFILES_ACTIVE: docker
+
+  # Servicio 2: Servicio de Recomendación (Python FastAPI)
+  recomendacion-servicio:
+    build:
+      context: ./recomendacionServicio
+      dockerfile: Dockerfile
+    container_name: showpass_recomendador
+    ports:
+      - "8000:8000"
+    # Reinicia automáticamente en caso de fallo
+    restart: always
+
+  # Servicio 3: Frontend Web (React/Vite)
+  frontend-web:
+    build:
+      context: ./frontend/appWebShowPass
+      dockerfile: Dockerfile
+    container_name: showpass_frontend_web
+    ports:
+      - "80:80" # El puerto 80 del contenedor se mapea al 80 del host
+    # El frontend web necesita que el backend esté listo para funcionar
+    depends_on:
+      - backend
