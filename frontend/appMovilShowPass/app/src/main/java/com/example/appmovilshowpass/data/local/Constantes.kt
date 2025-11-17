@@ -2,7 +2,7 @@ package com.example.appmovilshowpass.data.local
 
 // Constantes de Red
 
-const val LOCALHOST = "" //Cambia aqui la IPV4
+const val LOCALHOST = "192.168.1.133" //Cambia aqui la IPV4
 const val PORT = "8080" //puerto del servidor backend
 const val BASE_URL = "http://$LOCALHOST:$PORT/"
 

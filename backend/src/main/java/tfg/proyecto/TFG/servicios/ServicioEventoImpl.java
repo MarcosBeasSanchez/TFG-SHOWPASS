@@ -35,7 +35,7 @@ public class ServicioEventoImpl implements IServicioEvento{
 	@Autowired
 	DtoConverter dtoConverter;
 	
-	@Value("${microservicio.recomendacion.url:http://127.0.0.1:8000}")
+	@Value("${microservicio.recomendacion.url:http://recomendacion-servicio:8000}")
     private  String microServicioURL;  
 
     private final RestTemplate restTemplate = new RestTemplate();
