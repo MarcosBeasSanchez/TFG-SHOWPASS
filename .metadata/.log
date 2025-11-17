@@ -1117,3 +1117,39 @@ Caused by: org.eclipse.lsp4j.jsonrpc.ResponseErrorException: Internal error.
 
 !ENTRY com.microsoft.copilot.eclipse 1 0 2025-11-15 12:43:09.453
 !MESSAGE [Info] Completion handler is refreshed for the document: file:///E:/2DAM/AD/5-TFG/backend/src/main/java/tfg/proyecto/TFG/servicios/ServicioQR.java
+
+!ENTRY com.microsoft.copilot.eclipse 1 0 2025-11-15 14:05:57.433
+!MESSAGE [Info] Document is null for editor: Application.java
+
+!ENTRY com.microsoft.copilot.eclipse 1 0 2025-11-15 14:05:57.435
+!MESSAGE [Info] Completion handler is refreshed for the document: file:///E:/2DAM/AD/5-TFG/backend/src/main/java/tfg/proyecto/TFG/Application.java
+
+!ENTRY com.microsoft.copilot.eclipse 1 0 2025-11-15 14:05:57.456
+!MESSAGE [Info] Document is null for editor: FileUtils.java
+
+!ENTRY com.microsoft.copilot.eclipse 1 0 2025-11-15 14:05:57.456
+!MESSAGE [Info] Completion handler is refreshed for the document: file:///E:/2DAM/AD/5-TFG/backend/src/main/java/tfg/proyecto/TFG/config/FileUtils.java
+
+!ENTRY com.microsoft.copilot.eclipse 1 0 2025-11-15 14:05:57.503
+!MESSAGE [Info] Document is null for editor: QRCodeGenerator.java
+
+!ENTRY com.microsoft.copilot.eclipse 1 0 2025-11-15 14:05:57.503
+!MESSAGE [Info] Completion handler is refreshed for the document: file:///E:/2DAM/AD/5-TFG/backend/src/main/java/tfg/proyecto/TFG/config/QRCodeGenerator.java
+
+!ENTRY com.microsoft.copilot.eclipse 1 0 2025-11-15 14:05:57.515
+!MESSAGE [Info] Document is null for editor: ServicioEventoImpl.java
+
+!ENTRY com.microsoft.copilot.eclipse 1 0 2025-11-15 14:05:57.515
+!MESSAGE [Info] Completion handler is refreshed for the document: file:///E:/2DAM/AD/5-TFG/backend/src/main/java/tfg/proyecto/TFG/servicios/ServicioEventoImpl.java
+
+!ENTRY com.microsoft.copilot.eclipse 1 0 2025-11-15 14:05:57.560
+!MESSAGE [Info] Document is null for editor: ServicioEventoImagenImpl.java
+
+!ENTRY com.microsoft.copilot.eclipse 1 0 2025-11-15 14:05:57.560
+!MESSAGE [Info] Completion handler is refreshed for the document: file:///E:/2DAM/AD/5-TFG/backend/src/main/java/tfg/proyecto/TFG/servicios/ServicioEventoImagenImpl.java
+
+!ENTRY com.microsoft.copilot.eclipse 1 0 2025-11-15 14:05:57.583
+!MESSAGE [Info] Document is null for editor: ControlEvento.java
+
+!ENTRY com.microsoft.copilot.eclipse 1 0 2025-11-15 14:05:57.583
+!MESSAGE [Info] Completion handler is refreshed for the document: file:///E:/2DAM/AD/5-TFG/backend/src/main/java/tfg/proyecto/TFG/controladores/ControlEvento.java
