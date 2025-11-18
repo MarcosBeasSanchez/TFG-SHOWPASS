@@ -5,6 +5,7 @@ import config from "../config/config";
 export default function EventDetail() {
   const { nombre } = useParams();
   const [evento, setEvento] = useState(null);
+  const [recomendaciones, setRecomendaciones] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [animate, setAnimate] = useState(false);
@@ -44,6 +45,38 @@ export default function EventDetail() {
     fetchEvento();
   }, [nombre]);
 
+  // Fetch de recomendaciones de usuario
+  useEffect(() => {
+    const fetchRecomendaciones = async () => {
+      if (!evento?.id) return; // asegurarnos de que exista el ID
+      const eventoId = evento.id;
+
+      try {
+        const res = await fetch(
+          `${config.apiBaseUrl}/tfg/evento/recomendacionEvento/${eventoId}`,
+          {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+
+        if (!res.ok) throw new Error("Error al obtener recomendaciones");
+
+        const recomendaciones = await res.json();
+        setRecomendaciones(recomendaciones);
+        console.log("Recomendaciones recibidas:", recomendaciones);
+
+      } catch (err) {
+        console.error(err);
+        alert("Hubo un error al obtener las recomendaciones ❌");
+      }
+    };
+    if (userFromStorage?.id) {
+      fetchRecomendaciones();
+    }
+  }, [evento]);
+
+  // Formateo de fechas
   const formatDate = (fechaStr) => {
     if (!fechaStr) return "Por definir";
     const fecha = new Date(fechaStr);
@@ -63,10 +96,10 @@ export default function EventDetail() {
       alert("No se pudo identificar el carrito o el evento");
       return;
     }
-
+    // Llamada al backend para agregar el evento al carrito
     try {
       const res = await fetch(
-        `http://localhost:8080/tfg/carrito/item/${usuarioId}/${eventoId}`,
+        `${config.apiBaseUrl}/tfg/carrito/item/${usuarioId}/${eventoId}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -84,6 +117,7 @@ export default function EventDetail() {
       alert("Hubo un error al agregar el evento al carrito ❌");
     }
   };
+
 
 
   if (loading) return <p className="p-4 text-gray-800">Cargando evento...</p>;
@@ -187,11 +221,11 @@ export default function EventDetail() {
           {/* Invitados */}
           <h2 className="text-2xl font-semibold mb-3 claroEvento oscuroEvento">Invitados</h2>
           {evento.invitados && evento.invitados.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6 ">
+            <div className="grid grid-cols-1  min-[400px]:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
               {evento.invitados.map((inv, index) => (
                 <div
                   key={index}
-                  className="bg-gray-50 oscuro rounded-lg shadow p-4 flex flex-col items-center text-gray-800 oscuroBox"
+                  className="flex flex-col items-center bg-gray-50 text-gray-800 rounded-lg shadow p-4 oscuro oscuroBox"
                 >
                   {inv.fotoURL ? (
                     <img
@@ -221,12 +255,54 @@ export default function EventDetail() {
               ? `${evento.aforo} personas`
               : "Aforo no disponible"}
           </p>
+
+
+          {/* Precio */}
           <h2 className="text-2xl font-semibold mb-3 mt-6 claroEvento oscuroEvento">Precio</h2>
           <p className="text-gray-700 font-bold md:text-left text-center claroEvento oscuroEvento">
             {typeof evento.precio === "number"
               ? `PVP: ${evento.precio.toFixed(2)} €`
               : "Precio no disponible"}
           </p>
+
+          {/* Recomendaciones */}
+          <h2 className="text-2xl font-semibold mb-3 mt-6 claroEvento oscuroEvento">
+            Eventos recomendados con IA
+          </h2>
+
+          {recomendaciones.length > 0 ? (
+            <div className="overflow-x-auto flex space-x-4 pb-4 carrusel-sin-scrollbar">
+              {recomendaciones.map((rec) => (
+                <div
+                  key={rec.id}
+                  className="bg-gray-50 rounded-lg shadow flex-none flex flex-col text-gray-800 oscuroBox w-50 cursor-pointer"
+                  onClick={() => window.location.href = `/evento/${encodeURIComponent(rec.nombre)}`}
+                >
+                  {rec.imagen ? (
+                    <>
+                      <img
+                        src={rec.imagen}
+                        alt={rec.nombre}
+                        className="w-full h-50 object-cover aspect-square rounded-t-lg"
+                      />
+                      <div className="flex flex-col items-center justify-center p-4 text-center w-full">
+                        <h3 className="text-lg font-medium">{rec.nombre}</h3>
+                        <p className="text-sm">{rec.localizacion}</p>
+                        <p className="text-sm font-semibold mt-1">{rec.precio} €</p>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="w-50 h-50 rounded-lg bg-gray-300 flex items-center justify-center">
+                      <span className="text-gray-500">Sin imagen</span>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="mb-6 text-gray-500">No hay recomendaciones por ahora</div>
+          )}
+
 
           {/* Botones cantidad + carrito */}
           {userFromStorage ? (

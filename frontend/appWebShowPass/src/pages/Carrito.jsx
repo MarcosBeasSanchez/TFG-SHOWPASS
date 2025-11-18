@@ -7,6 +7,7 @@ import { descargarPDF, enviarPDF } from "../utils/entradasPdf";
 export default function ShoppingCart({ user }) {
   const [carrito, setCarrito] = useState(null);
   const [total, setTotal] = useState(0);
+  const [recomendaciones, setRecomendaciones] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [ticketsComprados, setTicketsComprados] = useState([]);
@@ -17,6 +18,8 @@ export default function ShoppingCart({ user }) {
   //cogemos el id del usuario desde localStorage
   const usuarioId = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")).id : null;
   const carritoId = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")).carritoId : null;
+  const userFromStorage = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null;
+
 
 
   //recuperar el carrito del usuario
@@ -117,6 +120,34 @@ export default function ShoppingCart({ user }) {
     }
   };
 
+  // Fetch de recomendaciones de usuario
+  useEffect(() => {
+    const fetchRecomendaciones = async () => {
+      try {
+        const res = await fetch(
+          `${config.apiBaseUrl}/tfg/evento/recomendacionUsuario/${userFromStorage?.id}`,
+          {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+
+        if (!res.ok) throw new Error("Error al obtener recomendaciones");
+
+        const recomendaciones = await res.json();
+        setRecomendaciones(recomendaciones);
+        console.log("Recomendaciones recibidas:", recomendaciones);
+
+      } catch (err) {
+        console.error(err);
+        alert("Hubo un error al obtener las recomendaciones ❌");
+      }
+    };
+    if (userFromStorage?.id) {
+      fetchRecomendaciones();
+    }
+  }, [userFromStorage?.id]);
+
   {/*if (loading) return <p className="p-4">Cargando carrito...</p>;*/ }
   if (error) return <p className="p-4 text-red-500">Error: {error}</p>;
 
@@ -188,6 +219,44 @@ export default function ShoppingCart({ user }) {
         <p className="text-xl font-bold pl-2  text-blue-950 oscuroTextoGris ">Total: {total.toFixed(2)}€</p>
 
       </div>
+
+      {/* Recomendaciones */}
+          <h2 className="text-2xl font-semibold mb-3 mt-6 claroEvento oscuroEvento">
+            Eventos recomendados con IA
+          </h2>
+{recomendaciones.length > 0 ? (
+  <div className="overflow-x-auto flex space-x-4 pb-4 carrusel-sin-scrollbar">
+    {recomendaciones.map((rec) => (
+      <div
+        key={rec.id}
+        className="bg-gray-50 rounded-lg shadow flex-none flex flex-col text-gray-800 oscuroBox w-50 cursor-pointer"
+        onClick={() => window.location.href = `/evento/${encodeURIComponent(rec.nombre)}`}
+      >
+        {rec.imagen ? (
+          <>
+            <img
+              src={rec.imagen}
+              alt={rec.nombre}
+              className="w-full h-50 object-cover aspect-square rounded-t-lg"
+            />
+            <div className="flex flex-col items-center justify-center p-4 text-center w-full">
+              <h3 className="text-lg font-medium">{rec.nombre}</h3>
+              <p className="text-sm">{rec.localizacion}</p>
+              <p className="text-sm font-semibold mt-1">{rec.precio} €</p>
+            </div>
+          </>
+        ) : (
+          <div className="w-50 h-50 rounded-lg bg-gray-300 flex items-center justify-center">
+            <span className="text-gray-500">Sin imagen</span>
+          </div>
+        )}
+      </div>
+    ))}
+  </div>
+) : (
+  <div className="mb-6 text-gray-500">No hay recomendaciones por ahora</div>
+)}
+
 
       {/* Resumen tickets comprados */}
       {ticketsComprados.length > 0 && (

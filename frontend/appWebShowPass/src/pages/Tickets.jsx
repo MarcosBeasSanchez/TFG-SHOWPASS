@@ -21,7 +21,6 @@ const UserTickets = () => {
           console.log('Tickets recibidos del backend:', data);
           setTickets(data);
         } else {
-
           console.error('Error fetching tickets');
         }
       } catch (error) {
@@ -33,6 +32,25 @@ const UserTickets = () => {
       fetchTickets();
     }
   }, [userId]);
+
+
+   const eliminarTicket = async (ticketId) => {
+    let resultado = confirm("¿Estás seguro de que deseas eliminar este ticket?");
+    if (!resultado) return;
+      try {
+        const response = await fetch(`${config.apiBaseUrl}/tfg/ticket/delete/${ticketId}`, {
+          method: 'DELETE',
+        });
+        if (response.ok) {
+          console.log('Ticket eliminado correctamente');
+          setTickets((prevTickets) => prevTickets.filter(ticket => ticket.id !== ticketId));
+        } else {
+          console.error('Error eliminando ticket');
+        }
+      } catch (error) {
+        console.error('Fetch error:', error);
+      }
+    };
 
   const getEstadoColorClass = (estado) => {
     switch (estado) {
@@ -93,6 +111,14 @@ const UserTickets = () => {
                   className="bg-gray-500 text-white text-sm px-3 py-1 rounded hover:bg-gray-600"
                 >
                   Enviar PDF a mi email
+                </button>
+
+
+                <button
+                  onClick={() => eliminarTicket(ticket.id)}
+                  className="bg-red-500 text-white text-sm px-3 py-1 rounded hover:bg-red-800"
+                >
+                  Eliminar ticket
                 </button>
               </div>
 
