@@ -26,11 +26,13 @@ RUN npm run build
 
 # FASE 2: Ejecución (Run)
 # Usa una imagen ligera de Nginx para servir los archivos estáticos
-FROM nginx:alpine
+FROM nginx:1.29.3-alpine
 
 # Copia los archivos compilados de la Fase 1 al directorio de servicio de Nginx
 # El directorio por defecto de Vite es 'dist'
 COPY --from=build /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 
 # Expone el puerto por defecto de Nginx
 EXPOSE 80

@@ -10,8 +10,8 @@ services:
     ports:
       - "8080:8080"
     # Asegura que el backend espere a que el servicio de recomendación esté listo
-    depends_on:
-      - recomendacion-servicio
+    #depends_on:
+    #  - recomendacion-servicio
     # Si necesitas variables de entorno (p. ej., conexión a BD, puerto del servicio de recomendación)
     environment:
       # --- VARIABLES CLAVE PARA LA CONEXIÓN EXTERNA ---
@@ -21,6 +21,13 @@ services:
       # Variable para el servicio interno de FastAPI:
       #URL_RECOMENDACION_SERVICE: http://recomendacion-servicio:8000
       SPRING_PROFILES_ACTIVE: docker
+
+    # HEALTHCHECK NECESARIO para asegurar que el backend está LISTO
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   # Servicio 2: Servicio de Recomendación (Python FastAPI)
   recomendacion-servicio:
@@ -32,6 +39,11 @@ services:
       - "8000:8000"
     # Reinicia automáticamente en caso de fallo
     restart: always
+
+    # EL RECOMENDADOR NO ARRANCARÁ HASTA QUE EL BACKEND ESTÉ SANO
+    depends_on:
+      backend:
+        condition: service_healthy
 
   # Servicio 3: Frontend Web (React/Vite)
   frontend-web:

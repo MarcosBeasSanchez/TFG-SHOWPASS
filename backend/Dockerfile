@@ -10,12 +10,21 @@ WORKDIR /app
 # Copia los archivos de Maven (pom.xml) y los códigos fuente
 COPY .mvn/ .mvn
 COPY mvnw pom.xml ./
+
+# Corrección CRLF → LF (necesaria cuando vienes de Windows)
+RUN sed -i 's/\r$//' mvnw
+
+# Da permisos de ejecución al wrapper de Maven
+RUN chmod +x mvnw
+
+# Descarga dependencias de Maven en modo offline
 RUN ./mvnw dependency:go-offline
 
 # Copia el código fuente de tu app
 COPY src ./src
 
 # Construye la aplicación y crea el JAR ejecutable
+RUN chmod +x mvnw
 RUN ./mvnw package -DskipTests
 
 # FASE 2: Ejecución (Run)

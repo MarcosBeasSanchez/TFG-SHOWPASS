@@ -17,7 +17,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 import time
 
 # URL del backend Spring Boot que envía usuarios, eventos y tickets
-SPRING_URL = "http://localhost:8080/tfg/utilidades/data"
+SPRING_URL = "http://backend:8080/tfg/utilidades/data"
 
 app = FastAPI(title="Microservicio de Recomendaciones")
 
@@ -215,6 +215,16 @@ def reload_data():
     """
     entrenar_modelos()
     return {"status": "retrained manually"}
+
+
+@app.get("/prueba")
+def reload_data():
+    """
+    Prueba de conexión al servicio.
+    """
+    prueba = "hola dese el servicio de recomendacion"
+    print(prueba)
+    return {"test": prueba}
 
 
 # Entrena automáticamente al iniciar
