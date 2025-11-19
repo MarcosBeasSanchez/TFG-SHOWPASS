@@ -136,7 +136,8 @@ public class ServicioCarritoImpl implements IServicioCarrito{
 	    @Transactional
 	    public DTOCarritoBajada finalizarCompra(Long usuarioId) {
 	        Carrito carrito = obtenerOCrearCarrito(usuarioId);
-	        Usuario usu = usuarioDAO.findById(usuarioId).get();
+	        Usuario usu = usuarioDAO.findById(usuarioId)
+	                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 	        BigDecimal total = BigDecimal.ZERO;
 	    
 
@@ -146,19 +147,37 @@ public class ServicioCarritoImpl implements IServicioCarrito{
 
 	        for (CarritoItem item : carrito.getItems()) {
 	        	
+				double preciounitario = item.getPrecioUnitario();
+				int cantidad = item.getCantidad();
+				double res = preciounitario * cantidad;
+				BigDecimal subtotal = BigDecimal.valueOf(res);
+				total = total.add(subtotal);
+	        	
+	        }
+	        
+	        // Verificar saldo suficiente
+	        if (usu.getTarjeta().getSaldo().compareTo(total) < 0) {
+	            throw new RuntimeException("Saldo insuficiente para realizar la compra");
+	        }
+	        
+	        // Registrar tickets
+	        for (CarritoItem item : carrito.getItems()) {
 	            for (int i = 0; i < item.getCantidad(); i++) {
-	            	
+
 	                DTOticketSubida dto = DTOticketSubida.builder()
 	                        .usuarioId(usuarioId)
 	                        .eventoId(item.getEvento().getId())
 	                        .precioPagado(item.getPrecioUnitario())
 	                        .build();
-	                
+
 	                servicioTicket.insert(dto);
 	            }
 	        }
-	        //Actualizar saldo del usuario
-	       
+
+	        // Actualizar saldo del usuario
+	        usu.getTarjeta().setSaldo(usu.getTarjeta().getSaldo().subtract(total));
+	        usuarioDAO.save(usu);
+	        System.out.println("\nSaldo actual: " + usu.getTarjeta().getSaldo());
 
 	        // Vaciar carrito después de compra
 	        itemDAO.deleteAll(carrito.getItems());

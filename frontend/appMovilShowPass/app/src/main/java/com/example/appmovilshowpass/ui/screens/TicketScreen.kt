@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.PictureAsPdf
 import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.filled.ShoppingCartCheckout
+import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material.icons.outlined.PersonAdd
 import androidx.compose.material3.AlertDialog
@@ -110,6 +111,18 @@ fun TicketsScreen(
     val context = LocalContext.current
     val tickets by ticketViewModel.tickets.collectAsState()
     val usuario = authViewModel.currentUser
+
+    // Estado para controlar la dirección: true = Orden Original, false = Orden Inverso.
+    var ordenOriginal by remember { mutableStateOf(true) }
+
+    //  Cálculo de la lista a mostrar: Se invierte si ordenOriginal es false.
+    val ticketsMostrados = remember(tickets, ordenOriginal) {
+        if (ordenOriginal) {
+            tickets // Muestra la lista en el orden que se cargó
+        } else {
+            tickets.reversed() // Muestra la lista con el orden invertido
+        }
+    }
 
 
     //  Cargar tickets automáticamente al entrar en la pantalla
@@ -194,6 +207,27 @@ fun TicketsScreen(
             }
 
         } else {
+            //  Botón para invertir el orden de la lista
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 5.dp),
+                horizontalArrangement = Arrangement.Start
+            ) {
+                OutlinedButton(
+                    onClick = { ordenOriginal = !ordenOriginal }, // Alterna el estado (true <-> false)
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    // Usamos un icono de flechas para indicar el cambio de dirección
+                    Icon(
+                        imageVector = Icons.Default.Sort, // Usa Download como ejemplo para una flecha hacia abajo
+                        contentDescription = if (ordenOriginal) "Cambiar a orden inverso" else "Cambiar a orden original"
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(if (ordenOriginal) "Orden: Antiguos" else "Orden: Recientes")
+                }
+            }
+
 
             //  Listado de tickets del usuario
             LazyColumn(
@@ -202,7 +236,8 @@ fun TicketsScreen(
                     .weight(1f),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                items(tickets) { ticket ->
+                //  Usa la lista calculada (ticketsMostrados)
+                items(ticketsMostrados) { ticket ->
                     TicketCard(
                         ticket = ticket,
                         onDownload = { ticketViewModel.generarPdfTicket(context, ticket) },
@@ -512,5 +547,6 @@ fun VaciarTicketsSection(onConfirmar: () -> Unit) {
                 tint = MaterialTheme.colorScheme.onError
             )
         }
+
     }
 }

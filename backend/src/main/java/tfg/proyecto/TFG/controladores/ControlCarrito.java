@@ -80,7 +80,7 @@ public class ControlCarrito {
     //  Finalizar compra
     @PostMapping("/finalizar/{usuarioId}")
     public ResponseEntity<DTOCarritoBajada> finalizarCompra(@PathVariable Long usuarioId) {
-    	 restTemplate.getForObject("http://localhost:8000/reload", String.class);
+    	 //restTemplate.getForObject("http://localhost:8000/reload", String.class); 
         return ResponseEntity.ok(carritoService.finalizarCompra(usuarioId));
     }
 }

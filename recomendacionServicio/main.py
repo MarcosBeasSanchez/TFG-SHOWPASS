@@ -220,11 +220,11 @@ def reload_data():
 @app.get("/prueba")
 def reload_data():
     """
-    Reentrenamiento manual.
+    Prueba de conexión al servicio.
     """
-    prueba = "ola backed"
-    print("hola backed")
-    return {"probando": prueba}
+    prueba = "hola dese el servicio de recomendacion"
+    print(prueba)
+    return {"test": prueba}
 
 
 # Entrena automáticamente al iniciar
