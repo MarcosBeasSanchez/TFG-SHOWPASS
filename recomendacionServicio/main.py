@@ -248,16 +248,19 @@ def prueba():
 def search_events(nombre: str):
     """
     Búsqueda combinada:
-    1) Buscar por NOMBRE (coincidencia parcial)
-    2) Si faltan resultados, completar con IA (TF-IDF + coseno)
+    1) Buscar por nombre exacto/contiene
+    2) Si no hay resultados → usar IA (TF-IDF) solo si hay similitud REAL (> umbral)
+    3) Si no hay similitud → devolver vacío
     """
 
     global vectorizer, eventos
 
+    UMBRAL_SIMILITUD = 0.10  # <--- SIMILITUD MÍNIMA PARA ACEPTAR RESULTADOS
+
     try:
         recargar_si_hay_cambios()
 
-        #  1) Crear columna texto si no existe 
+        #  1) Crear 'texto' si no existe 
         if "texto" not in eventos.columns:
             eventos["texto"] = (
                 eventos["nombre"].astype(str) + " " +
@@ -266,31 +269,33 @@ def search_events(nombre: str):
                 eventos["descripcion"].astype(str)
             )
 
-        #  2) BUSQUEDA POR NOMBRE 
-        coinciden_nombre = eventos[eventos["nombre"].str.contains(nombre, case=False, na=False)]
-        ids_nombre = coinciden_nombre["id"].tolist()
+        #  2) PRIMERO BUSCAR POR NOMBRE 
+        encontrados_nombre = eventos[eventos["nombre"]
+                                    .str.contains(nombre, case=False, na=False)]
 
-        # Si ya hay 5 resultados, devolvemos directamente
-        if len(ids_nombre) >= 5:
+        ids_nombre = encontrados_nombre["id"].tolist()
+
+        if ids_nombre:  # si hay coincidencias por nombre → devolverlas primero
             return {"eventos_encontrados": ids_nombre[:5]}
 
-        # 3) BUSQUEDA POR IA (TF-IDF + COSENO) 
+        #  3) SI NO HAY NOMBRE → USAR IA 
         query_vec = vectorizer.transform([nombre])
         matriz_eventos = vectorizer.transform(eventos["texto"])
         scores = cosine_similarity(query_vec, matriz_eventos)[0]
 
-        top = scores.argsort()[::-1][:10]
-        ids_ia = [int(eventos.iloc[i]["id"]) for i in top]
+        # Encontrar eventos con similitud REAL (> umbral)
+        indices_validos = [i for i, score in enumerate(scores) if score >= UMBRAL_SIMILITUD]
 
-        #  4) FUSIÓN (nombre primero, IA después sin duplicados) +
-        fusion = ids_nombre.copy()
+        # Si NO HAY ninguno con similitud → vacío
+        if not indices_validos:
+            return {"eventos_encontrados": []}
 
-        for eid in ids_ia:
-            if eid not in fusion:
-                fusion.append(eid)
+        # Ordenamos los válidos por score
+        indices_validos.sort(key=lambda i: scores[i], reverse=True)
 
-        #  5) Devolver solo 5 resultados 
-        return {"eventos_encontrados": fusion[:5]}
+        ids_ia = [int(eventos.iloc[i]["id"]) for i in indices_validos[:5]]
+
+        return {"eventos_encontrados": ids_ia}
 
     except Exception as e:
         print("ERROR EN /search:", e)
