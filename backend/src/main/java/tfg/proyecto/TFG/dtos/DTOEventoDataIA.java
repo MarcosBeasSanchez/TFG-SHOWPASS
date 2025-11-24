@@ -14,6 +14,7 @@ import tfg.proyecto.TFG.modelo.Categoria;
 @AllArgsConstructor
 public class DTOEventoDataIA {
 	private Long id; 
+	private String nombre;
 	private Categoria categoria;
 	private String descripcion;
 	private String localizacion;

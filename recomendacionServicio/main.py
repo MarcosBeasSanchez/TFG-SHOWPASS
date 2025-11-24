@@ -1,12 +1,17 @@
 # MICROSERVICIO DE RECOMENDACIONES PARA EVENTOS (FASTAPI)
-# 
+#
 # Usa dos modelos de Machine Learning:
-#   1) SVD (Surprise) – Filtrado colaborativo basado en historial
-#   2) TF-IDF + Cosine Similarity – Recomendación por contenido
-# 
-# También tiene auto-reentrenamiento cada ciertos minutos.
-# Compatible con el backend Spring, donde los tickets están
-# dentro de cada usuario en el JSON.
+#   1) SVD (Surprise) – Filtrado colaborativo basado en historial (tickets)
+#   2) TF-IDF + Cosine Similarity – Recomendación por similitud de contenido
+#
+# También soporta auto-reentrenamiento automático cuando cambia el número
+# de tickets en la base de datos (backend Spring).
+#
+# Se conecta al backend Spring Boot, que envía:
+#   - usuarios (con lista de tickets)
+#   - eventos
+#
+# El microservicio reconstruye una tabla PLANA de tickets para entrenar SVD.
 
 from fastapi import FastAPI
 import requests
@@ -14,82 +19,80 @@ import pandas as pd
 from surprise import SVD, Dataset, Reader
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-import time
 
-# URL del backend Spring Boot que envía usuarios, eventos y tickets
+# URL del backend Spring Boot
 SPRING_URL = "http://backend:8080/tfg/utilidades/data"
 
+# Inicializa FastAPI
 app = FastAPI(title="Microservicio de Recomendaciones")
 
-# Variables globales de los modelos y datos cargados
-model_svd = None           # IA colaborativa
-matriz_similitud = None    # IA por contenido
-usuarios = None
-eventos = None
-tickets = None
+# VARIABLES GLOBALES (MODELOS Y DATOS)
+model_svd = None           # Modelo colaborativo SVD
+matriz_similitud = None    # Matriz de similitud evento-evento
+vectorizer = None          # Vectorizador TF-IDF global (antes faltaba y daba error)
+usuarios = None            # DataFrame usuarios
+eventos = None             # DataFrame eventos
+tickets = None             # DataFrame plano de tickets reconstruido
 
-ultimo_reload = 0          # Última vez que se reentrenó
-RELOAD_INTERVAL = 300      # Reentrenar cada 5 minutos
+# Para detectar si hay nuevos tickets y reentrenar
+ultimo_num_tickets = 0
 
-
-#  CARGA DE DATOS DESDE EL BACKEND SPRING BOOT
+#  1) FUNCIÓN PARA OBTENER DATOS DESDE SPRING
 
 def obtener_datos():
     """
-    Llama al endpoint /data del backend Spring Boot.
-    El backend devuelve:
-    {
-      "usuarios": [...],
-      "eventos": [...]
-    }
+    Llama al endpoint del backend Spring Boot y obtiene:
+      - usuarios (cada uno con su lista de tickets)
+      - eventos completos
 
-    NOTA: los tickets vienen DENTRO de cada usuario,
-    así que necesitamos reconstruir el DataFrame de tickets.
+    Reconstruye un DataFrame plano de tickets:
+        usuario_id | evento_id
     """
 
     response = requests.get(SPRING_URL)
     data = response.json()
 
-    # Convertir usuarios y eventos directamente a DataFrame
     usuarios_df = pd.DataFrame(data["usuarios"])
     eventos_df = pd.DataFrame(data["eventos"])
 
-    #  Reconstruir la tabla tickets
-
     tickets_list = []
 
+    # Los tickets vienen dentro de cada usuario
     for u in data["usuarios"]:
-        if "tickets" in u and u["tickets"]:
+
+        if "tickets" in u and u["tickets"]:  # si el usuario tiene tickets
+
             for t in u["tickets"]:
                 tickets_list.append({
                     "usuario_id": t["usuarioId"],
                     "evento_id": t["eventoId"]
                 })
 
+    # Convertimos la lista a DataFrame obligatorio para SVD
     tickets_df = pd.DataFrame(tickets_list, columns=["usuario_id", "evento_id"])
 
     return usuarios_df, eventos_df, tickets_df
 
-
-#  ENTRENAR LOS MODELOS DE RECOMENDACIÓN
+#  2) ENTRENAMIENTO DE LOS MODELOS (SVD y TF-IDF)
 
 def entrenar_modelos():
     """
-    Carga datos y entrena:
-    
-     Modelo SVD → recomendaciones basadas en compras pasadas.
-     Modelo TF-IDF → recomendaciones según texto y atributos.
+    Reentrena los dos modelos:
+      - Filtrado colaborativo (SVD)
+      - Similitud por contenido (TF-IDF + Coseno)
     """
-    global model_svd, matriz_similitud, usuarios, eventos, tickets, ultimo_reload
 
-    print(" Cargando datos y entrenando modelos...")
+    global model_svd, matriz_similitud, vectorizer, usuarios, eventos, tickets
+
+    print("\n[IA] Cargando datos y entrenando modelos...")
 
     usuarios, eventos, tickets = obtener_datos()
 
-    #  1) MODELO COLABORATIVO: Surprise SVD
+    #  1) MODELO SVD
     if not tickets.empty:
+
         df = tickets.copy()
-        df["rating"] = 1    # Todas las compras valen "1" (implícito)
+        df["rating"] = 1  # todas las compras son rating=1
 
         reader = Reader(rating_scale=(0, 1))
         dataset = Dataset.load_from_df(df[["usuario_id", "evento_id", "rating"]], reader)
@@ -97,135 +100,202 @@ def entrenar_modelos():
 
         model_svd = SVD()
         model_svd.fit(trainset)
-    else:
-        model_svd = None     # No hay datos → no se entrena
 
-    # 2) MODELO DE CONTENIDO: TF-IDF + Cosine Similarity
+    else:
+        model_svd = None  # No hay historial → no puede entrenar
+
+    #  2) MODELO DE CONTENIDO (TF-IDF)
 
     eventos["texto"] = (
+        eventos["nombre"].astype(str) + " " +  
         eventos["categoria"].astype(str) + " " +
         eventos["localizacion"].astype(str) + " " +
         eventos["descripcion"].astype(str)
     )
 
+    # Guardamos TF-IDF global (corrección importante)
     vectorizer = TfidfVectorizer(stop_words=None)
     matriz = vectorizer.fit_transform(eventos["texto"])
+
     matriz_similitud = cosine_similarity(matriz)
 
-    ultimo_reload = time.time()
-    print(" Modelos entrenados correctamente.")
+    print("[IA] Modelos entrenados correctamente.")
 
 
 
-#  AUTO-REENTRENAMIENTO CADA X MINUTOS
+#  3) AUTOENTRENAMIENTO SI CAMBIAN LOS TICKETS
 
-def recargar_si_necesario():
+def recargar_si_hay_cambios():
     """
-    Si han pasado más de RELOAD_INTERVAL segundos,
-    se vuelve a entrenar automáticamente.
+    Comprueba si el número de tickets ha cambiado.
+    Si cambió → reentrena los modelos.
     """
-    global ultimo_reload
-    if time.time() - ultimo_reload > RELOAD_INTERVAL:
+
+    global ultimo_num_tickets, usuarios, eventos, tickets, vectorizer
+
+    usuarios_df, eventos_df, tickets_df = obtener_datos()
+
+    # Detectamos cambios en el número de tickets
+    if len(tickets_df) != ultimo_num_tickets:
+        print(f"\n[IA] Cambio detectado en tickets ({ultimo_num_tickets} → {len(tickets_df)}). Reentrenando...")
         entrenar_modelos()
+        ultimo_num_tickets = len(tickets_df)
+    else:
+        # Si no cambian, solo refrescamos datos
+        usuarios = usuarios_df
+        eventos = eventos_df
+        tickets = tickets_df
 
 
 
-#  FUNCIONES DE RECOMENDACIÓN
+# 4) FUNCIONES DE RECOMENDACIÓN
 
 def recomendar_por_compras(usuario_id):
-    """
-    Devuelve los 5 eventos más recomendados mediante SVD.
-    """
+    """ Recomendación colaborativa (SVD). """
+
     if model_svd is None:
         return []
+
     ids_eventos = eventos["id"].tolist()
-    predicciones = [(eid, model_svd.predict(usuario_id, eid).est) for eid in ids_eventos]
+
+    predicciones = [
+        (eid, model_svd.predict(usuario_id, eid).est)
+        for eid in ids_eventos
+    ]
+
     predicciones.sort(key=lambda x: x[1], reverse=True)
+
     return [eid for eid, _ in predicciones[:5]]
 
 
 def recomendar_por_evento(evento_id):
-    """
-    Devuelve los eventos más similares según contenido.
-    """
+    """ Similitud por contenido TF-IDF. """
+
     if evento_id not in eventos["id"].values:
         return []
+
     idx = eventos.index[eventos["id"] == evento_id][0]
+
     scores = list(enumerate(matriz_similitud[idx]))
+
     scores.sort(key=lambda x: x[1], reverse=True)
+
     return [int(eventos.iloc[i]["id"]) for i, _ in scores[1:6]]
+
 
 
 def recomendar_hibrido(usuario_id):
     """
     Combina:
-     recomendaciones por historial (SVD)
-     recomendaciones por contenido (último evento comprado)
+     - SVD (compras del usuario)
+     - TF-IDF basado en eventos que ha comprado
     """
+
     if tickets is None or tickets.empty:
-        # No hay historial → recomendar eventos populares/aleatorios
         return eventos.sample(min(5, len(eventos)))["id"].tolist()
 
-
     recs_colab = recomendar_por_compras(usuario_id)
-
-    # Obtener historial real del usuario
     historial = tickets[tickets["usuario_id"] == usuario_id]
+    eventos_usuario = historial["evento_id"].tolist()
 
-    
-    # Último evento comprado
-    ultimo_evento = historial["evento_id"].iloc[-1]
+    similares_totales = []
 
-    # Buscar eventos similares
-    recs_contenido = recomendar_por_evento(ultimo_evento)
+    for ev in eventos_usuario:
+        similares_totales.extend(recomendar_por_evento(ev))
 
-    # Fusionar sin repetir
+    from collections import Counter
+    conteo = Counter(similares_totales)
+
+    recs_contenido = [ev for ev, _ in conteo.most_common(5)]
+
+    # fusiona ambas listas sin duplicados
     fusion = list(dict.fromkeys(recs_colab + recs_contenido))
+
     return fusion[:5]
 
 
 
-#  ENDPOINTS PÚBLICOS
+#  5) ENDPOINTS PÚBLICOS
 
 @app.get("/recommendations")
 def get_recommendations(userId: int):
-    """
-    Recomendaciones híbridas para un usuario.
-    Devuelve solo IDs para que el backend Spring haga findById().
-    """
-    recargar_si_necesario()
-    ids = recomendar_hibrido(userId)
-    return {"eventos_recomendados": ids}
+    recargar_si_hay_cambios()
+    return {"eventos_recomendados": recomendar_hibrido(userId)}
 
 
 @app.get("/recommendations/event")
 def get_similares(eventoId: int):
-    """
-    Recomendaciones de eventos similares según contenido.
-    """
-    recargar_si_necesario()
-    ids = recomendar_por_evento(eventoId)
-    return {"eventos_similares": ids}
+    recargar_si_hay_cambios()
+    return {"eventos_similares": recomendar_por_evento(eventoId)}
 
 
 @app.get("/reload")
 def reload_data():
-    """
-    Reentrenamiento manual.
-    """
     entrenar_modelos()
     return {"status": "retrained manually"}
 
 
 @app.get("/prueba")
-def reload_data():
-    """
-    Prueba de conexión al servicio.
-    """
-    prueba = "hola dese el servicio de recomendacion"
-    print(prueba)
-    return {"test": prueba}
+def prueba():
+    return {"test": "hola desde el servicio de recomendación"}
 
 
-# Entrena automáticamente al iniciar
+
+# 6) BÚSQUEDA INTELIGENTE – TF-IDF + COSENO
+
+
+@app.get("/search")
+def search_events(nombre: str):
+    """
+    Búsqueda combinada:
+    1) Buscar por NOMBRE (coincidencia parcial)
+    2) Si faltan resultados, completar con IA (TF-IDF + coseno)
+    """
+
+    global vectorizer, eventos
+
+    try:
+        recargar_si_hay_cambios()
+
+        #  1) Crear columna texto si no existe 
+        if "texto" not in eventos.columns:
+            eventos["texto"] = (
+                eventos["nombre"].astype(str) + " " +
+                eventos["categoria"].astype(str) + " " +
+                eventos["localizacion"].astype(str) + " " +
+                eventos["descripcion"].astype(str)
+            )
+
+        #  2) BUSQUEDA POR NOMBRE 
+        coinciden_nombre = eventos[eventos["nombre"].str.contains(nombre, case=False, na=False)]
+        ids_nombre = coinciden_nombre["id"].tolist()
+
+        # Si ya hay 5 resultados, devolvemos directamente
+        if len(ids_nombre) >= 5:
+            return {"eventos_encontrados": ids_nombre[:5]}
+
+        # 3) BUSQUEDA POR IA (TF-IDF + COSENO) 
+        query_vec = vectorizer.transform([nombre])
+        matriz_eventos = vectorizer.transform(eventos["texto"])
+        scores = cosine_similarity(query_vec, matriz_eventos)[0]
+
+        top = scores.argsort()[::-1][:10]
+        ids_ia = [int(eventos.iloc[i]["id"]) for i in top]
+
+        #  4) FUSIÓN (nombre primero, IA después sin duplicados) +
+        fusion = ids_nombre.copy()
+
+        for eid in ids_ia:
+            if eid not in fusion:
+                fusion.append(eid)
+
+        #  5) Devolver solo 5 resultados 
+        return {"eventos_encontrados": fusion[:5]}
+
+    except Exception as e:
+        print("ERROR EN /search:", e)
+        return {"eventos_encontrados": []}
+
+# 7) ENTRENAMIENTO AL INICIAR MICROSERVICIO
 entrenar_modelos()
+ultimo_num_tickets = len(tickets)

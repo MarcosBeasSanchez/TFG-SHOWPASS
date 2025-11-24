@@ -20,8 +20,10 @@ target/
 *.ipr
 
 ### Eclipse ###
-.metadata
-*.tmp
+.metadata/
+*.iml
+*.classpath
+*.project
 
 ### NetBeans ###
 /nbproject/private/

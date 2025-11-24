@@ -36,6 +36,7 @@ public class ServicioEventoImpl implements IServicioEvento{
 	DtoConverter dtoConverter;
 	
 	@Value("${microservicio.recomendacion.url:http://recomendacion-servicio:8000}")
+	
     private  String microServicioURL;  
 
     private final RestTemplate restTemplate = new RestTemplate();
@@ -305,15 +306,55 @@ public class ServicioEventoImpl implements IServicioEvento{
         }).collect(Collectors.toList());
 	}
 
+//	@Override
+//	public List<DTOeventoBajada> buscarPorNombreConteniendo(String nombre) {
+//		return eventoDAO.findByNombreContainingIgnoreCase(nombre).stream()
+//                .map(e -> {
+//                    DTOeventoBajada dto = dtoConverter.map(e, DTOeventoBajada.class);
+//                    dto.setImagenesCarruselUrls(eventoImagenDAO.findUrlsByEventoId(e.getId()));
+//                    return dto;
+//                }).collect(Collectors.toList());
+//	}
+	
+	
+	 /**
+     * Búsqueda inteligente:
+     * 1) Primero consulta el microservicio de IA (TF-IDF + similitud)
+     * 2) Si la IA encuentra resultados → los devuelve
+     * 3) Si no encuentra nada → búsqueda tradicional por nombre
+     */
 	@Override
-	public List<DTOeventoBajada> buscarPorNombreConteniendo(String nombre) {
-		return eventoDAO.findByNombreContainingIgnoreCase(nombre).stream()
+    public List<DTOeventoBajada> buscarPorNombreConteniendo(String nombre) {
+
+        // 1) BUSCAR PRIMERO EN LA IA
+        
+        List<Long> idsIA = buscarEventosPorIA(nombre);
+
+        if (!idsIA.isEmpty()) {
+            // Convertimos IDs a DTO
+            return idsIA.stream()
+                    .map(id -> eventoDAO.findById(id).orElse(null))
+                    .filter(e -> e != null)
+                    .map(e -> {
+                        DTOeventoBajada dto = dtoConverter.map(e, DTOeventoBajada.class);
+                        dto.setImagenesCarruselUrls(eventoImagenDAO.findUrlsByEventoId(e.getId()));
+                        return dto;
+                    })
+                    .toList();
+        }
+
+        // 2) FALLBACK → BÚSQUEDA NORMAL
+
+        return eventoDAO.findByNombreContainingIgnoreCase(nombre)
+                .stream()
                 .map(e -> {
                     DTOeventoBajada dto = dtoConverter.map(e, DTOeventoBajada.class);
                     dto.setImagenesCarruselUrls(eventoImagenDAO.findUrlsByEventoId(e.getId()));
                     return dto;
-                }).collect(Collectors.toList());
-	}
+                })
+                .toList();
+    }
+	
 
 	@Override
 	public DTOeventoBajada obtnerPorElId(Long id) {
@@ -344,13 +385,13 @@ public class ServicioEventoImpl implements IServicioEvento{
 		// TODO Auto-generated method stub
 		 String url = microServicioURL + "/recommendations?userId=" + userId;
 
-		 // Llamamos al microservicio  devuelve {"eventos_recomendados": [1, 3, 5]}
+		 // Llamamos al microservicio  devuelve 
 		    Map<String, List<Integer>> response = restTemplate.getForObject(url, Map.class);
 		    List<Integer> ids = response.get("eventos_recomendados");
 
 		    if (ids == null || ids.isEmpty()) return List.of();
 
-		    // 🔹 Convertimos Integer → Long
+		    // Convertimos Integer → Long
 		    List<Long> idsLong = ids.stream()
 		            .map(Integer::longValue)
 		            .collect(Collectors.toList());
@@ -388,5 +429,25 @@ public class ServicioEventoImpl implements IServicioEvento{
 	}
 	
 	
+	 /**
+     * Busca eventos usando IA (TF-IDF + Coseno) mediante el microservicio.
+     */
+	
+	@Override
+	public List<Long> buscarEventosPorIA(String nombre) {
+		// TODO Auto-generated method stub
+		 String url = microServicioURL + "/search?nombre=" + nombre;
+
+	        // Llamada al microservicio
+	        Map response = restTemplate.getForObject(url, Map.class);
+
+	        if (response == null || !response.containsKey("eventos_encontrados")) {
+	            return List.of();
+	        }
+
+	        // Convertimos a lista de IDs (Long)
+	        List<Integer> ids = (List<Integer>) response.get("eventos_encontrados");
+	        return ids.stream().map(Long::valueOf).toList();
+	}
 	
 }

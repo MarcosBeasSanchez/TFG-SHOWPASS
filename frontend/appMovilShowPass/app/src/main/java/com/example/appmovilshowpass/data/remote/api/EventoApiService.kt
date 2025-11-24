@@ -22,7 +22,7 @@ interface EventoApiService {
     @GET("tfg/evento/findAll") // buscar todos los eventos
     suspend fun obtenerTodosEventos(): List<DTOeventoBajada>
 
-    @GET("tfg/evento/filterByNombre") // buscar evento por nombre
+    @GET("tfg/evento/findByNombre") // buscar evento por nombre
     suspend fun obtenerEventoPorNombre(@Query("nombre") nombre: String): List<DTOeventoBajada>
 
     @GET("tfg/evento/findById") // buscar evento por id

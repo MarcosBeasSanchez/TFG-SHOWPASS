@@ -19,7 +19,7 @@ RUN apt-get update && \
 
 # Copia el archivo de requisitos e instálalos
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --default-timeout=200 --no-cache-dir -r requirements.txt   
 
 # Copia el resto del código de la aplicación (incluyendo main.py)
 COPY . .

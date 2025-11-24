@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.mail.MessagingException;
 import tfg.proyecto.TFG.dtos.DTOEventoDataIA;
 import tfg.proyecto.TFG.dtos.DTOInvitadoBajada;
+import tfg.proyecto.TFG.dtos.DTOTicketDataIA;
 import tfg.proyecto.TFG.dtos.DTOUsuarioDataIA;
 import tfg.proyecto.TFG.dtos.DTOticketBajada;
 import tfg.proyecto.TFG.repositorio.RepositorioEvento;
@@ -108,18 +109,11 @@ public class ControlUtilidades {
 	            u.getId(),
 	            u.getNombre(),
 	            u.getTickets().stream()
-	                .map(t -> new DTOticketBajada(
-	                    t.getId(),
-	                    t.getCodigoQR(),
-	                    t.getContenidoQR(),
-	                    t.getUrlQR(),
-	                    t.getFechaCompra(),
-	                    t.getPrecioPagado(),
-	                    t.getEstado(),
-	                    t.getUsuario().getId(),
-	                    t.getUsuario().getNombre(),
-	                    t.getEvento().getId(),
-	                    t.getEvento().getNombre()
+	                .map(t -> new DTOTicketDataIA(
+	                		 t.getUsuario().getId(),
+	                		 t.getEvento().getId(),
+	                		 t.getId()
+	                	
 	                ))
 	                .toList()
 	        ))
@@ -129,6 +123,7 @@ public class ControlUtilidades {
 	    List<DTOEventoDataIA> eventos = StreamSupport.stream(eventoDAO.findAll().spliterator(), false)
 	        .map(e -> new DTOEventoDataIA(
 	            e.getId(),
+	            e.getNombre(),
 	            e.getCategoria(),
 	            e.getDescripcion(),
 	            e.getLocalizacion(),

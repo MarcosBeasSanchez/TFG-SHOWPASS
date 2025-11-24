@@ -23,4 +23,6 @@ public interface IServicioEvento {
 	
 	List<EventoRecomendadoDTO> obtenerRecomendacionesUsuario(Long userId);
 	List<EventoRecomendadoDTO> obtenerSimilaresEvento(Long eventoId);
+	
+	List<Long> buscarEventosPorIA(String query);
 }

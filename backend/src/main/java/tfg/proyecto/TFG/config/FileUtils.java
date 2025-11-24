@@ -1,12 +1,11 @@
 package tfg.proyecto.TFG.config;
+
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
-import java.util.UUID;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,7 +15,7 @@ public class FileUtils {
 	/**
      * Convierte un archivo MultipartFile a String Base64
      */
-    public static String convertirArchivoAString(org.springframework.web.multipart.MultipartFile archivo) throws IOException {
+    public static String convertirArchivoAString(MultipartFile archivo) throws IOException {
         return Base64.getEncoder().encodeToString(archivo.getBytes());
     }
 
@@ -66,14 +65,6 @@ public class FileUtils {
         // Devuelve la ruta relativa (usada por el frontend)
         return "/uploads/" + subcarpeta + "/" + fileName;
     }
-
-    /**
-     * Lee una imagen del disco y la devuelve como Base64
-     */
-    public static String leerImagenComoBase64(String rutaRelativa) throws IOException {
-        if (rutaRelativa == null) return null;
-        Path path = Paths.get(System.getProperty("user.dir") + rutaRelativa);
-        byte[] bytes = Files.readAllBytes(path);
-        return Base64.getEncoder().encodeToString(bytes);
-    }
+    
+   
 }

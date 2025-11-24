@@ -14,5 +14,5 @@ import lombok.NoArgsConstructor;
 public class DTOUsuarioDataIA {
 	private Long id;
 	private String nombre;
-	private List<DTOticketBajada> tickets;
+	private List<DTOTicketDataIA> tickets;
 }
