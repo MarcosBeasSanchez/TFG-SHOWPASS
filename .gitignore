@@ -37,6 +37,8 @@ build/
 
 ### VS Code ###
 .vscode/
+dist/
+node_modules/
 
 ### uploads ### Carpeta con archivos subidos
 uploads/

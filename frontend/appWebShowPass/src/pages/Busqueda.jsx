@@ -13,7 +13,7 @@ export default function BusquedaEventos() {
     useEffect(() => {
         const fetchEventos = async () => {
             try {
-                const res = await fetch("http://localhost:8080/tfg/evento/filterByNombre?nombre=" + encodeURIComponent(busqueda));
+                const res = await fetch("http://localhost:8080/tfg/evento/filterByBusqueda?nombre=" + encodeURIComponent(busqueda));
                 const data = await res.json();
                 setEntradas(data);
             } catch (err) {
@@ -21,7 +21,7 @@ export default function BusquedaEventos() {
             }
         };
         fetchEventos();
-    }, []);
+    }, [busqueda])
 
     const getImageSrc = (img) => {
         if (!img) return ""; // si no hay imagen, devolvemos vacío

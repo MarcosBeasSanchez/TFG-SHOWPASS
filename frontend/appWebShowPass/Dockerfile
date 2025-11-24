@@ -20,10 +20,6 @@ COPY . .
 # La variable VITE_API_URL debe apuntar al nombre del servicio y puerto interno de Docker Compose
 RUN VITE_API_URL=http://localhost:8080 npm run build
 
-# Compila la aplicación para producción (esto genera la carpeta 'dist')
-# Asegúrate de que este comando coincida con el script 'build' en tu package.json
-RUN npm run build
-
 # FASE 2: Ejecución (Run)
 # Usa una imagen ligera de Nginx para servir los archivos estáticos
 FROM nginx:1.29.3-alpine

@@ -255,7 +255,7 @@ def search_events(nombre: str):
 
     global vectorizer, eventos
 
-    UMBRAL_SIMILITUD = 0.10  # <--- SIMILITUD MÍNIMA PARA ACEPTAR RESULTADOS
+    UMBRAL_SIMILITUD = 0.05  # <--- SIMILITUD MÍNIMA PARA ACEPTAR RESULTADOS
 
     try:
         recargar_si_hay_cambios()

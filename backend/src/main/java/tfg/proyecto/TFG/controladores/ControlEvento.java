@@ -172,13 +172,13 @@ public class ControlEvento {
     }
 	//trae un evento unicamente escribiendolo de manera exacta
 	@GetMapping("findByNombre") 
-    public ResponseEntity<List<DTOeventoBajada>> obtenerPorNombre(@RequestParam String nombre) {
-		 try {
-		        List<DTOeventoBajada> eventos = eventoServicio.buscarPorNombreConteniendo(nombre);
-		        return ResponseEntity.ok(eventos);
-		    } catch (Exception e) {
-		        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-		    }
+    public ResponseEntity<DTOeventoBajada> obtenerPorNombre(@RequestParam String nombre) {
+        try {
+            DTOeventoBajada evento = eventoServicio.obtnerPorElNombre(nombre);
+            return new ResponseEntity<>(evento, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 	
 	//trae un evento unicamente escribiendolo de manera exacta
@@ -205,7 +205,16 @@ public class ControlEvento {
 		    }
 	
 	}
-	 
+	// Busca todos los eventos que contengan la palabra `nombre`, ignorando mayúsculas/minúsculas
+	@GetMapping("filterByBusqueda")
+	public ResponseEntity<List<DTOeventoBajada>> busquedaPorIA(@RequestParam String nombre) {
+	    try {
+	        List<DTOeventoBajada> eventos = eventoServicio.buscarPorNombreConteniendo(nombre);
+	        return new ResponseEntity<>(eventos, HttpStatus.OK);
+	    } catch (RuntimeException e) {
+	        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	    }
+	}
 	
 	@GetMapping("findByVendedor/{idVendedor}")
 	public ResponseEntity<List<DTOeventoBajada>> findByVendedor(@PathVariable Long idVendedor) {

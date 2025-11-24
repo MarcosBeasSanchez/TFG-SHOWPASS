@@ -791,3 +791,6 @@ Binding(CTRL+SHIFT+T,
 		,,true),null),
 	org.eclipse.ui.defaultAcceleratorConfiguration,
 	org.eclipse.ui.contexts.window,,,system)
+
+!ENTRY org.eclipse.lsp4e 2 0 2025-11-24 13:40:30.739
+!MESSAGE Could not detect hyperlinks due to timeout after 800 milliseconds
