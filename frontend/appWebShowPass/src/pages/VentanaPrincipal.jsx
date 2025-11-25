@@ -80,7 +80,7 @@ export default function VentanaPrincipal() {
               onChange={(e) => setBusqueda(e.target.value)}
               onKeyDown={handleInputKeyDown}
               className="p-2 border-gray-800 w-full"
-              placeholder="Escribe el nombre del evento..."
+              placeholder="Buscar eventos por nombre, localización, descripción o categoría..."
               maxLength={20}
             />
             <span

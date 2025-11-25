@@ -142,6 +142,51 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 		return dtoConverter.mapAll((List<Usuario>) repoUsuario.findAll(), DTOusuarioBajada.class);
 
 	}
+	
+	
+	@Override
+    public DTOusuarioBajada validarTokenYObtenerPerfil(String authHeader) {
+        
+        // 1. Verificar el formato del encabezado
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            System.out.println("Validacion Fallida: No se proporcionó Token o el formato es incorrecto.");
+            return null; // Rechazo inmediato
+        }
+        
+        // 2. Extraer el Token JWT
+        String token = authHeader.substring(7);
+        
+        // 3. Obtener el email del Token (el 'Subject')
+        String email = JwtUtil.extractEmail(token);
+        
+        // 4. Validar el Token y el Email
+        // Se valida que el email no sea nulo y que el Token no esté expirado y sea auténtico.
+        if (email == null || !JwtUtil.validateToken(token, email)) {
+            System.out.println("Validacion Fallida: Token expirado, inválido o falsificado.");
+            return null;
+        }
+
+        // 5. Buscar el usuario en la base de datos
+        Usuario u = repoUsuario.findByEmail(email);
+
+        // 6. Comprobaciones de Estado Final
+        if (u == null) {
+            System.out.println("Validacion Fallida: Usuario no encontrado para el Token válido.");
+            return null;
+        }
+        
+        if (u.isReportado()) {
+            System.out.println("Validacion Fallida: Usuario reportado/bloqueado.");
+            return null;
+        }
+
+        // 7. Éxito: Token válido, usuario activo. Mapear y devolver el DTO.
+        System.out.println("Validacion Exitosa: Sesión persistente activa para " + u.getEmail());
+        DTOusuarioBajada dtoUser = dtoConverter.map(u, DTOusuarioBajada.class);
+        return dtoUser;
+    }
+
+	
 
 	@Override
 	public DTOusuarioBajada register(DTOusuarioSubidaMinimo usuarioDto) {

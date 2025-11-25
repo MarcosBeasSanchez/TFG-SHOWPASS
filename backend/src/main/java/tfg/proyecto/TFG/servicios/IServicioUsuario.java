@@ -32,5 +32,6 @@ public interface IServicioUsuario {
 	List<DTOUsuarioReportado>findAllReportados();
 	DTOUsuarioReportado  reportarUsuario(String email);
 	DTOUsuarioReportado  quitarReport(String email);
+	DTOusuarioBajada validarTokenYObtenerPerfil(String authHeader); //auto-login validación de token 
 	
 }

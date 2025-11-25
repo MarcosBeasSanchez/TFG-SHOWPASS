@@ -20,6 +20,9 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
+  {/* Estado de carga de autenticación*/ }
+  const [loadingAuth, setLoadingAuth] = useState(true); // Nuevo estado de carga de autenticación
+
   {/* Estado para el modo oscuro */ }
   const [darkMode, setDarkMode] = useState(false);
 
@@ -33,20 +36,62 @@ export default function App() {
     }
   }, [darkMode]);
 
-  useEffect(() => {
-    const savedUser = localStorage.getItem("user"); // Verifica que no sea "undefined" o "null"
-    if (savedUser && savedUser !== "undefined" && savedUser !== "null") {
-      try {
-        const parsed = JSON.parse(savedUser);
-        setUser(parsed);
-        console.log("Usuario cargado desde localStorage:", parsed);
-      } catch (e) {
-        console.error("Error al parsear usuario guardado:", e);
-        setUser(null);
-        localStorage.removeItem("user");
-      }
+  // Lógica para el AUTO-LOGIN al cargar la aplicación
+    useEffect(() => {
+        const savedToken = localStorage.getItem("token");
+        
+        const checkAuth = async () => {
+            setLoadingAuth(true);
+
+            if (savedToken) {
+                try {
+                    // 1. Llamada al endpoint protegido 'perfil' para autologin
+                    const res = await fetch(`${config.apiBaseUrl}/tfg/usuario/perfil`, {
+                        method: 'GET',
+                        headers: { 
+                            // CLAVE: Adjuntar el token guardado en el encabezado
+                            'Authorization': `Bearer ${savedToken}`, 
+                            'Content-Type': 'application/json' 
+                        }
+                    });
+
+                    if (res.ok) {
+                        // Caso A:  Éxito (Código 200 OK) - El token es válido
+                        const data = await res.json();
+                        setUser(data); // Establece los datos actualizados del perfil
+                        localStorage.setItem("user", JSON.stringify(data)); // Opcional: Actualizar el localStorage con datos frescos
+                        console.log("Auto-Login Exitoso. Sesión persistente activa.");
+                    } else if (res.status === 401) {
+                        // Caso B: Falla (Código 401 Unauthorized) - Token expirado/inválido
+                        console.log("Token expirado o inválido. Forzando logout.");
+                        handleLogout(); // Limpia el estado y el localStorage
+                    } else {
+                        // Otro error del servidor (ej. 500)
+                        console.error("Error desconocido al validar sesión:", res.status);
+                        handleLogout(); 
+                    }
+                } catch (e) {
+                    // Error de red (ej. backend caído)
+                    console.error("Error de red al intentar validar sesión:", e);
+                    // Decides si quieres forzar el logout o dejar la app en estado "deslogueado"
+                    // Si el backend no está disponible, no hacemos nada más que informar.
+                }
+            }
+            
+            setLoadingAuth(false);
+        };
+
+        checkAuth();
+    }, []); // Se ejecuta SÓLO una vez al montar el componente App
+
+    // Muestra el estado de carga mientras se valida la sesión
+    if (loadingAuth) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <p className="text-xl">Cargando sesión y datos iniciales...</p>
+            </div>
+        );
     }
-  }, []);
 
 
   const handleLogout = () => {

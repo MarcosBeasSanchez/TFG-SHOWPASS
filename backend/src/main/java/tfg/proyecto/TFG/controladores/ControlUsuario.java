@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import tfg.proyecto.TFG.dtos.DTOUsuarioReportado;
 import tfg.proyecto.TFG.dtos.DTOeventoBajada;
@@ -38,14 +39,39 @@ public class ControlUsuario {
 	@Autowired
 	IServicioUsuario daoUsuario;
 	
+		
+		/**
+		 * Endpoint protegido para validar la sesión actual del usuario usando el JWT.
+		 * * @param request El objeto HttpServletRequest para leer el encabezado Authorization.
+		 * @return DTOusuarioBajada si el token es válido, o 401 UNAUTHORIZED si es inválido/expirado.
+		 */
+		@GetMapping("perfil")
+		public ResponseEntity<DTOusuarioBajada> getPerfil(HttpServletRequest request) {
+		    // 1. Obtener el token del encabezado "Authorization: Bearer <token>"
+		    String authHeader = request.getHeader("Authorization");
+		    
+		    // 2. Llamar al servicio para que gestione la validación del token y la búsqueda del usuario
+		    // Nota: Necesitas añadir este método 'validarTokenYObtenerPerfil' a tu interfaz IServicioUsuario
+		    
+		    DTOusuarioBajada dtoBajada = daoUsuario.validarTokenYObtenerPerfil(authHeader);
+
+		    if (dtoBajada != null) {
+		        // Si el servicio devuelve el DTO, el token es válido y la sesión está activa
+		        return ResponseEntity.ok(dtoBajada);
+		    } else {
+		        // Si devuelve null, el token es inválido, expirado o el usuario está reportado (401)
+		        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); // 401 Unauthorized
+		    }
+		}
+	
 	
 	@PostMapping("register")
 	public ResponseEntity<DTOusuarioBajada> registrarUsuario(@RequestBody DTOusuarioSubidaMinimo usu) {
 		DTOusuarioBajada dtoBajada;
 		dtoBajada = daoUsuario.register(usu);
 		return new ResponseEntity<DTOusuarioBajada>(dtoBajada, HttpStatus.OK);
-
 	}
+	
 	
 	@PostMapping("login") //post porque http solo admite post y get
 	public ResponseEntity<DTOusuarioLoginBajada> loginUsuario(@RequestBody DTOusuarioLogin dtologin){
