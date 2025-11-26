@@ -36,6 +36,8 @@ tickets = None             # DataFrame plano de tickets reconstruido
 
 # Para detectar si hay nuevos tickets y reentrenar
 ultimo_num_tickets = 0
+ultimo_num_eventos = 0   # <--- detecta creación/eliminación de eventos
+ultimo_hash_texto = ""   # <--- detecta cambios en nombre/desc/categoria/localizacion
 
 #  1) FUNCIÓN PARA OBTENER DATOS DESDE SPRING
 
@@ -127,21 +129,53 @@ def entrenar_modelos():
 
 def recargar_si_hay_cambios():
     """
-    Comprueba si el número de tickets ha cambiado.
-    Si cambió → reentrena los modelos.
+    AUTO-REENTRENAMIENTO INTELIGENTE
+
+    Reentrena modelos solo si:
+     cambia número de tickets
+     cambia número de eventos
+     cambia contenido textual de eventos (nombre, desc, categoria, localización)
+
+    Así evitamos:
+     errores 500 al crear eventos nuevos
+     tener modelos desactualizados
+     reentrenar todo cada llamada (muy caro)
     """
 
-    global ultimo_num_tickets, usuarios, eventos, tickets, vectorizer
+    global ultimo_num_tickets, ultimo_num_eventos, ultimo_hash_texto
+    global usuarios, eventos, tickets
 
     usuarios_df, eventos_df, tickets_df = obtener_datos()
 
-    # Detectamos cambios en el número de tickets
-    if len(tickets_df) != ultimo_num_tickets:
-        print(f"\n[IA] Cambio detectado en tickets ({ultimo_num_tickets} → {len(tickets_df)}). Reentrenando...")
+    #  1) detectar cambios en tickets 
+    cambio_tickets = len(tickets_df) != ultimo_num_tickets
+
+    #  2) detectar cambios en número de eventos 
+    cambio_num_eventos = len(eventos_df) != ultimo_num_eventos
+
+    #  3) detectar cambios en texto de eventos
+    # construimos un hash simple del contenido relevante
+    texto_concat = (
+        eventos_df["nombre"].astype(str) +
+        eventos_df["categoria"].astype(str) +
+        eventos_df["localizacion"].astype(str) +
+        eventos_df["descripcion"].astype(str)
+    ).str.cat(sep="|")
+
+    nuevo_hash = hash(texto_concat)
+    cambio_texto = nuevo_hash != ultimo_hash_texto
+
+    #  si hay cualquier cambio importante → reentrenar 
+    if cambio_tickets or cambio_num_eventos or cambio_texto:
+        print("\n[IA] CAMBIO DETECTADO → reentrenando modelos...")
         entrenar_modelos()
+
         ultimo_num_tickets = len(tickets_df)
+        ultimo_num_eventos = len(eventos_df)
+        ultimo_hash_texto = nuevo_hash
+
     else:
-        # Si no cambian, solo refrescamos datos
+        # si no hay cambios, solo actualizar datos
         usuarios = usuarios_df
         eventos = eventos_df
         tickets = tickets_df
