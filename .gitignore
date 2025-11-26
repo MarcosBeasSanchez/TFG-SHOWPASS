@@ -20,6 +20,7 @@ target/
 *.ipr
 
 ### Eclipse ###
+.metadata
 .metadata/
 *.iml
 *.classpath

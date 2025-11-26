@@ -279,12 +279,12 @@ def search_events(nombre: str):
             return {"eventos_encontrados": ids_nombre[:5]}
 
         #  3) SI NO HAY NOMBRE → USAR IA 
-        query_vec = vectorizer.transform([nombre])
-        matriz_eventos = vectorizer.transform(eventos["texto"])
-        scores = cosine_similarity(query_vec, matriz_eventos)[0]
+        query_vec = vectorizer.transform([nombre]) # vector de consulta
+        matriz_eventos = vectorizer.transform(eventos["texto"]) # matriz de eventos
+        scores = cosine_similarity(query_vec, matriz_eventos)[0] # scores de similitud(todos)
 
         # Encontrar eventos con similitud REAL (> umbral)
-        indices_validos = [i for i, score in enumerate(scores) if score >= UMBRAL_SIMILITUD]
+        indices_validos = [i for i, score in enumerate(scores) if score >= UMBRAL_SIMILITUD] #filtrado de los vectores mas parecidos
 
         # Si NO HAY ninguno con similitud → vacío
         if not indices_validos:
