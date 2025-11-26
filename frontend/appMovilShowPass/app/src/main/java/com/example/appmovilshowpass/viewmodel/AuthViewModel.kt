@@ -31,7 +31,44 @@ class AuthViewModel : ViewModel() {
     var loading by mutableStateOf(false)
         private set
 
+    var isSessionChecked by mutableStateOf(false)
+        private set
+
     var error by mutableStateOf<String?>(null)
+
+    private fun saveToken(context: Context, token: String) {
+        viewModelScope.launch {
+            context.dataStore.edit { prefs ->
+                prefs[UserPreferencesKeys.USER_TOKEN] = token
+            }
+        }
+    }
+
+    private suspend fun getToken(context: Context): String? {
+        return context.dataStore.data
+            .map { prefs -> prefs[UserPreferencesKeys.USER_TOKEN] }
+            .firstOrNull()
+    }
+
+    private fun clearSession(context: Context) {
+        viewModelScope.launch {
+            context.dataStore.edit { prefs ->
+                prefs.remove(UserPreferencesKeys.USER_TOKEN)
+                prefs.remove(UserPreferencesKeys.USER_PHOTO)
+            }
+            currentUser = null
+        }
+    }
+
+    fun logout(context: Context) {
+        viewModelScope.launch {
+            context.dataStore.edit { prefs ->
+                prefs.remove(UserPreferencesKeys.USER_TOKEN)
+                prefs.remove(UserPreferencesKeys.USER_PHOTO)
+            }
+            currentUser = null
+        }
+    }
 
     fun login(
         context: Context,
@@ -44,13 +81,18 @@ class AuthViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val dto: DTOusuarioLoginBajada =
-                    RetrofitClient.eventoApiService.login(Login(email, password))
+                    RetrofitClient.usuarioApiService.login(Login(email, password))
                 if (!dto.exito) {
                     Log.d("Login", "Error de login: ${dto.mensaje}")
                     throw Exception(dto.mensaje)
                 } else {
                     Log.d("Login", "Login: ${dto.mensaje}")
                     Log.d("Usuario", "Usuario: ${dto.dtousuarioBajada}")
+
+                    //Guardamos token
+                    if (dto.token.isNotEmpty()) {
+                        saveToken(context, dto.token)
+                    }
 
                     var user = dto.dtousuarioBajada?.toUsuario()
 
@@ -116,9 +158,7 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    fun logout() {
-        currentUser = null
-    }
+
 
 
     fun updateUser(context: Context, usuario: Usuario, onComplete: (Boolean) -> Unit = {}) {
@@ -218,6 +258,66 @@ class AuthViewModel : ViewModel() {
 
             if (!fotoUrl.isNullOrEmpty()) {
                 currentUser = currentUser?.copy(foto = fotoUrl)
+            }
+        }
+    }
+
+    fun autoLogin(context: Context) {
+        viewModelScope.launch {
+            loading = true
+            try {
+                val token = getToken(context)
+
+                if (token.isNullOrEmpty()) {
+                    // No hay token guardado -> usuario deslogueado
+                    currentUser = null
+                } else {
+                    // Llamamos al backend igual que en la web
+                    val response = RetrofitClient.usuarioApiService.getPerfil("Bearer $token")
+
+                    when {
+                        response.isSuccessful -> {
+                            val dto = response.body()
+                            if (dto != null) {
+                                var user = dto.toUsuario()
+
+                                // Recuperar foto guardada si el backend no la manda
+                                val fotoGuardada = context.dataStore.data
+                                    .map { prefs -> prefs[UserPreferencesKeys.USER_PHOTO] }
+                                    .firstOrNull()
+
+                                if (user.foto.isEmpty() && !fotoGuardada.isNullOrEmpty()) {
+                                    user = user.copy(foto = fotoGuardada)
+                                }
+
+                                if (user.foto.isNotEmpty()) {
+                                    saveUserPhoto(context, user.foto)
+                                }
+
+                                currentUser = user
+                                Log.d("AutoLogin", "Sesión persistente activa para ${user.email}")
+                            } else {
+                                currentUser = null
+                            }
+                        }
+
+                        response.code() == 401 -> {
+                            // Token expirado / inválido
+                            Log.d("AutoLogin", "Token inválido o expirado. Logout.")
+                            clearSession(context)
+                        }
+
+                        else -> {
+                            Log.e("AutoLogin", "Error al validar sesión: ${response.code()}")
+                            clearSession(context)
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("AutoLogin", "Error de red al validar sesión", e)
+            } finally {
+                loading = false
+                isSessionChecked = true  // ya hemos terminado de comprobar
             }
         }
     }

@@ -10,6 +10,7 @@ import androidx.activity.viewModels
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
@@ -119,262 +120,289 @@ fun MainScreen() {
     val authViewModel: AuthViewModel = viewModel()
     val context = LocalContext.current
 
-    // Cargar la foto guardada en DataStore al iniciar
     LaunchedEffect(Unit) {
-        authViewModel.loadUserPhoto(context)
+        authViewModel.autoLogin(context)
     }
 
-    val items = listOf(
-        //BottomNavItem("Inicio", Icons.Default.Home, "inicio"),
-        BottomNavItem("Eventos", Icons.Outlined.Event, "eventos"),
-        BottomNavItem("Busqueda", Icons.Outlined.Search, "buscar"),
-        BottomNavItem("Carrito", Icons.Outlined.ShoppingCart, "carrito"),
-        BottomNavItem("Tickets", Icons.Outlined.QrCode, "tickets"),
-        BottomNavItem("Info", Icons.Outlined.Info, "info"),
-    )
+        val isSessionChecked = authViewModel.isSessionChecked
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxSize(),
-                        horizontalArrangement = Arrangement.Start,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "SHOWPASS",
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.ExtraBold,
-                            style = TextStyle(
-                                fontFamily = Roboto, // Usa la familia de fuentes que definiste
-                                fontWeight = FontWeight.ExtraBold, // Usa el peso que quieres (seleccionará roboto_extrabold.ttf)
-                                fontSize = 24.sp, // La movemos aquí para que sea parte del estilo
-                            ),
-                            color = Color.White,
-                            modifier = Modifier.clickable()
-                            { navController.navigate("eventos") }
-                        )
-                        Icon(
-                            imageVector = Icons.Outlined.LocalActivity,
-                            contentDescription = "Icono",
-                            tint = Color.White
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(
-                        modifier = Modifier.size(40.dp),
-                        onClick = { navController.navigate("usuario"){
-                            // Evitar múltiples copias de la pantalla en la pila
-                            launchSingleTop = true
-                            // Volver a la pantalla de eventos si ya está en la pila
-                            popUpTo("eventos") { saveState = true }
-                        } }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.AccountCircle,
-                            contentDescription = "Usuario",
-                            tint = Color.White
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = DarkBlue
-                ),
-                modifier = Modifier.height(90.dp)
-            )
-        },
-        bottomBar = {
-            NavigationBar(
+        if (!isSessionChecked) {
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                containerColor = MaterialTheme.colorScheme.surface, // o primaryContainer
-                contentColor = MaterialTheme.colorScheme.onSurface  // color del icono/texto
+                    .fillMaxSize()
+                    .background(Color(0xFF101010)),
+                contentAlignment = Alignment.Center
             ) {
-                val navBackStackEntry by navController.currentBackStackEntryAsState()
-                val currentRoute = navBackStackEntry?.destination?.route
-
-                items.forEach { item ->
-                    NavigationBarItem(
-                        modifier = (Modifier.height(height = 20.dp)),
-                        icon = { Icon(item.icon, contentDescription = item.title) },
-                        label = { Text(item.title, fontSize = 10.sp) },
-                        selected = currentRoute == item.route,
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = MaterialTheme.colorScheme.primary,
-                            selectedTextColor = MaterialTheme.colorScheme.primary,
-                            indicatorColor = MaterialTheme.colorScheme.surfaceVariant,
-                            unselectedIconColor = MaterialTheme.colorScheme.onSurface,
-                            unselectedTextColor = MaterialTheme.colorScheme.onSurface
-                        ),
-                        onClick = {
-                            navController.navigate(item.route) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    inclusive = true
-                                }
-                                launchSingleTop = true
-                            }
-                        }
-
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    CircularProgressIndicator()
+                    Spacer(Modifier.height(16.dp))
+                    Text(
+                        text = "Cargando sesión y datos iniciales...",
+                        color = Color.White
                     )
                 }
             }
-        },
-        floatingActionButton = {
+            return  //  no seguimos dibujando el resto de MainScreen
+        }
 
-            if (authViewModel.currentUser?.rol == Rol.ADMIN) {
-                AdminFab(
-                    onUsersClick = { navController.navigate("admin_report") },
-                    onEventsClick = { navController.navigate("admin_eventos") }
-                )
-            }
-
-            if (authViewModel.currentUser?.rol == Rol.VENDEDOR) {
-                VendedorFab(
-                    onCreateClick = { navController.navigate("vendedor_crear") },
-                    onEditClick = { navController.navigate("vendedor_editar") }
-                )
-            }
-
-        },
-        floatingActionButtonPosition = FabPosition.End
-    ) { innerPadding ->
-
-        NavHost(
-            navController = navController,
-            startDestination = "eventos",
-            enterTransition = { fadeIn(animationSpec = tween(500)) },
-            exitTransition = { fadeOut(animationSpec = tween(500)) },
-            popEnterTransition = { fadeIn(animationSpec = tween(500)) },
-            popExitTransition = { fadeOut(animationSpec = tween(500)) },
-            modifier = Modifier.padding(innerPadding)
-        ) {
-            composable("eventos") {
-                val eventoViewModel: EventoViewModel = viewModel()
-                EventoScreen(viewModel = eventoViewModel, navController = navController)
-            }
-            composable(
-                "evento_info/{eventoId}",
-                arguments = listOf(navArgument("eventoId") { type = NavType.LongType })
-            ) { backStackEntry ->
-                val eventoId = backStackEntry.arguments?.getLong("eventoId") ?: 0L
-                EventoInfo(
-                    eventoId = eventoId,
-                    authViewModel = authViewModel,
-                    carritoViewModel = viewModel(),
-                    navController = navController
-                )
-            }
-
-            composable("buscar") {
-                val busquedaViewModel: BusquedaViewModel = viewModel()
-                BusquedaScreen(viewModel = busquedaViewModel, navController = navController)
-            }
-
-            composable("carrito") {
+        LaunchedEffect(Unit) {
+            authViewModel.autoLogin(context)
+        }
 
 
-                val carritoViewModel: CarritoViewModel = viewModel()
-                val ticketViewModel: TicketViewModel = viewModel()
+        val items = listOf(
+            //BottomNavItem("Inicio", Icons.Default.Home, "inicio"),
+            BottomNavItem("Eventos", Icons.Outlined.Event, "eventos"),
+            BottomNavItem("Busqueda", Icons.Outlined.Search, "buscar"),
+            BottomNavItem("Carrito", Icons.Outlined.ShoppingCart, "carrito"),
+            BottomNavItem("Tickets", Icons.Outlined.QrCode, "tickets"),
+            BottomNavItem("Info", Icons.Outlined.Info, "info"),
+        )
 
-                val usuarioId = authViewModel.currentUser?.id ?: 0L
-
-                CarritoScreen(
-                    navController = navController,
-                    carritoViewModel = carritoViewModel,
-                    ticketViewModel = ticketViewModel,
-                    usuarioId = usuarioId
-                )
-            }
-            composable("tickets") {
-                val ticketViewModel: TicketViewModel = viewModel()
-
-                TicketsScreen(
-                    authViewModel = authViewModel,
-                    ticketViewModel = ticketViewModel,
-                    navController = navController,
-                    onBack = { navController.popBackStack() }
-                )
-            }
-
-            composable("info") {
-                InfoScreen(authViewModel, navController)
-
-            }
-
-            composable("usuario") {
-                UsuarioScreen(
-                    authViewModel = authViewModel,
-                    onLoginClick = { navController.navigate("login") },
-                    onRegisterClick = { navController.navigate("register") },
-                    onEditClick = { navController.navigate("editar_usuario") }
-                )
-            }
-            composable("login") {
-                LoginScreen(
-                    authViewModel = authViewModel,
-                    onLoginSuccess = {
-                        navController.popBackStack()
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxSize(),
+                            horizontalArrangement = Arrangement.Start,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "SHOWPASS",
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                style = TextStyle(
+                                    fontFamily = Roboto, // Usa la familia de fuentes que definiste
+                                    fontWeight = FontWeight.ExtraBold, // Usa el peso que quieres (seleccionará roboto_extrabold.ttf)
+                                    fontSize = 24.sp, // La movemos aquí para que sea parte del estilo
+                                ),
+                                color = Color.White,
+                                modifier = Modifier.clickable()
+                                { navController.navigate("eventos") }
+                            )
+                            Icon(
+                                imageVector = Icons.Outlined.LocalActivity,
+                                contentDescription = "Icono",
+                                tint = Color.White
+                            )
+                        }
                     },
-                    onGoToRegister = { navController.navigate("register") }
-                )
-            }
-            composable("register") {
-                RegisterScreen(
-                    authViewModel = authViewModel,
-                    onRegisterSuccess = {
-                        navController.popBackStack()
+                    actions = {
+                        IconButton(
+                            modifier = Modifier.size(40.dp),
+                            onClick = {
+                                navController.navigate("usuario") {
+                                    // Evitar múltiples copias de la pantalla en la pila
+                                    launchSingleTop = true
+                                    // Volver a la pantalla de eventos si ya está en la pila
+                                    popUpTo("eventos") { saveState = true }
+                                }
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.AccountCircle,
+                                contentDescription = "Usuario",
+                                tint = Color.White
+                            )
+                        }
                     },
-                    onGoToLogin = { navController.navigate("login") }
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = DarkBlue
+                    ),
+                    modifier = Modifier.height(90.dp)
                 )
-            }
-            composable("editar_usuario") {
-                UsuarioEditScreen(
-                    authViewModel = authViewModel,
-                    onSaveSuccess = {
-                        navController.popBackStack() // volvemos a la pantalla usuario
-                    },
-                    onCancel = {
-                        navController.popBackStack()
+            },
+            bottomBar = {
+                NavigationBar(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    containerColor = MaterialTheme.colorScheme.surface, // o primaryContainer
+                    contentColor = MaterialTheme.colorScheme.onSurface  // color del icono/texto
+                ) {
+                    val navBackStackEntry by navController.currentBackStackEntryAsState()
+                    val currentRoute = navBackStackEntry?.destination?.route
+
+                    items.forEach { item ->
+                        NavigationBarItem(
+                            modifier = (Modifier.height(height = 20.dp)),
+                            icon = { Icon(item.icon, contentDescription = item.title) },
+                            label = { Text(item.title, fontSize = 10.sp) },
+                            selected = currentRoute == item.route,
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = MaterialTheme.colorScheme.primary,
+                                selectedTextColor = MaterialTheme.colorScheme.primary,
+                                indicatorColor = MaterialTheme.colorScheme.surfaceVariant,
+                                unselectedIconColor = MaterialTheme.colorScheme.onSurface,
+                                unselectedTextColor = MaterialTheme.colorScheme.onSurface
+                            ),
+                            onClick = {
+                                navController.navigate(item.route) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        inclusive = true
+                                    }
+                                    launchSingleTop = true
+                                }
+                            }
+
+                        )
                     }
-                )
-            }
-            composable("admin_report") {
-                AdminReportScreen(
-                    authViewModel = authViewModel,
-                    onBack = { navController.popBackStack() }
-                )
-            }
-            composable("admin_eventos") {
-                AdminBorrarEventosScreen(
-                    onBack = { navController.popBackStack() }
-                )
-            }
-            composable("vendedor_crear") {
-                VendedorCrearEventoScreen(authViewModel, navController)
-            }
-            composable("vendedor_editar") {
-                VendedorMisEventosScreen(authViewModel, navController)
+                }
+            },
+            floatingActionButton = {
 
-            }
+                if (authViewModel.currentUser?.rol == Rol.ADMIN) {
+                    AdminFab(
+                        onUsersClick = { navController.navigate("admin_report") },
+                        onEventsClick = { navController.navigate("admin_eventos") }
+                    )
+                }
 
-            composable(
-                route = "vendedor_editar_evento/{id}",
-                arguments = listOf(navArgument("id") { type = NavType.LongType })
-            ) { backStackEntry ->
+                if (authViewModel.currentUser?.rol == Rol.VENDEDOR) {
+                    VendedorFab(
+                        onCreateClick = { navController.navigate("vendedor_crear") },
+                        onEditClick = { navController.navigate("vendedor_editar") }
+                    )
+                }
 
-                val id = backStackEntry.arguments?.getLong("id") ?: 0L
+            },
+            floatingActionButtonPosition = FabPosition.End
+        ) { innerPadding ->
 
-                VendedorEditarEventoScreen(
-                    eventoId = id,
-                    authViewModel = authViewModel,
-                    navController = navController,
-                )
+            NavHost(
+                navController = navController,
+                startDestination = "eventos",
+                enterTransition = { fadeIn(animationSpec = tween(500)) },
+                exitTransition = { fadeOut(animationSpec = tween(500)) },
+                popEnterTransition = { fadeIn(animationSpec = tween(500)) },
+                popExitTransition = { fadeOut(animationSpec = tween(500)) },
+                modifier = Modifier.padding(innerPadding)
+            ) {
+                composable("eventos") {
+                    val eventoViewModel: EventoViewModel = viewModel()
+                    EventoScreen(viewModel = eventoViewModel, navController = navController)
+                }
+                composable(
+                    "evento_info/{eventoId}",
+                    arguments = listOf(navArgument("eventoId") { type = NavType.LongType })
+                ) { backStackEntry ->
+                    val eventoId = backStackEntry.arguments?.getLong("eventoId") ?: 0L
+                    EventoInfo(
+                        eventoId = eventoId,
+                        authViewModel = authViewModel,
+                        carritoViewModel = viewModel(),
+                        navController = navController
+                    )
+                }
+
+                composable("buscar") {
+                    val busquedaViewModel: BusquedaViewModel = viewModel()
+                    BusquedaScreen(viewModel = busquedaViewModel, navController = navController)
+                }
+
+                composable("carrito") {
+
+
+                    val carritoViewModel: CarritoViewModel = viewModel()
+                    val ticketViewModel: TicketViewModel = viewModel()
+
+                    val usuarioId = authViewModel.currentUser?.id ?: 0L
+
+                    CarritoScreen(
+                        navController = navController,
+                        carritoViewModel = carritoViewModel,
+                        ticketViewModel = ticketViewModel,
+                        usuarioId = usuarioId
+                    )
+                }
+                composable("tickets") {
+                    val ticketViewModel: TicketViewModel = viewModel()
+
+                    TicketsScreen(
+                        authViewModel = authViewModel,
+                        ticketViewModel = ticketViewModel,
+                        navController = navController,
+                        onBack = { navController.popBackStack() }
+                    )
+                }
+
+                composable("info") {
+                    InfoScreen(authViewModel, navController)
+
+                }
+
+                composable("usuario") {
+                    UsuarioScreen(
+                        authViewModel = authViewModel,
+                        onLoginClick = { navController.navigate("login") },
+                        onRegisterClick = { navController.navigate("register") },
+                        onEditClick = { navController.navigate("editar_usuario") }
+                    )
+                }
+                composable("login") {
+                    LoginScreen(
+                        authViewModel = authViewModel,
+                        onLoginSuccess = {
+                            navController.popBackStack()
+                        },
+                        onGoToRegister = { navController.navigate("register") }
+                    )
+                }
+                composable("register") {
+                    RegisterScreen(
+                        authViewModel = authViewModel,
+                        onRegisterSuccess = {
+                            navController.popBackStack()
+                        },
+                        onGoToLogin = { navController.navigate("login") }
+                    )
+                }
+                composable("editar_usuario") {
+                    UsuarioEditScreen(
+                        authViewModel = authViewModel,
+                        onSaveSuccess = {
+                            navController.popBackStack() // volvemos a la pantalla usuario
+                        },
+                        onCancel = {
+                            navController.popBackStack()
+                        }
+                    )
+                }
+                composable("admin_report") {
+                    AdminReportScreen(
+                        authViewModel = authViewModel,
+                        onBack = { navController.popBackStack() }
+                    )
+                }
+                composable("admin_eventos") {
+                    AdminBorrarEventosScreen(
+                        onBack = { navController.popBackStack() }
+                    )
+                }
+                composable("vendedor_crear") {
+                    VendedorCrearEventoScreen(authViewModel, navController)
+                }
+                composable("vendedor_editar") {
+                    VendedorMisEventosScreen(authViewModel, navController)
+
+                }
+
+                composable(
+                    route = "vendedor_editar_evento/{id}",
+                    arguments = listOf(navArgument("id") { type = NavType.LongType })
+                ) { backStackEntry ->
+
+                    val id = backStackEntry.arguments?.getLong("id") ?: 0L
+
+                    VendedorEditarEventoScreen(
+                        eventoId = id,
+                        authViewModel = authViewModel,
+                        navController = navController,
+                    )
+                }
+
             }
 
         }
-
-    }
 }

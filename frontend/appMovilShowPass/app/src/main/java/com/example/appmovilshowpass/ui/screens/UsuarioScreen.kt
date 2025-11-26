@@ -226,7 +226,7 @@ fun UsuarioScreen(
                 }
                 Spacer(Modifier.height(12.dp))
                 Button(
-                    onClick = { authViewModel.logout() },
+                    onClick = { authViewModel.logout(context) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),

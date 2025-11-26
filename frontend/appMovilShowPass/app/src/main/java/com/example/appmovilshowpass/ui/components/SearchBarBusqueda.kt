@@ -87,7 +87,7 @@ fun SearchBarBusqueda(
                     },
                     expanded = expanded,
                     onExpandedChange = { expanded = it },
-                    placeholder = { Text("Buscar por nombre...") },
+                    placeholder = { Text("Buscar por nombre, localización, descripción o género") },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = MaterialTheme.colorScheme.onBackground,
                         unfocusedTextColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f),

@@ -8,4 +8,5 @@ val Context.dataStore by preferencesDataStore("user_prefs")
 
 object UserPreferencesKeys {
     val USER_PHOTO = stringPreferencesKey("user_photo")
+    val USER_TOKEN = stringPreferencesKey("user_token")
 }

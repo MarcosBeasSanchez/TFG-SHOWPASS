@@ -42,8 +42,8 @@ public class ControlUsuario {
 		
 		/**
 		 * Endpoint protegido para validar la sesión actual del usuario usando el JWT.
-		 * * @param request El objeto HttpServletRequest para leer el encabezado Authorization.
-		 * @return DTOusuarioBajada si el token es válido, o 401 UNAUTHORIZED si es inválido/expirado.
+		 * request El objeto HttpServletRequest para leer el encabezado Authorization.
+		 * DTOusuarioBajada si el token es válido, o 401 UNAUTHORIZED si es inválido/expirado.
 		 */
 		@GetMapping("perfil")
 		public ResponseEntity<DTOusuarioBajada> getPerfil(HttpServletRequest request) {

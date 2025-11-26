@@ -13,6 +13,7 @@ import com.example.appmovilshowpass.model.Register
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
+import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
@@ -47,6 +48,6 @@ interface UsuarioApiService {
     @DELETE("tfg/usuario/delete/{id}")
     suspend fun deleteUser(@Path("id") id: Long): Int
 
-
-
+    @GET("tfg/usuario/perfil")
+    suspend fun getPerfil(@Header("Authorization") authHeader: String): Response<DTOusuarioBajada>
 }
