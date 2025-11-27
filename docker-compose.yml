@@ -9,12 +9,10 @@ services:
     container_name: showpass_backend
     ports:
       - "8080:8080"
-    # Asegura que el backend espere a que el servicio de recomendación esté listo
-    depends_on:
-      - recomendacion-servicio
     environment:
       # --- VARIABLES CLAVE PARA LA CONEXIÓN EXTERNA ---
       SPRING_PROFILES_ACTIVE: docker
+      BACKEND_HOST_IP: 0.0.0.0 # Escuchar en todas las interfaces
 
     # HEALTHCHECK NECESARIO para asegurar que el backend está LISTO
     healthcheck:
@@ -23,12 +21,12 @@ services:
       timeout: 3s
       retries: 10
 
-  # Servicio 2: Servicio de Recomendación (Python FastAPI)
-  busqueda-recomendacion-servicio:
+  # Servicio 2: Servicio de Recomendación y Busqueda (Python FastAPI)
+  recomendacion-servicio:
     build:
-      context: ./busqueda_y_recomendacion_servicio
+      context: ./serviceML
       dockerfile: Dockerfile
-    container_name: showpass_busqueda_recomendador
+    container_name: showpass_ml_service
     ports:
       - "8000:8000"
     # Reinicia automáticamente en caso de fallo
@@ -47,8 +45,9 @@ services:
     container_name: showpass_frontend_web
     ports:
       - "80:80" # El puerto 80 del contenedor se mapea al 80 del host
-    # El frontend web necesita que el backend esté listo para funcionar
+   
     depends_on:
-      - backend
+      backend:  # El frontend web necesita que el backend esté listo para funcionar
+        condition: service_healthy
 
     #Network debe crearse automaticamente
