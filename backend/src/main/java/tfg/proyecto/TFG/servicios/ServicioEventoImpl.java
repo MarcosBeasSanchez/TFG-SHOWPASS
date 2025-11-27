@@ -166,7 +166,10 @@ public class ServicioEventoImpl implements IServicioEvento{
             } else {
                     imagenFinal = dto.getImagen(); // URL directa
                 }
+            
+            evento.setImagen(imagenFinal); //SAVE
 
+            
             // Carrusel (se reemplaza completamente)
             	 List<String> urlsCarrusel = new ArrayList<>();
  	            if (dto.getImagenesCarruselUrls() != null && !dto.getImagenesCarruselUrls().isEmpty()) {
@@ -180,9 +183,8 @@ public class ServicioEventoImpl implements IServicioEvento{
  	                }
  	            }
  	            
- 	           evento.setImagenesCarruselUrls(urlsCarrusel);
+ 	           evento.setImagenesCarruselUrls(urlsCarrusel); //SAVE
             
-       
             
             if (dto.getInvitados() != null && !dto.getInvitados().isEmpty()) {
                 servicioInvitado.eliminarInvitados(id);
@@ -306,16 +308,7 @@ public class ServicioEventoImpl implements IServicioEvento{
         }).collect(Collectors.toList());
 	}
 
-//	@Override
-//	public List<DTOeventoBajada> buscarPorNombreConteniendo(String nombre) {
-//		return eventoDAO.findByNombreContainingIgnoreCase(nombre).stream()
-//                .map(e -> {
-//                    DTOeventoBajada dto = dtoConverter.map(e, DTOeventoBajada.class);
-//                    dto.setImagenesCarruselUrls(eventoImagenDAO.findUrlsByEventoId(e.getId()));
-//                    return dto;
-//                }).collect(Collectors.toList());
-//	}
-	
+
 	
 	 /**
      * Búsqueda inteligente:

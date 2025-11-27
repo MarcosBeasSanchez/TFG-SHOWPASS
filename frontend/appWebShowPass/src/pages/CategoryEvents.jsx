@@ -85,7 +85,7 @@ export default function CategoriaEventos() {
               {/* Abajo */}
               <div className="text-end">
                 <Link
-                  to={`/evento/${evento.nombre}`}
+                  to={`/evento/${evento.id}`}
                   className=" inline-block px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700"
                 >
                   Ver detalles

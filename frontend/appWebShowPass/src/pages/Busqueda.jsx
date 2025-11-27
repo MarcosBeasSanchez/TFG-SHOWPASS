@@ -47,7 +47,7 @@ export default function BusquedaEventos() {
                         key={evento.id}
                         className="bg-white oscuro shadow-lg overflow-hidden hover:scale-101 transition transform group flex flex-col [@media(min-width:978px)]:flex-row"
                     >
-                        <Link to={`/evento/${evento.nombre}`} className="w-full sm:w-full [@media(min-width:978px)]:w-130 lg:w-120 flex-shrink-0">
+                        <Link to={`/evento/${evento.id}`} className="w-full sm:w-full [@media(min-width:978px)]:w-130 lg:w-120 flex-shrink-0">
                             <div className="w-full h-90 aspect-square overflow-hidden flex items-center justify-center bg-gray-200">
                                 <img
                                     src={getImageSrc(evento.imagenPrincipalUrl)}
@@ -82,7 +82,7 @@ export default function BusquedaEventos() {
                                 <span className=" font-medium text-sm text-gray-600 bg-blue-100  p-2 rounded-md oscuroBox">
                                     {Number(evento.precio).toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || "sin precio"}€ </span>
                                 <Link
-                                    to={`/evento/${evento.nombre}`}
+                                    to={`/evento/${evento.id}`}
                                     className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 text-center inline-block w-auto"
                                 >
                                     Ver detalles

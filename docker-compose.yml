@@ -10,16 +10,10 @@ services:
     ports:
       - "8080:8080"
     # Asegura que el backend espere a que el servicio de recomendación esté listo
-    #depends_on:
-    #  - recomendacion-servicio
-    # Si necesitas variables de entorno (p. ej., conexión a BD, puerto del servicio de recomendación)
+    depends_on:
+      - recomendacion-servicio
     environment:
       # --- VARIABLES CLAVE PARA LA CONEXIÓN EXTERNA ---
-      # Define la IP del HOST que la App Móvil debe usar. 
-      # Cambia por la IP de tu máquina en la red local.
-      BACKEND_HOST_IP: 0.0.0.0 #NO ESTA EN USO ACTUALMENTE
-      # Variable para el servicio interno de FastAPI:
-      #URL_RECOMENDACION_SERVICE: http://recomendacion-servicio:8000
       SPRING_PROFILES_ACTIVE: docker
 
     # HEALTHCHECK NECESARIO para asegurar que el backend está LISTO
@@ -30,11 +24,11 @@ services:
       retries: 10
 
   # Servicio 2: Servicio de Recomendación (Python FastAPI)
-  recomendacion-servicio:
+  busqueda-recomendacion-servicio:
     build:
-      context: ./recomendacionServicio
+      context: ./busqueda_y_recomendacion_servicio
       dockerfile: Dockerfile
-    container_name: showpass_recomendador
+    container_name: showpass_busqueda_recomendador
     ports:
       - "8000:8000"
     # Reinicia automáticamente en caso de fallo
@@ -56,3 +50,5 @@ services:
     # El frontend web necesita que el backend esté listo para funcionar
     depends_on:
       - backend
+
+    #Network debe crearse automaticamente

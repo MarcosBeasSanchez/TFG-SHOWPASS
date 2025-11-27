@@ -100,7 +100,7 @@ export default function VentanaPrincipal() {
               key={primerEvento.id}
               className="bg-white shadow-lg overflow-hidden hover:scale-101 transition transform lg:w-full w-full group"
             >
-              <Link to={`/evento/${primerEvento.nombre}`}>
+              <Link to={`/evento/${primerEvento.id}`}>
                 <div className="relative w-full ">
                   {/* Usamos getImageSrc para asegurar que la imagen sea válida */}
                   <img
@@ -134,7 +134,7 @@ export default function VentanaPrincipal() {
                     {Number(primerEvento.precio).toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€
                   </p>
                   <Link
-                    to={`/evento/${primerEvento.nombre}`}
+                    to={`/evento/${primerEvento.id}`}
                     className=" bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 text-center"
                   >
                     Detalles
@@ -149,7 +149,7 @@ export default function VentanaPrincipal() {
       <div className=" max-w-7/8 mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-5 p-5 sm:p-10 ">
         {restoEventos.map((entrada) => (
           <div key={entrada.id} className="claro oscuro shadow-lg overflow-hidden hover:scale-101 transition transform group h-full ">
-            <Link to={`/evento/${entrada.nombre}`}>
+            <Link to={`/evento/${entrada.id}`}>
               <div className="relative w-full h-80 ">
                 <img
                   src={getImageSrc(entrada.imagenPrincipalUrl)}
@@ -181,7 +181,7 @@ export default function VentanaPrincipal() {
                   {Number(entrada.precio).toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€
                 </p>
                 <Link
-                  to={`/evento/${entrada.nombre}`}
+                  to={`/evento/${entrada.id}`}
                   className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 text-center inline-block w-auto"
                 >
                   Detalles

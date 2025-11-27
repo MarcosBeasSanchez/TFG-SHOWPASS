@@ -369,7 +369,7 @@ export default function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/profile" element={<Profile setUser={setUser} />} />
-            <Route path="/evento/:nombre" element={<EventDetail />} />
+            <Route path="/evento/:id" element={<EventDetail />} />
             <Route path="/shoppingCart" element={<ShoppingCart />} />
             <Route path="/tickets" element={<UserTickets />} />
             <Route path="/admin" element={<AdminPanel />} />

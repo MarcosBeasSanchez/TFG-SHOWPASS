@@ -16,9 +16,11 @@ const EditEventSection = () => {
         finEvento: "",
         precio: "",
         categoria: "",
+        aforo: "",
         imagen: null,
         carrusels: [],
         invitados: [],
+        vendedorId: ""
     });
 
     useEffect(() => {
@@ -26,22 +28,43 @@ const EditEventSection = () => {
     }, []);
 
     const getImageSrc = (img) => {
-    if (!img) return ""; // si no hay imagen, devolvemos vacío
-    if (img.startsWith("data:image/")) return img; // ya es Base64 con prefijo → no hacer nada
-    if (img.startsWith("http://") || img.startsWith("https://")) return img; // es URL externa → usar tal cual
-    if (img.startsWith("/uploads/")) return `${config.apiBaseUrl}${img}`; // es ruta relativa del backend
-    return `data:image/png;base64,${img}`; // es Base64 crudo → agregamos el prefijo necesario
-  };
+        if (!img) return ""; // si no hay imagen, devolvemos vacío
+        if (img instanceof File) return URL.createObjectURL(img); // Nuevo archivo
+        if (img.startsWith("data:image/")) return img; // ya es Base64 con prefijo → no hacer nada
+        if (img.startsWith("http://") || img.startsWith("https://")) return img; // es URL externa → usar tal cual
+        if (img.startsWith("/uploads/")) return `${config.apiBaseUrl}${img}`; // es ruta relativa del backend
+        return `data:image/png;base64,${img}`; // es Base64 crudo → agregamos el prefijo necesario
+    };
+
+    /**
+   * Convierte un objeto File a una cadena Base64 (data:image/...).
+   * Devuelve una Promise que resuelve la cadena Base64 o la cadena original si no es un File.
+   */
+    const fileToBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            if (!file || !(file instanceof File)) {
+                // Si ya es una URL/Base64 string existente (o null), la devolvemos sin cambios.
+                resolve(file);
+                return;
+            }
+            const reader = new FileReader();
+            // Usamos readAsDataURL para obtener el prefijo 'data:image/...' que el backend puede manejar.
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = (error) => reject(error);
+        });
+    };
 
     // Función para obtener todos los eventos
     const fetchEventos = async () => {
         setLoading(true);
-       
+
         try {
             const res = await fetch(`${config.apiBaseUrl}/tfg/usuario/findAllEventosCreados/${usuarioId}`);
             if (!res.ok) throw new Error("Error al obtener eventos");
             const data = await res.json();
             setEvents(data);
+            console.log("Eventos cargados:", data);
         } catch (err) {
             console.error(err);
             setEvents([]);
@@ -63,10 +86,13 @@ const EditEventSection = () => {
                 finEvento: event.finEvento || "",
                 precio: event.precio || "",
                 categoria: event.categoria || "",
-                imagen: null,
-                carrusels: [],
+                aforo: event.aforo || "",
+                imagen: event.imagenPrincipalUrl || null, 
+                carrusels: event.imagenesCarruselUrls || [],
                 invitados: event.invitados || [],
+                vendedorId: event.vendedorId || ""
             });
+            console.log("Evento seleccionado:", event);
         }
     };
     // Manejar cambios en el formulario
@@ -74,6 +100,7 @@ const EditEventSection = () => {
         const { name, value, files } = e.target;
         if (files) {
             if (name === "imagen") {
+                // Guarda el nuevo objeto File (esto sobreescribirá la URL anterior si existía)
                 setFormData((prev) => ({ ...prev, imagen: files[0] }));
             } else if (name === "carrusels") {
                 const newFiles = Array.from(files);
@@ -143,7 +170,16 @@ const EditEventSection = () => {
         }
 
         try {
-            // 🔹 Crear payload JSON sin archivos
+            //  1. Conversión de Imágenes a Base64 (Asíncrona) 
+
+            // 1a: Convierte File a Base64 o mantiene la URL existente
+            const imagenBase64OUrl = await fileToBase64(formData.imagen);
+            //convierte todos los archivos del carrusel
+            const carruselsBase64OUrls = await Promise.all(
+                formData.carrusels.map(fileToBase64)
+            );
+
+            //  2. Crear payload JSON sin archivos
             const payload = {
                 nombre: formData.nombre,
                 localizacion: formData.localizacion,
@@ -152,14 +188,17 @@ const EditEventSection = () => {
                 finEvento: formData.finEvento,
                 precio: formData.precio,
                 categoria: formData.categoria,
-                imagen: formData.imagen ? URL.createObjectURL(formData.imagen) : null, // Mantener URL o null
-                carrusels: formData.carrusels.map(file => URL.createObjectURL(file)), // Solo URLs de preview si existen
+                aforoMax: formData.aforo,
+                imagen: imagenBase64OUrl, 
+                imagenesCarruselUrls: carruselsBase64OUrls,
                 invitados: formData.invitados,
+                vendedorId: usuarioId
             };
 
-            // 🔹 Mostrar el payload que se enviará
+            //  3. Mostrar el payload que se enviará
             console.log("Payload JSON que se enviará:", payload);
 
+            //  4. Enviar la solicitud PUT con el payload JSON
             const res = await fetch(
                 `${config.apiBaseUrl}/tfg/evento/update/${selectedEventId}`,
                 {
@@ -171,7 +210,11 @@ const EditEventSection = () => {
                 }
             );
 
-            if (!res.ok) throw new Error("Error al actualizar evento");
+            if (!res.ok) throw new Error(`Error al actualizar evento: ${res.statusText}`);
+
+            //  5. Manejar la respuesta del servidor
+            const data = await res.json();
+            console.log("Respuesta del servidor:", data);
             setMessage("✅ Evento actualizado correctamente");
             fetchEventos();
         } catch (err) {
@@ -213,7 +256,7 @@ const EditEventSection = () => {
                     onSubmit={updateEvento}
                     className="flex flex-col bg-white shadow p-6 rounded-lg gap-6 oscuro"
                 >
-                    {/* 🔸 Nombre / Localización */}
+                    {/*  Nombre / Localización */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label className="block font-semibold mb-1">Nombre</label>
@@ -237,7 +280,7 @@ const EditEventSection = () => {
                         </div>
                     </div>
 
-                    {/* 🔸 Descripción */}
+                    {/*  Descripción */}
                     <div>
                         <label className="block font-semibold mb-1">Descripción</label>
                         <textarea
@@ -248,7 +291,7 @@ const EditEventSection = () => {
                         />
                     </div>
 
-                    {/* 🔸 Inicio / Fin */}
+                    {/*  Inicio / Fin */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label className="block font-semibold mb-1">Inicio</label>
@@ -302,9 +345,25 @@ const EditEventSection = () => {
                         </div>
                     </div>
 
-                    {/* 🔸 Imagen principal y carrusel */}
+
+                    {/*  Aforo */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 oscuro">
+                        <div>
+                            <label className="block font-semibold mb-1">Aforo máximo</label>
+                            <input
+                                type="number"
+                                name="aforo"
+                                value={formData.aforo}
+                                onChange={handleChange}
+                                className="w-full p-2 rounded bg-gray-100 oscuroBox"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Imagen principal y carrusel (Sección solicitada) */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
+                        {/* Imagen principal */}
                         <div>
                             <label className="block font-semibold mb-1">
                                 Imagen principal
@@ -314,17 +373,20 @@ const EditEventSection = () => {
                                 name="imagen"
                                 accept=".png, .jpg, .jpeg, image/png, image/jpeg"
                                 onChange={handleChange}
-                                className="w-full  p-2 rounded bg-gray-100 oscuroBox cursor-pointer"
+                                className="w-full p-2 rounded bg-gray-100 oscuroBox cursor-pointer"
                             />
+                            {/* PREVISUALIZACIÓN DE IMAGEN PRINCIPAL */}
                             {formData.imagen && (
                                 <img
-                                    src={URL.createObjectURL(formData.imagen)}
+                                    //  Usa la función getImageSrc para manejar File o String
+                                    src={getImageSrc(formData.imagen)}
                                     alt="Preview"
                                     className="w-40 h-40 object-cover rounded border mt-3"
                                 />
                             )}
                         </div>
 
+                        {/* Carrusel de imágenes */}
                         <div>
                             <label className="block font-semibold mb-1">
                                 Carrusel de imágenes
@@ -338,10 +400,11 @@ const EditEventSection = () => {
                                 className="w-full p-2 rounded bg-gray-100 oscuroBox cursor-pointer"
                             />
                             <div className="flex flex-wrap gap-3 mt-3">
-                                {formData.carrusels.map((file, idx) => (
+                                {/* PREVISUALIZACIÓN DEL CARRUSEL */}
+                                {formData.carrusels.map((imgOrFile, idx) => (
                                     <div key={idx} className="relative w-24 h-24">
                                         <img
-                                            src={URL.createObjectURL(file)}
+                                            src={getImageSrc(imgOrFile)} 
                                             alt={`Carrusel ${idx}`}
                                             className="w-full h-full object-cover rounded border"
                                         />
@@ -440,7 +503,7 @@ const EditEventSection = () => {
                             <button
                                 type="button"
                                 onClick={agregarInvitado}
-                                 className="bg-gray-500 text-white mt-6 p-2 rounded hover:bg-blue-600 transition w-40 h-fit"
+                                className="bg-gray-500 text-white mt-6 p-2 rounded hover:bg-blue-600 transition w-40 h-fit"
                             >
                                 + Agregar invitado
                             </button>
@@ -452,7 +515,7 @@ const EditEventSection = () => {
                     <div className="flex justify-end">
                         <button
                             type="submit"
-                             className="bg-green-500 text-white p-2 rounded  hover:bg-green-600  mt-4 w-fit  self-end transition"
+                            className="bg-green-500 text-white p-2 rounded  hover:bg-green-600  mt-4 w-fit  self-end transition"
                         >
                             Guardar cambios
                         </button>

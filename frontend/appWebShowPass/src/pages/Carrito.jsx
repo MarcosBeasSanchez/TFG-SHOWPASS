@@ -230,7 +230,7 @@ export default function ShoppingCart({ user }) {
       <div
         key={rec.id}
         className="bg-gray-50 rounded-lg shadow flex-none flex flex-col text-gray-800 oscuroBox w-50 cursor-pointer"
-        onClick={() => window.location.href = `/evento/${encodeURIComponent(rec.nombre)}`}
+        onClick={() => window.location.href = `/evento/${encodeURIComponent(rec.id)}`}
       >
         {rec.imagen ? (
           <>

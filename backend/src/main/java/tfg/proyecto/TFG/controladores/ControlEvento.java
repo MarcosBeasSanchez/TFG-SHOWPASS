@@ -2,6 +2,7 @@ package tfg.proyecto.TFG.controladores;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
@@ -140,15 +141,20 @@ public class ControlEvento {
     }
 	
 	
+	// Método de Edición (PUT) que usa JSON/DTO
+	// Controlador:
 	@PutMapping("update/{id}")
-    public ResponseEntity<DTOeventoBajada> actualizarEvento(@PathVariable Long id, @RequestBody DTOeventoSubida dto) {
-        try {
-            DTOeventoBajada actualizado = eventoServicio.actualizarEvento(id, dto);
-            return new ResponseEntity<>(actualizado, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
+	public ResponseEntity<DTOeventoBajada> actualizarEvento(@PathVariable Long id, @RequestBody DTOeventoSubida dto) {
+	    try {
+	        // Solo llamamos al servicio con el DTO tal como viene del frontend (con Base64/URLs)
+	        DTOeventoBajada actualizado = eventoServicio.actualizarEvento(id, dto);
+	        return new ResponseEntity<>(actualizado, HttpStatus.OK);
+	        
+	    } catch (RuntimeException e) {
+	        // ... manejo de errores
+	        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	    }
+	}
 	
 	@PutMapping("updateMovil/{id}")
     public ResponseEntity<DTOeventoBajada> actualizarEventoMovil(@PathVariable Long id, @RequestBody DTOeventoSubida dto) {

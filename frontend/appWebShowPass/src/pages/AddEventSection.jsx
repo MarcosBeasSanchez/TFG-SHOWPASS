@@ -14,6 +14,7 @@ const AddEventSection = () => {
         descripcion: "",
         precio: "",
         categoria: "",
+        aforo: "",
         imagen: null,
         carrusels: [],
         invitados: [],
@@ -99,6 +100,7 @@ const AddEventSection = () => {
             payload.append("descripcion", formData.descripcion);
             payload.append("precio", formData.precio);
             payload.append("categoria", formData.categoria);
+            payload.append("aforoMax", formData.aforo);
 
             if (formData.imagen) payload.append("imagen", formData.imagen);
             formData.carrusels.forEach((file) => payload.append("carrusels", file));
@@ -120,6 +122,7 @@ const AddEventSection = () => {
                 descripcion: "",
                 precio: "",
                 categoria: "",
+                aforo: "",
                 imagen: null,
                 carrusels: [],
                 invitados: [],
@@ -155,6 +158,9 @@ const AddEventSection = () => {
 
                     <label>Precio:</label>
                     <input type="number" name="precio" value={formData.precio} onChange={handleChange} min="0" className="p-2  rounded  bg-gray-200 text-black oscuroBox" />
+
+                    <label>Aforo máximo:</label>
+                    <input type="number" name="aforo" value={formData.aforo} onChange={handleChange} min="0" className="p-2  rounded  bg-gray-200 text-black oscuroBox" />
 
                     <label>Categoría:</label>
                     <select name="categoria" value={formData.categoria} onChange={handleChange} required className="p-2  rounded bg-gray-200 text-black oscuroBox">

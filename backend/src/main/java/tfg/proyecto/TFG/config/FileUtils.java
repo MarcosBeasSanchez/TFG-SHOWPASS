@@ -32,12 +32,12 @@ public class FileUtils {
             return null;
         }
 
-        // 🔸 Si es una URL o una ruta ya guardada, la devolvemos tal cual
+        // Si es una URL o una ruta ya guardada, la devolvemos tal cual
         if (base64.startsWith("http") || base64.startsWith("/uploads/") || base64.startsWith("C:\\")) {
             return base64;
         }
 
-        // 🔸 Si tiene prefijo tipo data:image/png;base64, quitarlo
+        // Si tiene prefijo tipo data:image/png;base64, quitarlo
         if (base64.startsWith("data:image")) {
             int commaIndex = base64.indexOf(",");
             if (commaIndex != -1) {
@@ -53,7 +53,7 @@ public class FileUtils {
         String fileName = "img_" + System.currentTimeMillis() + ".png";
         Path filePath = Paths.get(basePath, fileName);
 
-        // 🔸 Decodificar Base64 seguro
+        //  Decodificar Base64 seguro
         try {
             byte[] imageBytes = Base64.getDecoder().decode(base64);
             Files.write(filePath, imageBytes);

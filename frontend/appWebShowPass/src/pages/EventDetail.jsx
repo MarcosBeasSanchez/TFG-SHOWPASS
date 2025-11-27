@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import config from "../config/config";
 
 export default function EventDetail() {
-  const { nombre } = useParams();
+  const { id } = useParams();
   const [evento, setEvento] = useState(null);
   const [recomendaciones, setRecomendaciones] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,7 +27,7 @@ export default function EventDetail() {
     const fetchEvento = async () => {
       try {
         const res = await fetch(
-          `${config.apiBaseUrl}/tfg/evento/findByNombre?nombre=${encodeURIComponent(nombre)}`
+          `${config.apiBaseUrl}/tfg/evento/findById?id=${encodeURIComponent(id)}`
         );
         if (!res.ok) throw new Error("Evento no encontrado");
         const data = await res.json();
@@ -43,7 +43,7 @@ export default function EventDetail() {
     };
 
     fetchEvento();
-  }, [nombre]);
+  }, [id]);
 
   // Fetch de recomendaciones de usuario
   useEffect(() => {
@@ -276,7 +276,7 @@ export default function EventDetail() {
                 <div
                   key={rec.id}
                   className="bg-gray-50 rounded-lg shadow flex-none flex flex-col text-gray-800 oscuroBox w-50 cursor-pointer"
-                  onClick={() => window.location.href = `/evento/${encodeURIComponent(rec.nombre)}`}
+                  onClick={() => window.location.href = `/evento/${encodeURIComponent(rec.id)}`}
                 >
                   {rec.imagen ? (
                     <>
