@@ -52,8 +52,21 @@ import com.example.appmovilshowpass.R
 import com.example.appmovilshowpass.model.Evento
 import com.example.appmovilshowpass.viewmodel.BusquedaViewModel
 
-
-
+/**
+ * Composable que implementa la pantalla de búsqueda de eventos.
+ * Incluye:
+ * - Barra de búsqueda persistente
+ * - Banner inicial antes de realizar búsquedas
+ * - Gestión reactiva de resultados mediante BusquedaViewModel
+ * - Listado dinámico de resultados o mensaje de “sin resultados”
+ *
+ * La búsqueda se realiza por nombre, localización, descripción o categoría
+ * según la funcionalidad expuesta por el backend.
+ *
+ * eventos Lista inicial de eventos (no usada tras conectar con el ViewModel).
+ * viewModel ViewModel encargado de ejecutar las consultas al backend.
+ * navController Controlador de navegación para acceder al detalle de un evento.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchBarBusqueda(
@@ -61,12 +74,19 @@ fun SearchBarBusqueda(
     viewModel: BusquedaViewModel,
     navController: NavController,
 ) {
-    // Estados guardados incluso al navegar
+    // Texto introducido en la barra de búsqueda.
     var query by rememberSaveable { mutableStateOf("") }
+
+    // Estado para controlar el menú interno del componente SearchBar (no usado en este caso).
     var expanded by remember { mutableStateOf(false) }
+
+    // Indica si se ha realizado una búsqueda al menos una vez.
     var busquedaRealizada by rememberSaveable { mutableStateOf(false) }
+
+    // Controla si el banner inicial debe mostrarse.
     var bannerVisible by rememberSaveable { mutableStateOf(true) }
 
+    // Resultados reactivos expuestos desde el ViewModel.
     val eventos by viewModel.eventos.collectAsState()
 
     Column(
@@ -74,7 +94,14 @@ fun SearchBarBusqueda(
             .fillMaxSize()
             .padding(0.dp)
     ) {
-        // Barra de búsqueda siempre visible
+
+        /**
+         * Barra de búsqueda fija en la parte superior.
+         * Al ejecutar la búsqueda:
+         *  - se llama al ViewModel
+         *  - se oculta el banner inicial
+         *  - se activa el modo "resultados"
+         */
         DockedSearchBar(
             inputField = {
                 InputField(
@@ -107,26 +134,37 @@ fun SearchBarBusqueda(
                 .fillMaxWidth()
                 .padding(top = 0.dp),
             shape = RoundedCornerShape(5.dp),
-            colors = SearchBarDefaults.colors(containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
+            colors = SearchBarDefaults.colors(
+                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+            ),
             content = {}
         )
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // Contenido debajo de la barra
+        /**
+         * Contenido que aparece debajo de la barra de búsqueda.
+         * Puede ser:
+         *  - banner inicial
+         *  - mensaje de "sin resultados"
+         *  - lista de eventos filtrados
+         */
         Box(modifier = Modifier.fillMaxSize()) {
+
             when {
-                // Banner la primera vez
+
+                /**
+                 * Banner inicial que se muestra antes de realizar la primera búsqueda.
+                 */
                 !busquedaRealizada && bannerVisible -> {
                     Column(
-                        modifier = Modifier
-                            .fillMaxSize(),
+                        modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.busqueda),
-                            contentDescription = "busqueda",
+                            contentDescription = "banner búsqueda",
                             modifier = Modifier.size(275.dp)
                         )
 
@@ -144,15 +182,19 @@ fun SearchBarBusqueda(
                     }
                 }
 
-                // Lista de eventos o mensajes
+                /**
+                 * Modo resultados o mensaje de "sin resultados"
+                 */
                 else -> {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize()
-                    ) {
+                    LazyColumn(modifier = Modifier.fillMaxSize()) {
+
                         item {
                             when {
+
+                                /**
+                                 * No se encontraron resultados para la búsqueda realizada.
+                                 */
                                 busquedaRealizada && eventos.isEmpty() -> {
-                                    // ⭐ CAMBIO CLAVE: Aplicar .fillParentMaxSize() al ítem
                                     Column(
                                         modifier = Modifier
                                             .fillParentMaxSize()
@@ -162,7 +204,7 @@ fun SearchBarBusqueda(
                                     ) {
                                         Image(
                                             painter = painterResource(id = R.drawable.no_results),
-                                            contentDescription = "No results",
+                                            contentDescription = "sin resultados",
                                             modifier = Modifier.size(300.dp)
                                         )
 
@@ -177,6 +219,9 @@ fun SearchBarBusqueda(
                                     }
                                 }
 
+                                /**
+                                 * Se encontraron resultados y se muestra el texto indicativo.
+                                 */
                                 busquedaRealizada && eventos.isNotEmpty() -> {
                                     Text(
                                         text = "Mostrando resultados para: \"$query\"",
@@ -189,6 +234,9 @@ fun SearchBarBusqueda(
                             }
                         }
 
+                        /**
+                         * Listado de tarjetas horizontales para cada evento encontrado.
+                         */
                         items(eventos, key = { it.id }) { evento ->
                             EventoCardHorizontal(
                                 evento = evento,
@@ -203,4 +251,3 @@ fun SearchBarBusqueda(
         }
     }
 }
-

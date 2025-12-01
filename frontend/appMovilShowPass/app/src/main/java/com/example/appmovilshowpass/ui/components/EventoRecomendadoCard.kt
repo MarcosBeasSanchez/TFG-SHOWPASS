@@ -20,6 +20,21 @@ import com.example.appmovilshowpass.data.remote.dto.DTOEventoRecomendado
 import com.example.appmovilshowpass.utils.construirUrlImagen
 import com.example.appmovilshowpass.utils.formatearPrecio
 
+/**
+ * Composable que muestra una tarjeta vertical compacta para un evento recomendado.
+ * Está diseñada para carruseles u horizontales de scroll donde se requiere una tarjeta
+ * pequeña pero informativa. Muestra:
+ * - Imagen del evento
+ * - Nombre
+ * - Localización
+ * - Precio
+ *
+ * Al seleccionarse, navega a la pantalla de información del evento.
+ *
+ * evento DTO con los datos básicos del evento recomendado.
+ * onClick Acción adicional opcional ejecutada tras hacer clic.
+ * navController Controlador de navegación para dirigir al detalle del evento.
+ */
 @Composable
 fun EventoRecomendadoCard(
     evento: DTOEventoRecomendado,
@@ -37,10 +52,11 @@ fun EventoRecomendadoCard(
             },
         shape = RoundedCornerShape(14.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 5.dp),
-
     ) {
+
         Column(modifier = Modifier.fillMaxSize()) {
 
+            // Imagen principal del evento
             Image(
                 painter = rememberAsyncImagePainter(construirUrlImagen(evento.imagen)),
                 contentDescription = evento.nombre,
@@ -50,10 +66,11 @@ fun EventoRecomendadoCard(
                 contentScale = ContentScale.Crop
             )
 
+            // Bloque inferior con la información textual
             Column(modifier = Modifier.padding(10.dp)) {
 
                 Text(
-                    evento.nombre,
+                    text = evento.nombre,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     maxLines = 2,
@@ -61,7 +78,7 @@ fun EventoRecomendadoCard(
                 )
 
                 Text(
-                    evento.localizacion,
+                    text = evento.localizacion,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Light,
                     maxLines = 1,
@@ -70,7 +87,7 @@ fun EventoRecomendadoCard(
                 )
 
                 Text(
-                    "${formatearPrecio(evento.precio)} €",
+                    text = "${formatearPrecio(evento.precio)} €",
                     fontSize = 15.sp,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(top = 8.dp)
@@ -82,17 +99,32 @@ fun EventoRecomendadoCard(
 
 
 
+/**
+ * Composable que muestra una tarjeta ampliada de un evento recomendado,
+ * pensada para aparecer dentro del carrito como sugerencia adicional.
+ *
+ * Contiene:
+ * - Imagen destacada del evento
+ * - Nombre y localización
+ * - Precio en formato destacado
+ * - Botón para acceder al detalle completo del evento
+ *
+ * Su diseño es más grande y detallado que EventoRecomendadoCard.
+ *
+ * evento DTO con la información del evento recomendado.
+ * navController Controlador usado para navegar a la pantalla de detalles.
+ */
 @Composable
 fun EventoRecomendadoCarritoCard(
     evento: DTOEventoRecomendado,
     navController: NavController
 ) {
-
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp, horizontal = 16.dp)
-            .height(330.dp).clickable {
+            .height(330.dp)
+            .clickable {
                 navController.navigate("evento_info/${evento.id}")
             },
         shape = RoundedCornerShape(14.dp),
@@ -104,7 +136,7 @@ fun EventoRecomendadoCarritoCard(
 
         Column {
 
-            // Imagen grande con bordes redondeados arriba
+            // Imagen principal recortada con bordes redondeados superiores
             Image(
                 painter = rememberAsyncImagePainter(construirUrlImagen(evento.imagen)),
                 contentDescription = evento.nombre,
@@ -115,9 +147,9 @@ fun EventoRecomendadoCarritoCard(
                 contentScale = ContentScale.Crop
             )
 
+            // Información textual del evento
             Column(modifier = Modifier.padding(16.dp)) {
 
-                // Nombre del evento
                 Text(
                     text = evento.nombre,
                     fontSize = 20.sp,
@@ -145,7 +177,7 @@ fun EventoRecomendadoCarritoCard(
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                // Botón ver evento
+                // Botón para acceder al detalle del evento
                 Button(
                     onClick = { navController.navigate("evento_info/${evento.id}") },
                     modifier = Modifier.fillMaxWidth(),

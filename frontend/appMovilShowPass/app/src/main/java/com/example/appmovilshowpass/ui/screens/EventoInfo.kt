@@ -39,33 +39,73 @@ import com.example.appmovilshowpass.viewmodel.CarritoViewModel
 import com.example.appmovilshowpass.viewmodel.EventoViewModel
 import kotlinx.coroutines.launch
 
+/**
+ * Pantalla de detalle de un evento.
+ *
+ * Funcionalidad principal:
+ * - Carga el evento desde el backend mediante su ID.
+ * - Muestra información completa: imagen principal, descripción, fechas,
+ *   galería de imágenes, invitados y aforo.
+ * - Muestra recomendaciones basadas en el evento actual.
+ * - Permite añadir entradas al carrito (si el usuario está autenticado).
+ * - Muestra mensajes mediante Snackbar ante errores o acciones completadas.
+ *
+ * Estructura general:
+ * 1. Carga inicial del evento desde la API.
+ * 2. Contenido dentro de un Scaffold para soportar Snackbar.
+ * 3. Información principal del evento.
+ * 4. Carruseles: imágenes, invitados, recomendaciones.
+ * 5. Botón de compra condicionado al estado del usuario.
+ *
+ * eventoId Identificador único del evento a cargar.
+ * authViewModel ViewModel de autenticación utilizado para comprobar el usuario actual.
+ * carritoViewModel ViewModel encargado de las operaciones del carrito.
+ * navController Controlador de navegación para abrir pantallas relacionadas.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventoInfo(
-    eventoId: Long, authViewModel: AuthViewModel,
+    eventoId: Long,
+    authViewModel: AuthViewModel,
     carritoViewModel: CarritoViewModel = viewModel(),
     navController: NavController
 ) {
     val context = LocalContext.current
+
+    // Estado que contiene el evento cargado desde la API.
     var evento by remember { mutableStateOf<Evento?>(null) }
+
+    // Control del desplazamiento vertical.
     val scrollState = rememberScrollState()
+
+    // Scope para ejecutar corrutinas en Compose.
     val scope = rememberCoroutineScope()
 
-    // Snackbar
+    // Snackbar para mensajes informativos o de error.
     val snackbarHostState = remember { SnackbarHostState() }
 
+    // ViewModel para obtener recomendaciones basadas en el evento actual.
     val eventoViewModel: EventoViewModel = viewModel()
     val recomendaciones by eventoViewModel.recomendados.collectAsState()
 
 
-    // Llamada al backend
+    /**
+     * -- CARGA INICIAL DEL EVENTO --
+     *
+     * Se ejecuta solo una vez por cada ID recibido.
+     * Realiza dos operaciones:
+     *  1. Obtener datos completos del evento.
+     *  2. Solicitar eventos recomendados.
+     */
     LaunchedEffect(eventoId) {
         scope.launch {
             try {
                 val response = RetrofitClient.eventoApiService.findById(eventoId)
                 evento = response.toEvento()
 
+                // Recomendaciones por evento
                 eventoViewModel.recomendarPorEvento(eventoId)
+
             } catch (e: Exception) {
                 e.printStackTrace()
                 snackbarHostState.showSnackbar("Error al cargar evento")
@@ -73,37 +113,62 @@ fun EventoInfo(
         }
     }
 
-    // Contenido con Scaffold para mostrar Snackbar
+
+    /**
+     * -- INTERFAZ PRINCIPAL --
+     *
+     * La pantalla utiliza Scaffold para poder mostrar Snackbar sin afectar
+     * el resto del diseño.
+     */
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
+
         evento?.let { e ->
+
+            /**
+             * CONTENIDO PRINCIPAL
+             *
+             * Toda la pantalla es scrollable para permitir mostrar
+             * gran cantidad de información.
+             */
             Column(
                 modifier = Modifier
-                    .padding(0.dp, 0.dp, 0.dp, 0.dp)
-                    .verticalScroll(scrollState).background(MaterialTheme.colorScheme.surface)
+                    .verticalScroll(scrollState)
+                    .background(MaterialTheme.colorScheme.surface)
             ) {
+
+                /**
+                 * IMAGEN PRINCIPAL DEL EVENTO
+                 */
                 if (e.imagen.isNotEmpty()) {
                     Image(
                         painter = rememberAsyncImagePainter(construirUrlImagen(e.imagen)),
                         contentDescription = e.nombre,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(250.dp)
-                            .clip(RoundedCornerShape(0.dp)),
+                            .height(250.dp),
                         contentScale = ContentScale.Crop
                     )
                 }
+
+                /**
+                 * INFORMACIÓN DEL EVENTO
+                 */
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(14.dp)
                 ) {
                     Spacer(modifier = Modifier.height(16.dp))
+
                     Text(e.nombre, fontSize = 24.sp, fontWeight = FontWeight.SemiBold)
                     Spacer(modifier = Modifier.height(8.dp))
+
                     Text(e.localizacion, fontSize = 18.sp)
                     Spacer(modifier = Modifier.height(8.dp))
+
+                    // Fechas de inicio y fin
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
@@ -112,37 +177,36 @@ fun EventoInfo(
                         Text(
                             "Inicio: ${formatearFechayHora(e.inicioEvento)}",
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.Light,
+                            fontWeight = FontWeight.Light
                         )
-                        Spacer(modifier = Modifier.width(16.dp))
                         Text(
                             "Fin: ${formatearFechayHora(e.finEvento)}",
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.Light,
+                            fontWeight = FontWeight.Light
                         )
                     }
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Text(
-                        "Descripción",
-                        fontSize = 18.sp,
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    /**
+                     * DESCRIPCIÓN DETALLADA DEL EVENTO
+                     */
+                    Text("Descripción", fontSize = 18.sp, modifier = Modifier.padding(vertical = 8.dp))
                     Text(
                         e.descripcion,
                         fontSize = 14.sp,
                         letterSpacing = 0.50.sp,
                         lineHeight = 23.sp,
-                        fontWeight = FontWeight.Light,
+                        fontWeight = FontWeight.Light
                     )
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    // Carrusel de imágenes
+                    /**
+                     * CARRUSEL DE IMÁGENES ADICIONALES
+                     */
                     if (e.imagenesCarruselUrls.isNotEmpty()) {
-                        Text(
-                            "Imágenes",
-                            fontSize = 18.sp,
-                            modifier = Modifier.padding(vertical = 8.dp)
-                        )
+                        Text("Imágenes", fontSize = 18.sp, modifier = Modifier.padding(vertical = 8.dp))
+
                         LazyRow(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             contentPadding = PaddingValues(horizontal = 8.dp)
@@ -158,56 +222,42 @@ fun EventoInfo(
                                 )
                             }
                         }
-
-                        Log.d("IMAGEN_EVENTO", "imagenPrincipalUrl = ${e.imagen}")
-                        Log.d("IMAGEN_EVENTO_URL", "URL final = ${construirUrlImagen(e.imagen)}")
-                        Log.d("IMAGEN_CARRUSEL", "iamgenesCarruselUrls: ${e.imagenesCarruselUrls[0]}")
-                        Log.d("IMAGEN_CSRRUSEL_URL", "URL final = ${construirUrlImagen(e.imagenesCarruselUrls[0])}")
-
                     }
 
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    // Invitados
+
+                    /**
+                     * INVITADOS ASOCIADOS AL EVENTO
+                     */
                     if (e.invitados.isNotEmpty()) {
-                        Text(
-                            "Invitados",
-                            fontSize = 18.sp,
-                            modifier = Modifier.padding(vertical = 8.dp)
-                        )
+                        Text("Invitados", fontSize = 18.sp, modifier = Modifier.padding(vertical = 8.dp))
+
                         LazyRow(
-                            horizontalArrangement = Arrangement.spacedBy(
-                                8.dp,
-                                Alignment.CenterHorizontally
-                            ),
-                            contentPadding = PaddingValues(horizontal = 8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            contentPadding = PaddingValues(horizontal = 8.dp)
                         ) {
                             items(e.invitados) { invitado ->
+
                                 Card(
                                     shape = RoundedCornerShape(12.dp),
-                                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                                    elevation = CardDefaults.cardElevation(4.dp),
                                     modifier = Modifier
                                         .width(170.dp)
                                         .height(220.dp)
-                                        .padding(4.dp),
-                                    colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceVariant)
-
                                 ) {
                                     Column(
                                         modifier = Modifier
                                             .fillMaxSize()
                                             .padding(12.dp),
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        verticalArrangement = Arrangement.Center
+                                        horizontalAlignment = Alignment.CenterHorizontally
                                     ) {
-                                        //  Construimos la URL final siempre
-                                        val urlFinal = construirUrlImagen(invitado.fotoURL)
 
-                                        //  Foto circular del invitado con Coil correctamente configurado
+                                        // Imagen circular del invitado
                                         Image(
                                             painter = rememberAsyncImagePainter(
                                                 ImageRequest.Builder(LocalContext.current)
-                                                    .data(urlFinal)
+                                                    .data(construirUrlImagen(invitado.fotoURL))
                                                     .crossfade(true)
                                                     .build()
                                             ),
@@ -220,46 +270,41 @@ fun EventoInfo(
 
                                         Spacer(modifier = Modifier.height(10.dp))
 
-                                        // Nombre
                                         Text(
                                             text = "${invitado.nombre} ${invitado.apellidos}",
                                             fontSize = 14.sp,
                                             fontWeight = FontWeight.Bold,
                                             textAlign = TextAlign.Center,
-                                            maxLines = 2,
-                                            lineHeight = 14.sp,
+                                            maxLines = 2
                                         )
 
                                         Spacer(modifier = Modifier.height(6.dp))
 
-                                        // Descripción
                                         Text(
-                                            text = invitado.descripcion,
+                                            invitado.descripcion,
                                             fontSize = 12.sp,
                                             textAlign = TextAlign.Center,
-                                            lineHeight = 16.sp,
                                             maxLines = 4,
                                             overflow = TextOverflow.Ellipsis
                                         )
                                     }
-
-                                // Logs para comprobar siempre que llega y es válida
-                                    Log.d("INVITADO_IMG", "ORIGINAL: ${invitado.fotoURL}")
                                 }
                             }
-
                         }
                     }
-                    Spacer(modifier = Modifier.height(15.dp))
-                    Text("Aforo máximo", fontSize = 18.sp, modifier = Modifier.padding(vertical = 6.dp))
-                    Text("${(e.aforoMax)} personas", fontSize = 16.sp)
+
                     Spacer(modifier = Modifier.height(15.dp))
 
+                    /**
+                     * AFORO DEL EVENTO
+                     */
+                    Text("Aforo máximo", fontSize = 18.sp)
+                    Text("${e.aforoMax} personas", fontSize = 16.sp)
+                    Spacer(modifier = Modifier.height(15.dp))
 
-                    Log.d("recomendacion", " ${recomendaciones}")
-
-
-                    // eventos recomendados
+                    /**
+                     * EVENTOS RECOMENDADOS SEGÚN EL EVENTO
+                     */
                     if (recomendaciones.isNotEmpty()) {
                         Text(
                             "Eventos recomendados",
@@ -284,51 +329,64 @@ fun EventoInfo(
                     }
 
 
-                    // Precio y botón de carrito
+                    /**
+                     * PRECIO Y BOTONES DE COMPRA
+                     */
                     Text("Precio", fontSize = 18.sp, modifier = Modifier.padding(vertical = 6.dp))
                     Text("PVP: ${formatearPrecio(e.precio)} €", fontSize = 16.sp)
                     Spacer(modifier = Modifier.height(30.dp))
 
-
                     val userId = authViewModel.currentUser?.id
 
+                    /**
+                     * BOTÓN DE COMPRA
+                     *
+                     * Dos escenarios:
+                     * 1. Usuario autenticado → botones para elegir cantidad y añadir al carrito.
+                     * 2. Usuario no autenticado → solicitar inicio de sesión.
+                     */
                     if (userId != null) {
-                        //  Usuario logueado → mostramos botones con cantidad
+
                         BotonesComprarTicket(
                             usuarioId = userId,
                             eventoId = e.id,
-                            carritoViewModel = carritoViewModel,
-                            onAdded = { cantidad ->
-                                scope.launch {
-                                    snackbarHostState.showSnackbar("Agregaste $cantidad tickets al carrito")
-                                }
+                            carritoViewModel = carritoViewModel
+                        ) { cantidad ->
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    "Agregaste $cantidad tickets al carrito"
+                                )
                             }
-                        )
+                        }
+
                         Spacer(modifier = Modifier.height(60.dp))
+
                     } else {
-                        //  Usuario NO logueado → mostramos aviso
+
                         Button(
                             onClick = {
                                 scope.launch {
                                     snackbarHostState.showSnackbar("Debes iniciar sesión para comprar")
                                 }
                             },
-                            modifier = Modifier.wrapContentWidth().align(Alignment.CenterHorizontally)
+                            modifier = Modifier.wrapContentWidth()
+                                .align(Alignment.CenterHorizontally)
                         ) {
                             Text("Inicia sesión para comprar")
                         }
                     }
                 }
-            } ?: run {
-                // Mientras carga
-                Text(
-                    "Cargando...",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    fontSize = 18.sp
-                )
             }
+
+        } ?: run {
+            // Estado mientras se carga el evento
+            Text(
+                "Cargando...",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                fontSize = 18.sp
+            )
         }
     }
 }

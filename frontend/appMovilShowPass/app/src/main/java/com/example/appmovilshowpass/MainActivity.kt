@@ -71,61 +71,136 @@ import com.example.appmovilshowpass.viewmodel.TicketViewModel
 
 
 
+/**
+ * Actividad principal de la aplicación. Es el punto de entrada cuando la app es
+ * lanzada normalmente o mediante un deep link.
+ *
+ * Funciones principales:
+ * 1. Procesar intents entrantes (deep links) mediante handleIntent().
+ * 2. Inicializar el entorno Compose y renderizar la interfaz principal.
+ * 3. Gestionar intents recibidos mientras la actividad está en ejecución
+ *    (override onNewIntent).
+ *
+ * Deep Links:
+ * - La aplicación puede ser abierta desde enlaces con un parámetro "contenidoQR".
+ * - Cuando se detecta, MainActivity invoca al TicketViewModel para validar el código QR.
+ *   Ejemplo de enlace: showpass://validarQR?contenidoQR=XYZ123
+ *
+ * Estructura general:
+ * - Al iniciar, se procesa el intent.
+ * - Se carga el tema y se llama a MainScreen(), que contiene toda la navegación.
+ * - También se coloca ResultadoQRScreen() en el root para mostrar el estado
+ *   cuando se valida un QR desde deep link.
+ */
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Procesar el intent (si la app fue abierta desde un enlace)
+        // Procesa deep links al iniciar la app
         handleIntent(intent)
 
         setContent {
             AppMovilShowpassTheme {
-                //  pantalla principal
+
+                // Contenedor principal de la UI y navegación
                 MainScreen()
-                // Intent de prueba para el QR
+
+                // Se dibuja en el nivel raíz para mostrar resultados de validación QR
                 ResultadoQRScreen()
             }
         }
     }
 
+    /**
+     * Se llama cuando la actividad ya estaba en ejecución y recibe un nuevo Intent
+     * (por ejemplo, desde un deep link con la app abierta).
+     */
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         handleIntent(intent)
     }
 
-    /*
-    *  Maneja el Intent recibido para procesar enlaces profundos (deep links).
-    *  Extrae el parámetro "contenidoQR" de la URL y llama al ViewModel para validar el QR.
-    * */
+    /**
+     * Procesa un Intent recibido que puede contener un deep link.
+     *
+     * Lógica:
+     * - Extrae el parámetro "contenidoQR".
+     * - Si existe, se instancia TicketViewModel y se valida el QR.
+     *
+     * Nota:
+     * - Se utiliza viewModels() dentro de la Activity porque no estamos en un @Composable.
+     * - Esto garantiza que se obtiene un ViewModel ligado al ciclo de vida de la Activity.
+     */
     private fun handleIntent(intent: Intent) {
         val data = intent.data
+
         data?.let {
             val contenidoQR = it.getQueryParameter("contenidoQR")
+
             if (contenidoQR != null) {
                 Log.d("DeepLink", "Contenido QR recibido: $contenidoQR")
 
                 val ticketViewModel: TicketViewModel by viewModels()
-                // Llamar al metdo del ViewModel para validar el QR
+
+                // Solicita al ViewModel que valide el QR en el backend
                 ticketViewModel.validarQr(contenidoQR)
             }
         }
     }
 }
 
+/**
+ * Pantalla raíz de la aplicación. Contiene:
+ *
+ * - Control de sesión y autologin.
+ * - Barra superior (TopAppBar).
+ * - Barra de navegación inferior (Bottom Navigation).
+ * - Floating Action Buttons para ADMIN y VENDEDOR.
+ * - Sistema de navegación completo mediante NavHost.
+ *
+ * Comportamiento general:
+ * 1. Recupera automáticamente la sesión almacenada (tokens/cookies) mediante autoLogin().
+ * 2. Muestra una pantalla de carga hasta que authViewModel confirme el estado de sesión.
+ * 3. Una vez lista la sesión, se construye toda la interfaz estructurada:
+ *    - TopBar con branding y acceso al perfil.
+ *    - BottomBar con navegación entre Eventos, Búsqueda, Carrito, Tickets y Info.
+ *    - FAB condicional según rol del usuario.
+ *    - NavHost para la navegación interna entre pantallas.
+ *
+ * Gestión del ViewModel:
+ * - AuthViewModel se crea una única vez, accesible desde todo el árbol de navegación.
+ * - Otros ViewModels (EventoViewModel, CarritoViewModel, TicketViewModel...) se
+ *   inicializan por pantalla mediante viewModel().
+ *
+ * Roles y permisos:
+ * - Si el usuario es ADMIN → aparece AdminFab.
+ * - Si el usuario es VENDEDOR → aparece VendedorFab.
+ *
+ * Navegación:
+ * - Cada ruta se registra mediante composable().
+ * - Se usan animaciones de transición entre pantallas (fade in/out).
+ * - Los popUpTo evitan duplicados en la pila de navegación.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
-    // AuthViewModel global para toda la pantalla (una sola instancia)
+    // ViewModel de autenticación único para toda la pantalla
     val authViewModel: AuthViewModel = viewModel()
     val context = LocalContext.current
 
+    // Auto login cuando se abre la app
     LaunchedEffect(Unit) {
         authViewModel.autoLogin(context)
     }
 
-        val isSessionChecked = authViewModel.isSessionChecked
+    val isSessionChecked = authViewModel.isSessionChecked
 
+    /**
+     * Mientras la sesión NO haya sido validada, se muestra un splash
+     * de carga para evitar que la interfaz se renderice en estado inconsistente.
+     */
         if (!isSessionChecked) {
             Box(
                 modifier = Modifier

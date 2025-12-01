@@ -49,6 +49,31 @@ import com.example.appmovilshowpass.utils.formatearFecha
 import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
 
+/**
+* Pantalla principal del perfil de usuario. Su comportamiento varía en función de si el usuario
+* está autenticado o no mediante AuthViewModel.currentUser.
+*
+* Funcionalidad general:
+* - Cuando hay un usuario logueado:
+*      - Se muestran sus datos personales, fotografía y datos de tarjeta.
+*      - Permite refrescar la información del usuario mediante un gesto “pull-to-refresh”.
+*      - Muestra botones para editar el perfil o cerrar sesión.
+*
+* - Cuando NO hay un usuario logueado:
+*      - Se muestra una pantalla introductoria que invita a iniciar sesión o registrarse.
+*
+* Parámetros:
+* authViewModel ViewModel encargado de la sesión y persistencia del usuario.
+* onLoginClick Acción a ejecutar al pulsar el botón "Iniciar sesión".
+* onRegisterClick Acción para navegar a la pantalla de registro.
+* onEditClick Acción al pulsar el botón que abre la pantalla de edición del usuario.
+*
+* Notas técnicas:
+* - Utiliza PullToRefreshBox, permitiendo que el usuario actualice sus datos deslizando hacia abajo.
+* - La fotografía se carga desde URL usando Coil, pero si está vacía se muestra un icono por defecto.
+* - La información se presenta en Cards diferenciadas: datos personales y datos de tarjeta.
+* - Incluye validación visual, formato de fechas y renovación automática de datos del usuario.
+*/
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UsuarioScreen(
@@ -57,47 +82,62 @@ fun UsuarioScreen(
     onRegisterClick: () -> Unit,
     onEditClick: () -> Unit
 ) {
-    val user = authViewModel.currentUser // detecta cambios en currentUser si hay un usuario logueado o no
-    val scrollState = rememberScrollState() // para scroll
-    var isRefreshing by remember { mutableStateOf(false) } //Estado de refresco
-    val scope = rememberCoroutineScope() //Corrutina para refresco
-    val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy") // Formateador para fecha de caducidad
+    val user = authViewModel.currentUser
+    val scrollState = rememberScrollState()
+
+    // Estado interno para el indicador de refresco
+    var isRefreshing by remember { mutableStateOf(false) }
+
+    // Alcance de corrutinas para operaciones asincrónicas
+    val scope = rememberCoroutineScope()
+
+    // Formato de fecha para datos de tarjeta
+    val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+
     val context = LocalContext.current
 
-    // Cuando hay usuario logueado
+    /**
+     * CASO 1: El usuario está logueado.
+     * Se muestra todo el perfil junto con la opción de refrescar los datos.
+     */
     if (user != null) {
+
         PullToRefreshBox(
             isRefreshing = isRefreshing,
             onRefresh = {
                 scope.launch {
                     isRefreshing = true
+
                     authViewModel.fetchLoggedInUser(context) { success ->
-                        // Si la recarga falla, puedes mostrar un Toast o un Snackbar
                         if (!success) {
                             Toast.makeText(context, authViewModel.error, Toast.LENGTH_SHORT).show()
                         }
-                        isRefreshing = false // Detener el indicador de carga
+                        isRefreshing = false
                     }
                 }
             },
             modifier = Modifier.fillMaxSize()
         ) {
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .verticalScroll(scrollState) // habilita scroll
-                    .padding(vertical = 0.dp, horizontal = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
+                    .padding(horizontal = 16.dp)
+                    .verticalScroll(scrollState),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Cabecera("Perfil", Icons.Default.Person)
-                // Avatar
+
+                /**
+                 * Sección: Fotografía del usuario.
+                 * Si el usuario tiene foto almacenada, se muestra con Coil; si no, se utiliza un icono genérico.
+                 */
                 if (user.foto.isNotEmpty()) {
                     AsyncImage(
                         model = construirUrlImagen(user.foto),
                         contentDescription = "Avatar",
                         modifier = Modifier
                             .size(96.dp)
-                            .padding(4.dp)
                             .clip(CircleShape)
                             .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape),
                         contentScale = ContentScale.Crop
@@ -110,12 +150,10 @@ fun UsuarioScreen(
                         modifier = Modifier.size(96.dp)
                     )
                 }
-                Log.d("INVITADO_IMG", "ORIGINAL: ${user.foto}")
-
-
 
                 Spacer(Modifier.height(12.dp))
 
+                // Mensaje de bienvenida
                 Text(
                     text = "Bienvenido, ${user.nombre}",
                     style = MaterialTheme.typography.headlineSmall
@@ -123,95 +161,99 @@ fun UsuarioScreen(
 
                 Spacer(Modifier.height(20.dp))
 
-                // Datos Personales
+                /**
+                 * Sección: Datos personales.
+                 * Los campos se muestran como texto y NO son editables aquí.
+                 */
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surface
                     )
                 ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp)
-                    ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+
                         Row {
                             Icon(
                                 imageVector = Icons.Outlined.AccountCircle,
                                 contentDescription = "cuenta",
                                 tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(20.dp).align(Alignment.CenterVertically))
-                            Text("Datos Personales", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 5.dp).align(Alignment.CenterVertically))
+                                modifier = Modifier.align(Alignment.CenterVertically)
+                            )
+                            Text(
+                                "Datos Personales",
+                                style = MaterialTheme.typography.titleMedium,
+                                modifier = Modifier.padding(start = 5.dp)
+                            )
                         }
+
                         HorizontalDivider(
                             Modifier.padding(vertical = 8.dp),
-                            DividerDefaults.Thickness,
-                            Color.Gray
+                            DividerDefaults.Thickness
                         )
+
                         InfoRow("Nombre", user.nombre)
                         InfoRow("Email", user.email)
                         InfoRow("Fecha de nacimiento", formatearFecha(user.fechaNacimiento.toString()))
                         InfoRow("Rol", user.rol.toString())
-                        InfoRow(
-                            "Contraseña",
-                            if (user.password.isNullOrEmpty()) "—" else "••••••••"
-                        )
+                        InfoRow("Contraseña", if (user.password.isNullOrEmpty()) "—" else "••••••••")
                     }
                 }
 
                 Spacer(Modifier.height(16.dp))
 
-                // Datos Tarjeta
+                /**
+                 * Sección: Datos de la tarjeta bancaria del usuario.
+                 * Se muestra únicamente si existe una cuenta asociada.
+                 */
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surface
                     )
                 ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp)
-                    ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+
                         Row {
                             Icon(
                                 imageVector = Icons.Filled.CreditCard,
                                 contentDescription = "tarjeta",
                                 tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(20.dp).align(Alignment.CenterVertically))
-                            Text("Tarjeta Bancaria", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 5.dp).align(Alignment.CenterVertically))
+                                modifier = Modifier.align(Alignment.CenterVertically)
+                            )
+                            Text(
+                                "Tarjeta Bancaria",
+                                style = MaterialTheme.typography.titleMedium,
+                                modifier = Modifier.padding(start = 5.dp)
+                            )
                         }
+
                         HorizontalDivider(
                             Modifier.padding(vertical = 8.dp),
-                            DividerDefaults.Thickness,
-                            Color.Gray
+                            DividerDefaults.Thickness
                         )
-                        InfoRow(
-                            "Titular",
-                            if (user.cuenta?.nombreTitular.isNullOrEmpty()) "—" else user.cuenta.nombreTitular
-                        )
-                        InfoRow(
-                            "Nº Tarjeta",
-                            if (user.cuenta?.ntarjeta.isNullOrEmpty()) "—" else user.cuenta.ntarjeta
-                        )
+
+                        InfoRow("Titular", user.cuenta?.nombreTitular ?: "—")
+                        InfoRow("Nº Tarjeta", user.cuenta?.ntarjeta ?: "—")
                         InfoRow(
                             "Fecha Caducidad",
-                            if (user.cuenta?.fechaCaducidad == null) "—" else user.cuenta.fechaCaducidad.format(
-                                formatter
-                            )
+                            user.cuenta?.fechaCaducidad?.format(formatter) ?: "—"
                         )
-                        InfoRow(
-                            "CVV",
-                            if (user.cuenta?.cvv.isNullOrEmpty()) "—" else user.cuenta.cvv
-                        )
+                        InfoRow("CVV", user.cuenta?.cvv ?: "—")
                         InfoRow(
                             "Saldo",
-                            user.cuenta?.saldo?.let { String.format("%.2f€", it) }
-                                ?: "—") //formato 2 decimales
+                            user.cuenta?.saldo?.let { String.format("%.2f€", it) } ?: "—"
+                        )
                     }
                 }
 
                 Spacer(Modifier.height(24.dp))
 
-                // Botones de acción (editar perfil, cerrar sesión)
+                /**
+                 * Botón para acceder a la pantalla de edición del usuario.
+                 */
                 OutlinedButton(
-                    onClick = { onEditClick() },
+                    onClick = onEditClick,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),
@@ -220,11 +262,16 @@ fun UsuarioScreen(
                     Text("Editar Perfil")
                     Icon(
                         imageVector = Icons.Outlined.Edit,
-                        contentDescription = "Editar Perfil",
+                        contentDescription = null,
                         modifier = Modifier.padding(start = 4.dp)
                     )
                 }
+
                 Spacer(Modifier.height(12.dp))
+
+                /**
+                 * Botón de cierre de sesión.
+                 */
                 Button(
                     onClick = { authViewModel.logout(context) },
                     modifier = Modifier
@@ -236,16 +283,22 @@ fun UsuarioScreen(
                     Text("Cerrar sesión", color = Color.White)
                     Icon(
                         imageVector = Icons.Filled.Logout,
-                        contentDescription = "Logout",
-                        modifier = Modifier.padding(start = 4.dp),
-                        tint = Color.White
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.padding(start = 4.dp)
                     )
                 }
+
                 Spacer(Modifier.height(12.dp))
             }
         }
+
     } else {
-        // Cuando NO hay usuario logueado
+
+        /**
+         * CASO 2: El usuario NO está logueado.
+         * Se muestra un mensaje introductorio junto con accesos a login y registro.
+         */
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -254,10 +307,10 @@ fun UsuarioScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Icono decorativo
+
             Icon(
                 imageVector = Icons.Outlined.Key,
-                contentDescription = "Usuario",
+                contentDescription = null,
                 modifier = Modifier.size(96.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
@@ -266,12 +319,11 @@ fun UsuarioScreen(
                 buildAnnotatedString {
                     append("Bienvenido a ")
                     withStyle(
-                        style = SpanStyle(
-                            fontFamily = Roboto, // Especifica la familia de fuentes Roboto
-                            fontWeight = FontWeight.ExtraBold // Selecciona el archivo roboto_extrabold.ttf
+                        SpanStyle(
+                            fontFamily = Roboto,
+                            fontWeight = FontWeight.ExtraBold
                         )
                     ) {
-                        // Nota: No uses Text() dentro de append, solo la String.
                         append("SHOWPASS")
                     }
                 },
@@ -284,7 +336,6 @@ fun UsuarioScreen(
             Text(
                 "No has iniciado sesión.\nInicia sesión o crea una cuenta para continuar.",
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onBackground,
                 textAlign = TextAlign.Center
             )
 
@@ -294,39 +345,40 @@ fun UsuarioScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+
                 Button(
                     onClick = onLoginClick,
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(50.dp),
+                    modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text(text = "Iniciar sesión", fontWeight = FontWeight.SemiBold)
-                    Icon(
-                        imageVector = Icons.Outlined.Login,
-                        contentDescription = "Iniciar sesión",
-                        modifier = Modifier.padding(start = 4.dp)
-                    )
+                    Text("Iniciar sesión")
+                    Icon(imageVector = Icons.Outlined.Login, contentDescription = null)
                 }
+
                 FilledTonalButton(
                     onClick = onRegisterClick,
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(50.dp),
+                    modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text(text="Crear cuenta", fontWeight = FontWeight.SemiBold)
-                    Icon(
-                        imageVector = Icons.Outlined.PersonAdd,
-                        contentDescription = "Crear cuenta",
-                        modifier = Modifier.padding(start = 4.dp)
-                    )
+                    Text("Crear cuenta")
+                    Icon(imageVector = Icons.Outlined.PersonAdd, contentDescription = null)
                 }
             }
         }
     }
 }
 
+
+/**
+ * Fila reutilizable para mostrar un par clave–valor dentro de las tarjetas del perfil.
+ *
+ * Parámetros:
+ * label Texto descriptivo del dato (ejemplo: "Email", "Fecha de nacimiento").
+ * value Valor que se mostrará asociado a la etiqueta.
+ *
+ * Esta función proporciona una estructura uniforme para la presentación de
+ * los datos del usuario dentro de UsuarioScreen.
+ */
 @Composable
 fun InfoRow(label: String, value: String) {
     Row(

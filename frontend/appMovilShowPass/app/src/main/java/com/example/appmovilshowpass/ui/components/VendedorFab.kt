@@ -29,24 +29,47 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
+/**
+ * Composable que muestra un botón flotante (FAB) destinado a los vendedores.
+ * Al pulsar el FAB principal se despliega un menú con dos acciones:
+ *
+ * - Editar eventos creados por el vendedor
+ * - Crear un nuevo evento
+ *
+ * Este componente sirve como acceso rápido a las acciones principales de gestión
+ * de eventos por parte del vendedor, y se sitúa visualmente en la esquina inferior derecha.
+ *
+ * @param onEditClick Acción ejecutada al seleccionar "Editar eventos".
+ * @param onCreateClick Acción ejecutada al seleccionar "Crear eventos".
+ */
 @Composable
 fun VendedorFab(
     onEditClick: () -> Unit,
     onCreateClick: () -> Unit
 ) {
+    // Controla si el menú desplegable está visible.
     var expanded by remember { mutableStateOf(false) }
 
     Box(
         contentAlignment = Alignment.BottomEnd,
         modifier = Modifier.fillMaxSize()
     ) {
+
         Column(
             horizontalAlignment = Alignment.End,
             verticalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.padding(end = 16.dp, bottom = 80.dp)
         ) {
-            // Menú desplegable
-            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+
+            /**
+             * Menú desplegable que aparece cuando el FAB principal es pulsado.
+             * Contiene las opciones disponibles para el vendedor.
+             */
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                // Opción para editar eventos ya publicados por el vendedor.
                 DropdownMenuItem(
                     text = { Text("Editar eventos") },
                     leadingIcon = {
@@ -60,6 +83,8 @@ fun VendedorFab(
                         onEditClick()
                     }
                 )
+
+                // Opción para crear un evento nuevo.
                 DropdownMenuItem(
                     text = { Text("Crear eventos") },
                     leadingIcon = {
@@ -75,7 +100,10 @@ fun VendedorFab(
                 )
             }
         }
-// FAB principal
+
+        /**
+         * FAB principal que despliega el menú de acciones del vendedor.
+         */
         FloatingActionButton(
             onClick = { expanded = true },
             contentColor = Color.White,
@@ -84,7 +112,7 @@ fun VendedorFab(
         ) {
             Icon(
                 imageVector = Icons.Outlined.FolderSpecial,
-                contentDescription = "Panel Admin"
+                contentDescription = "Panel vendedor"
             )
         }
     }

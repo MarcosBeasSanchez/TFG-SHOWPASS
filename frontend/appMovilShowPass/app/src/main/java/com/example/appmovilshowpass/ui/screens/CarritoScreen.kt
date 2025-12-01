@@ -65,6 +65,26 @@ import com.example.appmovilshowpass.viewmodel.CarritoViewModel
 import com.example.appmovilshowpass.viewmodel.EventoViewModel
 import com.example.appmovilshowpass.viewmodel.TicketViewModel
 
+/**
+ * Pantalla principal del carrito de compra.
+ *
+ * Funcionalidades principales:
+ * 1. Carga inicial del carrito del usuario.
+ * 2. Visualización de los ítems actuales en el carrito.
+ * 3. Gestión de cantidades y eliminación de entradas.
+ * 4. Proceso de compra: vaciar carrito, finalizar y mostrar recomendaciones.
+ * 5. Vista de carrito vacío con acción para seguir comprando.
+ *
+ * Esta pantalla se divide en tres escenarios:
+ *  - Carrito con contenido.
+ *  - Carrito vacío (antes de finalizar compra).
+ *  - Carrito vacío después de finalizar compra, mostrando recomendaciones personalizadas.
+ *
+ * navController Controlador de navegación para abrir detalles de evento.
+ * carritoViewModel ViewModel encargado de las operaciones del carrito.
+ * usuarioId Identificador del usuario dueño del carrito.
+ * ticketViewModel ViewModel para la generación y gestión de tickets (opcional aquí).
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CarritoScreen(
@@ -73,27 +93,32 @@ fun CarritoScreen(
     usuarioId: Long,
     ticketViewModel: TicketViewModel,
 ) {
+    // Estado reactivo del carrito y del total.
     val carrito = carritoViewModel.carrito.collectAsState().value
     val total = carritoViewModel.total.collectAsState().value
+
     val context = LocalContext.current
 
-    // ViewModel de recomendaciones
+    // ViewModel para obtener recomendaciones personalizadas.
     val eventoViewModel: EventoViewModel = viewModel()
     val recomendaciones by eventoViewModel.recomendados.collectAsState()
 
-
-    //  Estados internos
-    //compraFinalizada = true → mostrar recomendaciones aunque carrito esté vacío
-
+    /**
+     * True → La compra ya ha terminado: mostrar recomendaciones,
+     * incluso si el carrito está vacío.
+     */
     var compraFinalizada by remember { mutableStateOf(false) }
 
-    // Cargar carrito al abrir pantalla
+    // Cargar carrito al abrir pantalla.
     LaunchedEffect(Unit) {
         carritoViewModel.cargarCarrito(usuarioId)
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
 
+        /**
+         * Cabecera del carrito.
+         */
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -115,11 +140,11 @@ fun CarritoScreen(
             )
         }
 
-
-        // 1. MOSTRAR RECOMENDACIONES (solo si finalizó compra)
+        /**
+         * ESCENARIO 1: Mostrar recomendaciones si la compra finalizó.
+         */
         if (compraFinalizada && recomendaciones.isNotEmpty()) {
 
-            // Título centrado
             Text(
                 text = "Eventos que podrían interesarte",
                 style = MaterialTheme.typography.headlineSmall,
@@ -130,7 +155,6 @@ fun CarritoScreen(
                 textAlign = TextAlign.Center
             )
 
-            // LISTA EN VERTICAL, CENTRADA
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier
@@ -145,12 +169,12 @@ fun CarritoScreen(
                 }
             }
 
-            return@Column // << OBLIGATORIO PARA NO MOSTRAR MÁS NADA
+            return@Column // Evitar mostrar el resto de la interfaz
         }
 
-
-        //    2. CARRITO VACÍO NORMAL (NO FINALIZÓ COMPRA)
-
+        /**
+         * ESCENARIO 2: Carrito vacío (antes de finalizar compra).
+         */
         if (carrito?.items.isNullOrEmpty() && !compraFinalizada) {
 
             Box(
@@ -163,7 +187,9 @@ fun CarritoScreen(
                     modifier = Modifier.fillMaxWidth(0.9f),
                     shape = RoundedCornerShape(8.dp),
                     elevation = CardDefaults.cardElevation(10.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    )
                 ) {
                     Column(
                         modifier = Modifier
@@ -212,8 +238,9 @@ fun CarritoScreen(
             return@Column
         }
 
-        //  3. MOSTRAR ITEMS SI EL CARRITO TIENE CONTENIDO
-
+        /**
+         * ESCENARIO 3: Mostrar ítems si el carrito contiene elementos.
+         */
         LazyColumn(
             modifier = Modifier.weight(1f),
             contentPadding = PaddingValues(12.dp),
@@ -227,10 +254,9 @@ fun CarritoScreen(
             }
         }
 
-
-         //   FOOTER CON TOTAL + BOTÓN FINALIZAR COMPRA
-
-
+        /**
+         * FOOTER: Total y acciones principales del carrito.
+         */
         Surface(
             tonalElevation = 6.dp,
             shadowElevation = 4.dp,
@@ -243,6 +269,7 @@ fun CarritoScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
+                // Total actualizado automáticamente
                 Text(
                     text = "Total: ${"%.2f".format(total)} €",
                     style = MaterialTheme.typography.headlineSmall,
@@ -257,7 +284,9 @@ fun CarritoScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
 
-                    // Vaciar carrito
+                    /**
+                     * Botón que elimina todos los ítems del carrito.
+                     */
                     OutlinedButton(
                         onClick = { carritoViewModel.vaciarCarrito(usuarioId) },
                         shape = RoundedCornerShape(12.dp),
@@ -277,7 +306,12 @@ fun CarritoScreen(
 
                     Spacer(modifier = Modifier.width(16.dp))
 
-                    // Finalizar compra
+                    /**
+                     * Botón que finaliza la compra:
+                     * - Notifica al backend.
+                     * - Limpia el carrito.
+                     * - Activa el modo de recomendaciones.
+                     */
                     Button(
                         onClick = {
                             carritoViewModel.finalizarCompra(usuarioId) {
@@ -288,9 +322,7 @@ fun CarritoScreen(
                                     Toast.LENGTH_SHORT
                                 ).show()
 
-                                // Guardamos estado para activar recomendaciones
                                 compraFinalizada = true
-
                                 eventoViewModel.recomendarPorUsuario(usuarioId)
                             }
                         },
@@ -310,7 +342,19 @@ fun CarritoScreen(
 }
 
 
-//  CARD DE ITEM DEL CARRITO
+/**
+ * Tarjeta que muestra un ítem dentro del carrito.
+ *
+ * Incluye:
+ * - Imagen del evento asociado
+ * - Nombre del evento
+ * - Cantidad seleccionada
+ * - Precio total del ítem
+ * - Botón de eliminar
+ *
+ * item CarritoItem con la información del producto dentro del carrito.
+ * onEliminar Acción que se ejecuta al pulsar el botón de eliminar.
+ */
 @Composable
 fun CarritoItemCard(
     item: CarritoItem,
@@ -322,12 +366,13 @@ fun CarritoItemCard(
         shape = RoundedCornerShape(5.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(10.dp)
         ) {
 
-            // Imagen
+            // Imagen del evento si existe, sino un placeholder.
             if (!item.imagenEvento.isNullOrBlank()) {
                 Image(
                     painter = rememberAsyncImagePainter(construirUrlImagen(item.imagenEvento)),
@@ -352,23 +397,22 @@ fun CarritoItemCard(
             Spacer(modifier = Modifier.width(12.dp))
 
             Column(modifier = Modifier.weight(1f)) {
-
                 Text(item.nombreEvento, fontWeight = FontWeight.Bold)
 
                 Text(
-                    "Cantidad: ${item.cantidad}",
+                    text = "Cantidad: ${item.cantidad}",
                     color = Color.Gray
                 )
 
                 Text(
-                    "Precio: ${formatearPrecio(item.precioUnitario * item.cantidad)} €",
+                    text = "Precio: ${formatearPrecio(item.precioUnitario * item.cantidad)} €",
                     color = MaterialTheme.colorScheme.primary
                 )
             }
 
             IconButton(onClick = onEliminar) {
                 Icon(
-                    Icons.Default.Delete,
+                    imageVector = Icons.Default.Delete,
                     contentDescription = "Eliminar",
                     tint = MaterialTheme.colorScheme.error
                 )

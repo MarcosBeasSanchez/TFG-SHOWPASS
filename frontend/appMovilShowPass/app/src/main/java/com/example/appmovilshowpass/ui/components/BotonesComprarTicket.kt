@@ -19,12 +19,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.appmovilshowpass.viewmodel.CarritoViewModel
 
+/**
+ * Composable que muestra los controles para seleccionar una cantidad de tickets
+ * y añadirlos al carrito. Incluye botones para aumentar o disminuir la cantidad
+ * y un botón principal para confirmar la operación.
+ *
+ * usuarioId ID del usuario que realiza la compra.
+ * eventoId ID del evento cuyos tickets se van a añadir.
+ * carritoViewModel ViewModel encargado de gestionar las operaciones sobre el carrito.
+ * onAdded Callback que recibe la cantidad añadida al carrito, útil para mostrar mensajes de confirmación o actualizar la UI externa.
+ */
 @Composable
 fun BotonesComprarTicket(
     usuarioId: Long,
     eventoId: Long,
     carritoViewModel: CarritoViewModel,
-    onAdded: (Int) -> Unit // 👈 callback que recibe la cantidad añadida
+    onAdded: (Int) -> Unit
 ) {
     val context = LocalContext.current
     var cantidad by remember { mutableStateOf(1) }
@@ -36,23 +46,33 @@ fun BotonesComprarTicket(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Botón restar
+        /**
+         * Botón para disminuir la cantidad de tickets.
+         * No permite bajar de 1 para evitar cantidades inválidas.
+         */
         IconButton(
             onClick = { if (cantidad > 1) cantidad-- },
             modifier = Modifier
                 .size(48.dp)
                 .clip(CircleShape)
         ) {
-            Icon(imageVector = Icons.Default.Remove, contentDescription = "Restar")
+            Icon(
+                imageVector = Icons.Default.Remove,
+                contentDescription = "Disminuir cantidad"
+            )
         }
 
-        // Botón agregar al carrito
+        /**
+         * Botón principal que añade al carrito la cantidad seleccionada de tickets.
+         * Se repite la operación 'cantidad' veces debido a la lógica del backend.
+         * Tras añadirlos se invoca el callback onAdded().
+         */
         OutlinedButton(
             onClick = {
                 repeat(cantidad) {
                     carritoViewModel.agregarItem(usuarioId, eventoId)
                 }
-                onAdded(cantidad) // 👈 se ejecuta el callback con la cantidad añadida
+                onAdded(cantidad)
             },
             modifier = Modifier
                 .weight(1f)
@@ -67,14 +87,19 @@ fun BotonesComprarTicket(
             )
         }
 
-        // Botón sumar
+        /**
+         * Botón para incrementar la cantidad de tickets a añadir.
+         */
         IconButton(
             onClick = { cantidad++ },
             modifier = Modifier
                 .size(48.dp)
                 .clip(CircleShape)
         ) {
-            Icon(imageVector = Icons.Default.Add, contentDescription = "Sumar")
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "Aumentar cantidad"
+            )
         }
     }
 }

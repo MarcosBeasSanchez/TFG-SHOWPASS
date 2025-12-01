@@ -48,20 +48,42 @@ import com.example.appmovilshowpass.model.Evento
 import com.example.appmovilshowpass.ui.components.Cabecera
 import kotlinx.coroutines.launch
 
+/**
+ * Pantalla destinada al administrador para visualizar, buscar y eliminar eventos del sistema.
+ *
+ * Características principales:
+ * - Carga inicial de todos los eventos mediante llamada al backend.
+ * - Barra de búsqueda que filtra eventos por nombre en tiempo real.
+ * - Listado de eventos con imagen, nombre y localización.
+ * - Opción para eliminar un evento, mostrando un diálogo de confirmación.
+ *
+ * Esta pantalla solo debería estar disponible para usuarios con rol de administrador.
+ *
+ * onBack Acción opcional para navegar hacia atrás, si se integra en un flujo mayor.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminBorrarEventosScreen(
     onBack: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
+
+    // Lista completa de eventos obtenidos desde el backend.
     var eventos by remember { mutableStateOf<List<Evento>>(emptyList()) }
+
+    // Texto introducido en la barra de búsqueda.
     var search by remember { mutableStateOf("") }
 
-    // Controla si se muestra el diálogo y cuál evento se está eliminando
+    // Controla si se muestra el diálogo de confirmación.
     var showDeleteDialog by remember { mutableStateOf(false) }
+
+    // Evento actualmente seleccionado para ser eliminado.
     var eventoSeleccionado by remember { mutableStateOf<Evento?>(null) }
 
-    // Cargar todos los eventos al entrar
+    /**
+     * Carga inicial de todos los eventos al entrar en la pantalla.
+     * Se ejecuta una sola vez gracias al uso de LaunchedEffect(Unit).
+     */
     LaunchedEffect(Unit) {
         scope.launch {
             val dtoEventos = RetrofitClient.eventoApiService.obtenerTodosEventos()
@@ -74,9 +96,16 @@ fun AdminBorrarEventosScreen(
             .padding(16.dp)
             .fillMaxSize()
     ) {
+
+        /**
+         * Cabecera general de la pantalla con el título correspondiente.
+         */
         Cabecera(texto = "Eliminar Eventos", imageVector = Icons.Default.DeleteSweep)
 
-        // Barra de búsqueda
+        /**
+         * Barra de búsqueda para filtrar eventos por nombre.
+         * El filtrado se realiza de forma local, sin llamar al backend.
+         */
         OutlinedTextField(
             value = search,
             onValueChange = { search = it },
@@ -88,23 +117,35 @@ fun AdminBorrarEventosScreen(
 
         Divider(modifier = Modifier.padding(vertical = 8.dp))
 
-        // Lista de eventos
+        /**
+         * Lista de eventos filtrada según el texto introducido.
+         * Cada ítem muestra imagen, nombre, localización y un botón de eliminación.
+         */
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(8.dp)
         ) {
-            items(eventos.filter { it.nombre.contains(search, ignoreCase = true) }) { evento ->
+            items(
+                eventos.filter { it.nombre.contains(search, ignoreCase = true) }
+            ) { evento ->
+
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    ),
                     elevation = CardDefaults.cardElevation(3.dp)
                 ) {
+
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.padding(8.dp)
                     ) {
-                        // Imagen del evento
+
+                        /**
+                         * Imagen del evento.
+                         */
                         AsyncImage(
                             model = evento.imagen,
                             contentDescription = "Imagen evento",
@@ -116,13 +157,18 @@ fun AdminBorrarEventosScreen(
 
                         Spacer(Modifier.width(16.dp))
 
-                        // Info del evento
+                        /**
+                         * Información básica del evento.
+                         */
                         Column(Modifier.weight(1f)) {
                             Text(evento.nombre, style = MaterialTheme.typography.titleMedium)
                             Text(evento.localizacion, style = MaterialTheme.typography.bodySmall)
                         }
 
-                        // Botón eliminar
+                        /**
+                         * Botón que inicia el proceso de eliminación del evento.
+                         * Muestra un diálogo de confirmación.
+                         */
                         IconButton(
                             onClick = {
                                 eventoSeleccionado = evento
@@ -137,17 +183,19 @@ fun AdminBorrarEventosScreen(
                         }
                     }
                 }
+
                 Spacer(modifier = Modifier.height(10.dp))
             }
         }
 
-        // 🧩 Mostrar el diálogo de confirmación
+        /**
+         * Diálogo de confirmación que se muestra antes de eliminar el evento.
+         * Evita eliminaciones accidentales y avisa sobre la irreversibilidad de la acción.
+         */
         if (showDeleteDialog && eventoSeleccionado != null) {
             AlertDialog(
                 onDismissRequest = { showDeleteDialog = false },
-                title = {
-                    Text("Eliminar evento", color = Color.Black)
-                },
+                title = { Text("Eliminar evento", color = Color.Black) },
                 text = {
                     Text(
                         "¿Estás seguro de eliminar el evento \"${eventoSeleccionado?.nombre}\"? Esta acción no se puede deshacer.",
@@ -159,11 +207,13 @@ fun AdminBorrarEventosScreen(
                         onClick = {
                             scope.launch {
                                 try {
-                                    // Llamada al backend para eliminar el evento
+                                    // Eliminación del evento en el backend.
                                     RetrofitClient.eventoApiService.deleteEvento(eventoSeleccionado!!.id)
-                                    // Refrescar la lista
+
+                                    // Refrescar lista tras eliminar.
                                     val dtoEventos = RetrofitClient.eventoApiService.obtenerTodosEventos()
                                     eventos = dtoEventos.map { it.toEvento() }
+
                                 } catch (e: Exception) {
                                     e.printStackTrace()
                                 } finally {

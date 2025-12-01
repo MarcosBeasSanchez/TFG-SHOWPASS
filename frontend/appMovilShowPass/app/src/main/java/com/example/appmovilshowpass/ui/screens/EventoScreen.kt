@@ -35,73 +35,118 @@ import com.example.appmovilshowpass.ui.components.EventoCard
 import com.example.appmovilshowpass.viewmodel.EventoViewModel
 import kotlinx.coroutines.launch
 
+/**
+ * Pantalla principal de visualización de eventos.
+ *
+ * Funcionalidad principal:
+ * - Mostrar un listado de todos los eventos disponibles.
+ * - Permitir filtrar por categorías mediante una fila de botones.
+ * - Recargar los eventos utilizando el gesto Pull-to-Refresh.
+ * - Navegar a la pantalla de detalle al pulsar sobre un evento.
+ *
+ * Estructura general de la pantalla:
+ * 1. Obtención reactiva de los eventos desde el ViewModel mediante StateFlow.
+ * 2. Barra de filtrado que permite seleccionar una categoría.
+ * 3. Contenedor PullToRefreshBox que recarga la lista desde el backend.
+ * 4. Listado de tarjetas de eventos con navegación a detalles.
+ *
+ * viewModel ViewModel que gestiona la carga, filtrado y refresco de eventos.
+ * navController Controlador de navegación para abrir la pantalla de detalle.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventoScreen(
     viewModel: EventoViewModel = viewModel(),
     navController: NavController
 ) {
+    // Recolección del flujo de eventos generado por el ViewModel.
     val eventos by viewModel.eventos.collectAsState()
+
+    // Lista de categorías generadas dinámicamente: "TODOS" + todas las existentes.
     val eventosBoton = listOf("TODOS") + Categoria.values().map { it.name }
+
+    // Estado que controla el gesto Pull-to-Refresh.
     var isRefreshing by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
-    // 1. ESTADO: Estado para guardar la categoría seleccionada.
+    // Estado interno que recuerda la categoría seleccionada actualmente.
     var categoriaSeleccionada by remember { mutableStateOf("TODOS") }
 
+
+    /**
+     * Contenedor que habilita el gesto Pull-to-Refresh, permitiendo
+     * refrescar los eventos directamente desde la API.
+     */
     PullToRefreshBox(
         isRefreshing = isRefreshing,
         onRefresh = {
             isRefreshing = true
             scope.launch {
-                viewModel.obtenerEventosSuspend()
+                viewModel.obtenerEventosSuspend()   // Carga suspendida desde backend
                 isRefreshing = false
             }
         },
         modifier = Modifier.fillMaxSize()
-    )
-    {
+    ) {
+
+        /**
+         * Si la lista de eventos aún no está cargada o está vacía,
+         * se muestra una barra de carga.
+         */
         if (eventos.isEmpty()) {
             BarraCarga(modifier = Modifier.fillMaxSize())
+
         } else {
+
+            /**
+             * Listado principal que contiene:
+             * - Barra horizontal de categorías.
+             * - Lista vertical de tarjetas de eventos.
+             */
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(10.dp)
-            )
-            // Fila de botones para filtrar por categoria
-            {
+            ) {
+
+                /**
+                 * BARRA DE FILTRADO POR CATEGORÍAS
+                 *
+                 * Compuesta por botones horizontales.
+                 * Cada botón actualiza la categoría seleccionada
+                 * y lanza un filtrado en el ViewModel.
+                 */
                 item {
                     LazyRow(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(0.dp),
+                            .fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         items(eventosBoton) { boton ->
-                            // Definición de colores para el estado pulsado (opcional, pero mejora la UX)
+
                             val estaSeleccionado = boton == categoriaSeleccionada
+
+                            // Estilo visual condicionado según si está seleccionado o no.
                             val buttonColors = if (estaSeleccionado) {
                                 ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.primary, // Relleno
-                                    contentColor = MaterialTheme.colorScheme.onPrimary // Texto blanco
+                                    containerColor = MaterialTheme.colorScheme.primary,
+                                    contentColor = MaterialTheme.colorScheme.onPrimary
                                 )
                             } else {
                                 ButtonDefaults.outlinedButtonColors(
-                                    contentColor = MaterialTheme.colorScheme.primary, // Texto principal
+                                    contentColor = MaterialTheme.colorScheme.primary
                                 )
                             }
 
                             OutlinedButton(
                                 onClick = {
-                                    // 2. ACTUALIZAR ESTADO: Al hacer click, guardamos la categoría
                                     categoriaSeleccionada = boton
                                     viewModel.filtrarEventosPorCategoria(boton)
                                 },
                                 modifier = Modifier.padding(3.dp),
                                 shape = RoundedCornerShape(10.dp),
-                                colors = buttonColors // Usamos los colores condicionales
+                                colors = buttonColors
                             ) {
                                 Text(boton, fontWeight = FontWeight.Bold)
                             }
@@ -109,7 +154,13 @@ fun EventoScreen(
                     }
                 }
 
-                // Cabecera con la categoría seleccionada (si no es "TODOS")
+
+                /**
+                 * CABECERA OPCIONAL
+                 *
+                 * Cuando el usuario selecciona una categoría distinta a "TODOS",
+                 * se muestra como título encima del listado.
+                 */
                 if (categoriaSeleccionada != "TODOS") {
                     item {
                         Text(
@@ -120,11 +171,18 @@ fun EventoScreen(
                             ),
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 8.dp, horizontal = 4.dp)
+                                .padding(vertical = 8.dp)
                         )
                     }
                 }
-                //  Items con las tarjetas de eventos
+
+
+                /**
+                 * LISTADO DE EVENTOS
+                 *
+                 * Cada evento se muestra mediante una tarjeta reutilizable
+                 * que recibe el NavController para permitir navegación al detalle.
+                 */
                 items(eventos, key = { it.id }) { evento ->
                     EventoCard(evento, navController = navController)
                 }

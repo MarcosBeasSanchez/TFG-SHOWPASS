@@ -27,26 +27,45 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
+/**
+ * Composable que muestra un botón flotante (FAB) destinado a funciones administrativas.
+ * Al pulsar el FAB principal se despliega un menú con acciones:
+ * - Ver usuarios reportados
+ * - Eliminar eventos
+ *
+ * Este componente se muestra en la esquina inferior derecha de la pantalla.
+ *
+ * @param onUsersClick Acción ejecutada al seleccionar "Usuarios reportados".
+ * @param onEventsClick Acción ejecutada al seleccionar "Eliminar eventos".
+ */
 @Composable
 fun AdminFab(
     onUsersClick: () -> Unit,
     onEventsClick: () -> Unit,
 ) {
+    // Controla si el menú de opciones está abierto o cerrado.
     var expanded by remember { mutableStateOf(false) }
 
     Box(
         contentAlignment = Alignment.BottomEnd,
         modifier = Modifier.fillMaxSize()
     ) {
+
         Column(
             horizontalAlignment = Alignment.End,
             verticalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.padding(end = 16.dp, bottom = 80.dp)
         ) {
-            // Menú desplegable
-            DropdownMenu(expanded = expanded,
+            /**
+             * Menú desplegable que aparece cuando el FAB principal es pulsado.
+             * Contiene las acciones administrativas disponibles.
+             */
+            DropdownMenu(
+                expanded = expanded,
                 containerColor = MenuDefaults.containerColor,
-                onDismissRequest = { expanded = false }) {
+                onDismissRequest = { expanded = false }
+            ) {
+                // Acción para ver usuarios reportados.
                 DropdownMenuItem(
                     text = { Text("Usuarios reportados") },
                     leadingIcon = {
@@ -60,6 +79,8 @@ fun AdminFab(
                         onUsersClick()
                     }
                 )
+
+                // Acción para eliminar eventos.
                 DropdownMenuItem(
                     text = { Text("Eliminar eventos") },
                     leadingIcon = {
@@ -75,7 +96,11 @@ fun AdminFab(
                 )
             }
         }
-// FAB principal
+
+        /**
+         * FAB principal que abre el menú administrativo.
+         * Representa el acceso al panel de control del administrador.
+         */
         FloatingActionButton(
             onClick = { expanded = true },
             contentColor = Color.White,

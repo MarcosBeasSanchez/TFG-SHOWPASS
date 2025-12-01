@@ -37,6 +37,20 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.appmovilshowpass.model.Evento
 import com.example.appmovilshowpass.utils.formatearPrecio
 
+/**
+ * Composable que muestra una tarjeta horizontal con la información principal de un evento.
+ * Está diseñada para listados más compactos donde se combina texto y una imagen alineada
+ * de izquierda a derecha. Incluye:
+ * - Nombre del evento
+ * - Imagen
+ * - Localización
+ * - Descripción abreviada
+ * - Categoría
+ * - Precio
+ *
+ * evento Objeto con todos los datos a mostrar.
+ * modifier Permite aplicar modificadores externos al llamar este componente.
+ */
 @Composable
 fun EventoCardHorizontal(evento: Evento, modifier: Modifier = Modifier) {
     Card(
@@ -47,8 +61,13 @@ fun EventoCardHorizontal(evento: Evento, modifier: Modifier = Modifier) {
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface)
     ) {
+
+        /**
+         * Cabecera de la tarjeta.
+         * Muestra únicamente el nombre del evento en formato destacado.
+         */
         Text(
-            evento.nombre,
+            text = evento.nombre,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
@@ -56,11 +75,16 @@ fun EventoCardHorizontal(evento: Evento, modifier: Modifier = Modifier) {
                 .padding(12.dp)
         )
 
+        /**
+         * Sección principal con imagen + texto.
+         * Organizada en una fila horizontal.
+         */
         Row(
             modifier = Modifier.padding(12.dp, 0.dp, 12.dp, 12.dp),
             verticalAlignment = Alignment.CenterVertically
-
         ) {
+
+            // Imagen del evento en un recuadro de tamaño fijo.
             if (evento.imagen.isNotEmpty()) {
                 Box(
                     modifier = Modifier
@@ -73,42 +97,51 @@ fun EventoCardHorizontal(evento: Evento, modifier: Modifier = Modifier) {
                         contentDescription = evento.nombre,
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop,
-                        alignment = Alignment.Center,
+                        alignment = Alignment.Center
                     )
                 }
                 Spacer(Modifier.width(20.dp))
             }
+
+            /**
+             * Columna con la información textual del evento:
+             * - Localización
+             * - Descripción (abreviada con máximo de 6 líneas)
+             */
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .align(Alignment.CenterVertically)
             ) {
-
                 Text(evento.localizacion, fontSize = 14.sp)
+
                 Spacer(modifier = Modifier.height(8.dp))
+
                 Text(
-                    evento.descripcion,
+                    text = evento.descripcion,
                     fontSize = 12.sp,
                     maxLines = 6,
-                    letterSpacing = 0.25.sp,
                     lineHeight = 20.sp,
-                    textAlign = TextAlign.Unspecified,
+                    letterSpacing = 0.25.sp,
                     overflow = TextOverflow.Ellipsis
                 )
-                Spacer(modifier = Modifier.height(0.dp))
             }
         }
+
+        /**
+         * Pie de la tarjeta donde se muestran etiquetas de categoría y precio,
+         * alineadas en la parte inferior derecha.
+         */
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 12.dp, end = 12.dp),
             contentAlignment = Alignment.BottomEnd
         ) {
-            Row(
 
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                // 1. TEXTO DE CATEGORÍA
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+
+                // Categoría del evento dentro de una etiqueta coloreada.
                 Text(
                     text = evento.categoria.name,
                     style = TextStyle(
@@ -124,7 +157,7 @@ fun EventoCardHorizontal(evento: Evento, modifier: Modifier = Modifier) {
                         .padding(horizontal = 5.dp, vertical = 5.dp)
                 )
 
-                // 2. TEXTO DEL PRECIO
+                // Precio del evento con estilo destacado.
                 Text(
                     text = "${formatearPrecio(evento.precio)} €",
                     style = TextStyle(

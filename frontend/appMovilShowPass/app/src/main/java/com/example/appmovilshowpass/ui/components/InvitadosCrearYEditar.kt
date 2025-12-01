@@ -43,53 +43,86 @@ import com.example.appmovilshowpass.ui.screens.SafeImage
 import com.example.appmovilshowpass.utils.imagenToBase64
 import kotlin.collections.forEach
 
+/**
+ * Composable que permite gestionar (añadir, editar y eliminar) los invitados asociados a un evento.
+ * Muestra una lista editable donde cada invitado aparece dentro de una tarjeta con su foto y datos.
+ * Al pulsar el botón de editar o agregar, se abre un diálogo para modificar los campos del invitado.
+ *
+ * La lista recibida como parámetro es mutable y se modifica directamente, actuando como fuente de datos.
+ *
+ * invitados Lista mutable de invitados que será actualizada según las acciones del usuario.
+ */
 @Composable
 fun InvitadoEditorUIEdit(invitados: MutableList<DTOInvitadoSubida>) {
 
+    // Índice del invitado que se está editando (si es -1 significa "nuevo invitado").
     var invitadoEditandoIndex by remember { mutableStateOf(-1) }
+
+    // Controla la visibilidad del diálogo de edición/creación.
     var mostrarDialogo by remember { mutableStateOf(false) }
+
+    // Objeto temporal que se edita en el diálogo.
     var invitadoEditando by remember { mutableStateOf<DTOInvitadoSubida?>(null) }
 
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+
+        /**
+         * Iteración sobre la lista de invitados para mostrar una tarjeta por cada uno.
+         */
         invitados.forEach { inv ->
             Card(
-                Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface)
             ) {
                 Row(
-                    Modifier.padding(8.dp),
+                    modifier = Modifier.padding(8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
 
-                    Card(Modifier.size(60.dp), shape = RoundedCornerShape(50)) {
+                    // Foto del invitado en formato circular.
+                    Card(
+                        modifier = Modifier.size(60.dp),
+                        shape = RoundedCornerShape(50)
+                    ) {
                         SafeImage(model = inv.fotoURL, modifier = Modifier.fillMaxSize())
                     }
 
-
-                    Column(Modifier.weight(1f)) {
+                    // Datos del invitado (nombre y apellidos).
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(inv.nombre ?: "Invitado", fontWeight = FontWeight.Bold)
-                        Text(inv.apellidos ?: "", style = androidx.compose.material3.MaterialTheme.typography.bodySmall)
+                        Text(
+                            inv.apellidos ?: "",
+                            style = MaterialTheme.typography.bodySmall
+                        )
                     }
 
+                    /**
+                     * Botón para editar al invitado.
+                     * Se guarda una copia del invitado y su posición para editarlo después.
+                     */
                     Button(onClick = {
-                        invitadoEditandoIndex = invitados.indexOf(inv) // Guardamos posición
-                        invitadoEditando = inv.copy()                  // Copia segura
+                        invitadoEditandoIndex = invitados.indexOf(inv)
+                        invitadoEditando = inv.copy()
                         mostrarDialogo = true
                     }) {
                         Icon(
                             imageVector = Icons.Outlined.Edit,
-                            contentDescription = "Icono"
+                            contentDescription = "Editar invitado"
                         )
                     }
 
-                    OutlinedButton(onClick = { invitados.remove(inv) }
-                        , colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Red)
+                    /**
+                     * Botón para eliminar el invitado de la lista.
+                     */
+                    OutlinedButton(
+                        onClick = { invitados.remove(inv) },
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Red)
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.Close,
-                            contentDescription = "Icono",
+                            contentDescription = "Eliminar invitado",
                             tint = Color.Red
                         )
                     }
@@ -97,37 +130,66 @@ fun InvitadoEditorUIEdit(invitados: MutableList<DTOInvitadoSubida>) {
             }
         }
 
+        /**
+         * Botón para agregar un nuevo invitado.
+         * Inicializa un objeto vacío y abre el diálogo.
+         */
         OutlinedButton(
             onClick = {
                 invitadoEditandoIndex = -1
-                invitadoEditando = DTOInvitadoSubida(id = null, nombre = "", apellidos = "", descripcion = "", fotoURL = "")
-                mostrarDialogo = true }
-            , modifier = Modifier.fillMaxWidth().align(Alignment.End)
-
+                invitadoEditando = DTOInvitadoSubida(
+                    id = null,
+                    nombre = "",
+                    apellidos = "",
+                    descripcion = "",
+                    fotoURL = ""
+                )
+                mostrarDialogo = true
+            },
+            modifier = Modifier.fillMaxWidth()
         ) {
             Icon(
                 imageVector = Icons.Outlined.Add,
-                contentDescription = "Icono"
+                contentDescription = "Agregar invitado"
             )
-            Text("Agregar Invitado", Modifier.padding(start = 6.dp))
-
+            Text("Agregar Invitado", modifier = Modifier.padding(start = 6.dp))
         }
 
+        /**
+         * Componente del diálogo, mostrado solo cuando mostrarDialogo es true.
+         * Al guardar, actualiza o agrega el invitado en la lista principal.
+         */
         if (mostrarDialogo) {
-            InvitadoDialogEditor(invitadoEditando!!, { mostrarDialogo = false }) { actualizado ->
+            InvitadoDialogEditor(
+                invitadoInicial = invitadoEditando!!,
+                onDismiss = { mostrarDialogo = false }
+            ) { actualizado ->
+
                 if (invitadoEditandoIndex >= 0) {
-                    // Editar invitado existente en su posición real
+                    // Se modifica un invitado ya existente
                     invitados[invitadoEditandoIndex] = actualizado
                 } else {
-                    // Agregar nuevo invitado
+                    // Se añade un invitado nuevo
                     invitados.add(actualizado.copy(id = null))
                 }
+
                 mostrarDialogo = false
             }
         }
     }
 }
 
+/**
+ * Diálogo modal para editar o crear un invitado de un evento.
+ * Permite modificar nombre, apellidos, descripción y foto.
+ *
+ * Incluye un selector de imágenes basado en ActivityResultContracts.GetContent(),
+ * que convierte la imagen seleccionada en Base64 para enviarla al backend.
+ *
+ * invitadoInicial Datos iniciales del invitado (vacío si es nuevo).
+ * onDismiss Acción ejecutada al cerrar el diálogo sin guardar.
+ * onSave Acción ejecutada al confirmar los cambios, devolviendo el invitado actualizado.
+ */
 @Composable
 fun InvitadoDialogEditor(
     invitadoInicial: DTOInvitadoSubida,
@@ -138,10 +200,18 @@ fun InvitadoDialogEditor(
     var apellidos by remember { mutableStateOf(invitadoInicial.apellidos ?: "") }
     var descripcion by remember { mutableStateOf(invitadoInicial.descripcion ?: "") }
     var foto by remember { mutableStateOf(invitadoInicial.fotoURL ?: "") }
+
     val context = LocalContext.current
 
-    val picker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        uri?.let { foto = "data:image/png;base64," + imagenToBase64(context, it)
+    /**
+     * Selector de imágenes que abre la galería del dispositivo.
+     * Al seleccionar una imagen, se convierte a Base64 y se asigna al campo foto.
+     */
+    val picker = rememberLauncherForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let {
+            foto = "data:image/png;base64," + imagenToBase64(context, it)
         }
     }
 
@@ -150,35 +220,68 @@ fun InvitadoDialogEditor(
         title = { Text("Invitado") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                OutlinedTextField(nombre, { nombre = it }, Modifier.fillMaxWidth(), label = { Text("Nombre") })
-                OutlinedTextField(apellidos, { apellidos = it }, Modifier.fillMaxWidth(), label = { Text("Apellidos") })
-                OutlinedTextField(descripcion, { descripcion = it }, Modifier.fillMaxWidth(), label = { Text("Descripción") })
 
-                OutlinedButton(onClick = { picker.launch("image/*") }, Modifier.fillMaxWidth()) {
-                    Icon(Icons.Default.Image, null)
-                    Spacer(Modifier.width(8.dp))
+                OutlinedTextField(
+                    value = nombre,
+                    onValueChange = { nombre = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Nombre") }
+                )
+
+                OutlinedTextField(
+                    value = apellidos,
+                    onValueChange = { apellidos = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Apellidos") }
+                )
+
+                OutlinedTextField(
+                    value = descripcion,
+                    onValueChange = { descripcion = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Descripción") }
+                )
+
+                OutlinedButton(
+                    onClick = { picker.launch("image/*") },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(Icons.Default.Image, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text("Cambiar Foto")
                 }
             }
         },
+
+        /**
+         * Botón para guardar los cambios.
+         * Construye un nuevo DTOInvitadoSubida con los valores actualizados.
+         */
         confirmButton = {
-            Button(onClick = {
-                onSave(
-                    DTOInvitadoSubida(
-                        id = invitadoInicial.id,
-                        nombre = nombre,
-                        apellidos = apellidos,
-                        descripcion = descripcion,
-                        fotoURL = foto
+            Button(
+                onClick = {
+                    onSave(
+                        DTOInvitadoSubida(
+                            id = invitadoInicial.id,
+                            nombre = nombre,
+                            apellidos = apellidos,
+                            descripcion = descripcion,
+                            fotoURL = foto
+                        )
                     )
-                )
-            }) {
+                }
+            ) {
                 Text("Guardar")
             }
         },
+
+        // Botón de cancelación
         dismissButton = {
-            OutlinedButton(onClick = onDismiss) { Text("Cancelar") }
+            OutlinedButton(onClick = onDismiss) {
+                Text("Cancelar")
+            }
         },
+
         shape = RoundedCornerShape(16.dp)
     )
 }

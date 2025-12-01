@@ -48,6 +48,20 @@ import com.example.appmovilshowpass.ui.components.Cabecera
 import kotlinx.coroutines.launch
 
 
+/**
+ * Pantalla destinada a administradores para gestionar usuarios reportados.
+ *
+ * Funcionalidades principales:
+ * - Búsqueda de usuarios por email.
+ * - Visualización de datos básicos del usuario encontrado.
+ * - Posibilidad de reportar o desreportar un usuario.
+ * - Eliminación permanente del usuario del sistema.
+ * - Listado completo de todos los usuarios reportados.
+ *
+ * Todas las operaciones se sincronizan con el backend mediante Retrofit.
+ * La información se actualiza en tiempo real dentro de la propia pantalla.
+ *
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminReportScreen(
@@ -55,17 +69,29 @@ fun AdminReportScreen(
     onBack: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
+
+    // Lista completa de usuarios reportados cargada desde el backend.
     var usuarios by remember { mutableStateOf<List<DTOUsuarioReportado>>(emptyList()) }
+
+    // Email introducido para realizar la búsqueda individual.
     var emailToSearch by remember { mutableStateOf("") }
+
+    // Usuario encontrado tras la búsqueda.
     var usuarioEncontrado by remember { mutableStateOf<DTOUsuarioReportado?>(null) }
+
+    // Mensaje descriptivo asociado a los resultados de la búsqueda.
     var mensajeBusqueda by remember { mutableStateOf<String?>(null) }
 
+    // Diálogos de confirmación para reportar/desreportar o eliminar.
     var showConfirmDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
+    /**
+     * Carga inicial de usuarios reportados al entrar en la pantalla.
+     */
     LaunchedEffect(Unit) {
         scope.launch {
-            usuarios = RetrofitClient.eventoApiService.findAllReportados()
+            usuarios = RetrofitClient.usuarioApiService.findAllReportados()
         }
     }
 
@@ -74,9 +100,13 @@ fun AdminReportScreen(
             .padding(16.dp)
             .fillMaxSize()
     ) {
+
+        // Cabecera de la pantalla
         Cabecera(texto = "Administrar usuarios", imageVector = Icons.Default.Report)
 
-        //  Buscador
+        /**
+         * Barra de búsqueda de usuarios por email.
+         */
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -86,16 +116,18 @@ fun AdminReportScreen(
                 onValueChange = { emailToSearch = it },
                 label = { Text("Buscar Usuario por Email") },
                 modifier = Modifier.weight(1f)
-
             )
 
             Spacer(Modifier.width(8.dp))
 
+            /**
+             * Botón que realiza la búsqueda del usuario introducido.
+             */
             Button(
                 onClick = {
                     scope.launch {
                         try {
-                            val user = RetrofitClient.eventoApiService.findUserByEmail(emailToSearch)
+                            val user = RetrofitClient.usuarioApiService.findUserByEmail(emailToSearch)
                             usuarioEncontrado = user
                             mensajeBusqueda = "Usuario ${user.email} encontrado."
                         } catch (e: Exception) {
@@ -110,6 +142,9 @@ fun AdminReportScreen(
             }
         }
 
+        /**
+         * Mensaje descriptivo sobre el resultado de la búsqueda.
+         */
         mensajeBusqueda?.let {
             Spacer(Modifier.height(8.dp))
             val color = if (usuarioEncontrado != null) Color(0xFF2E7D32) else Color.Red
@@ -118,8 +153,11 @@ fun AdminReportScreen(
 
         Spacer(Modifier.height(12.dp))
 
-        //  Usuario encontrado
+        /**
+         * Información del usuario encontrado y acciones disponibles.
+         */
         usuarioEncontrado?.let { usuario ->
+
             val colorBorde = if (usuario.reportado) Color(0xFFFF7043) else Color.LightGray
             val textoReportado = if (usuario.reportado) "Sí" else "No"
 
@@ -140,6 +178,10 @@ fun AdminReportScreen(
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
+                        /**
+                         * Botón para reportar o desreportar un usuario.
+                         * La acción cambia dependiendo del estado actual.
+                         */
                         val reportColor =
                             if (usuario.reportado) Color(0xFFFFCC80) else Color(0xFFCFD8DC)
                         val reportText =
@@ -153,18 +195,23 @@ fun AdminReportScreen(
                             Text(reportText, color = Color.Black)
                         }
 
+                        /**
+                         * Botón para eliminar permanentemente al usuario.
+                         */
                         Button(
                             onClick = { showDeleteDialog = true },
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xD0FD0000)),
                             modifier = Modifier.weight(1f)
                         ) {
-                            Text("Eliminar usuario",color = Color.White)
+                            Text("Eliminar usuario", color = Color.White)
                         }
                     }
                 }
             }
 
-            //  Diálogo confirmar reportar/desreportar
+            /**
+             * Diálogo de confirmación para reportar o desreportar un usuario.
+             */
             if (showConfirmDialog) {
                 AlertDialog(
                     onDismissRequest = { showConfirmDialog = false },
@@ -189,11 +236,12 @@ fun AdminReportScreen(
                             onClick = {
                                 scope.launch {
                                     if (usuario.reportado)
-                                        RetrofitClient.eventoApiService.removeReport(usuario.email)
+                                        RetrofitClient.usuarioApiService.removeReport(usuario.email)
                                     else
-                                        RetrofitClient.eventoApiService.reportUser(usuario.email)
+                                        RetrofitClient.usuarioApiService.reportUser(usuario.email)
 
-                                    usuarios = RetrofitClient.eventoApiService.findAllReportados()
+                                    // Refrescar datos tras la operación
+                                    usuarios = RetrofitClient.usuarioApiService.findAllReportados()
                                     usuarioEncontrado = usuario.copy(reportado = !usuario.reportado)
                                     showConfirmDialog = false
                                 }
@@ -212,7 +260,9 @@ fun AdminReportScreen(
                 )
             }
 
-            //  Diálogo confirmar eliminar
+            /**
+             * Diálogo de confirmación para eliminar el usuario.
+             */
             if (showDeleteDialog) {
                 AlertDialog(
                     onDismissRequest = { showDeleteDialog = false },
@@ -228,7 +278,8 @@ fun AdminReportScreen(
                             onClick = {
                                 scope.launch {
                                     RetrofitClient.usuarioApiService.deleteUser(usuario.id)
-                                    usuarios = RetrofitClient.eventoApiService.findAllReportados()
+
+                                    usuarios = RetrofitClient.usuarioApiService.findAllReportados()
                                     usuarioEncontrado = null
                                     showDeleteDialog = false
                                 }
@@ -250,13 +301,15 @@ fun AdminReportScreen(
 
         Spacer(Modifier.height(20.dp))
 
-        //  Lista de usuarios reportados (vertical)
+        /**
+         * Sección de listado de todos los usuarios reportados.
+         */
         Text(
             text = "Usuarios Reportados (${usuarios.size})",
             fontWeight = FontWeight.SemiBold
         )
 
-        Divider( modifier = Modifier.padding(vertical = 8.dp))
+        Divider(modifier = Modifier.padding(vertical = 8.dp))
 
         if (usuarios.isEmpty()) {
             Text(
@@ -278,6 +331,7 @@ fun AdminReportScreen(
                         Column(Modifier.padding(12.dp)) {
                             Text(usuario.nombre, fontWeight = FontWeight.Bold)
                             Text(usuario.email)
+
                             Box(
                                 modifier = Modifier
                                     .padding(top = 6.dp)
@@ -293,4 +347,3 @@ fun AdminReportScreen(
         }
     }
 }
-

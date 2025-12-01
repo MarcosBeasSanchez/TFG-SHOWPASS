@@ -9,7 +9,7 @@ data class Desarrollador(
     val github: String
 )
 
-// Objeto para simular tus datosDesarroladores. ¡Asegúrate de cambiar los drawables!
+// Objeto para simular tus datosDesarroladores
 object DatosDesarrolladores {
     // Reemplaza R.drawable.marcos_photo con tu recurso de imagen
     val marcos = Desarrollador(

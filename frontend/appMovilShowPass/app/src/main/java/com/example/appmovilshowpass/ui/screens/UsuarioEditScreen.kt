@@ -73,7 +73,32 @@ import java.math.BigDecimal
 import java.time.LocalDate
 import java.util.Calendar
 
-
+/**
+ * Pantalla que permite al usuario editar su información personal, datos de cuenta
+ * y fotografía de perfil. Esta pantalla obtiene el usuario actual desde AuthViewModel
+ * y utiliza sus datos como valores iniciales para los campos editables.
+ *
+ * Funcionalidad principal:
+ * - Modificar nombre, correo electrónico, contraseña, fecha de nacimiento y foto.
+ * - Modificar información de la tarjeta asociada al usuario.
+ * - Mostrar vista previa de la imagen seleccionada (incluyendo imágenes en formato Base64).
+ * - Gestionar validaciones mínimas, conversión de fechas y actualización del usuario
+ *   mediante AuthViewModel.updateUser().
+ * - Mostrar mensajes de éxito o error utilizando Snackbar.
+ *
+ * Parámetros:
+ * authViewModel ViewModel encargado de gestionar la autenticación y modificación del usuario.
+ * onSaveSuccess Acción a ejecutar cuando el usuario haya sido actualizado correctamente.
+ * onCancel Acción a ejecutar si el usuario decide cancelar la edición.
+ *
+ * Detalles importantes:
+ * - La contraseña no se muestra por motivos de seguridad. Solo se actualiza si el usuario
+ *   introduce una nueva.
+ * - Las imágenes se admiten en formato Base64 o URL. La pantalla detecta automáticamente
+ *   el tipo y renderiza la imagen correcta.
+ * - La actualización del usuario es asíncrona, por lo que se utiliza un estado de carga
+ *   para evitar múltiples envíos simultáneos.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UsuarioEditScreen(
@@ -387,12 +412,28 @@ fun UsuarioEditScreen(
 
 }
 
+/**
+ * Función auxiliar que muestra un cuadro de diálogo DatePicker nativo de Android.
+ * Esta función se utiliza para seleccionar fechas en campos como fecha de nacimiento
+ * o fecha de caducidad de la tarjeta.
+ *
+ * Parámetros:
+ * context Contexto actual necesario para crear el DatePickerDialog.
+ * onDateSelected Acción que recibe la fecha seleccionada en formato String (YYYY-MM-DD).
+ *
+ * Funcionamiento:
+ * - Se inicializa el calendario con la fecha actual.
+ * - Se muestra el cuadro de diálogo con día, mes y año.
+ * - Cuando el usuario selecciona una fecha, se convierte al formato adecuado
+ *   y se envía mediante el callback onDateSelected.
+ */
 fun DatePicker(context: Context, onDateSelected: (String) -> Unit) {
     val calendar = Calendar.getInstance()
-    val datePicker = DatePickerDialog(
+
+    DatePickerDialog(
         context,
-        { _, y, m, d ->
-            val fecha = String.format("%04d-%02d-%02d", y, m + 1, d)
+        { _, year, month, day ->
+            val fecha = String.format("%04d-%02d-%02d", year, month + 1, day)
             onDateSelected(fecha)
         },
         calendar.get(Calendar.YEAR),
@@ -400,4 +441,3 @@ fun DatePicker(context: Context, onDateSelected: (String) -> Unit) {
         calendar.get(Calendar.DAY_OF_MONTH)
     ).show()
 }
-

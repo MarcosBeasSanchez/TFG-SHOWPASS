@@ -79,6 +79,7 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.media3.exoplayer)
     implementation(libs.androidx.foundation.layout)
+    implementation(libs.ui)
 
 
 

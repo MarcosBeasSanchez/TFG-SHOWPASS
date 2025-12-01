@@ -39,6 +39,15 @@ import com.example.appmovilshowpass.model.Evento
 import com.example.appmovilshowpass.utils.formatearFechayHora
 import com.example.appmovilshowpass.utils.formatearPrecio
 
+/**
+ * Composable que representa una tarjeta visual con la información de un evento.
+ * Muestra la imagen principal del evento, su nombre, localización, fechas de inicio y fin,
+ * invitados y categoría, junto con el precio. Al pulsar la tarjeta, navega hacia la pantalla
+ * de detalle del evento utilizando el NavController.
+ *
+ * evento Objeto de tipo Evento que contiene toda la información mostrada en la tarjeta.
+ * navController Controlador de navegación usado para redirigir a la pantalla de detalle.
+ */
 @Composable
 fun EventoCard(evento: Evento, navController: NavController) {
     val context = LocalContext.current
@@ -48,15 +57,21 @@ fun EventoCard(evento: Evento, navController: NavController) {
             .fillMaxWidth()
             .padding(vertical = 12.dp)
             .clickable {
+                // Navega a la pantalla de información del evento según su ID.
                 navController.navigate("evento_info/${evento.id}")
             },
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         shape = RoundedCornerShape(5.dp),
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface)
+    ) {
 
-    )
-    {
         Column(modifier = Modifier.padding(vertical = 0.dp, horizontal = 0.dp)) {
+
+            /**
+             * Imagen principal del evento.
+             * Se muestra únicamente si el evento contiene una URL de imagen válida.
+             * Se utiliza Coil para cargar la imagen de forma asíncrona.
+             */
             if (evento.imagen.isNotEmpty()) {
                 Image(
                     painter = rememberAsyncImagePainter(evento.imagen),
@@ -69,31 +84,53 @@ fun EventoCard(evento: Evento, navController: NavController) {
                     contentScale = ContentScale.Crop
                 )
             }
+
+            /**
+             * Sección inferior donde se muestra la información textual del evento.
+             */
             Column(modifier = Modifier.padding(vertical = 16.dp, horizontal = 12.dp)) {
+
+                // Nombre del evento.
                 Text(evento.nombre, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+
                 Spacer(modifier = Modifier.height(3.dp))
+
+                // Localización donde se llevará a cabo el evento.
                 Text(evento.localizacion, fontSize = 16.sp)
+
                 Spacer(modifier = Modifier.height(8.dp))
+
+                // Fecha de inicio y final en formato amigable.
                 Text(
-                    "Inicio Evento: " + formatearFechayHora(evento.inicioEvento),
+                    text = "Inicio Evento: " + formatearFechayHora(evento.inicioEvento),
                     fontSize = 14.sp
                 )
                 Text(
-                    "Final Evento: " + formatearFechayHora(evento.finEvento),
+                    text = "Final Evento: " + formatearFechayHora(evento.finEvento),
                     fontSize = 14.sp
                 )
+
+                // Listado de invitados usando joinToString.
                 Text(
-                    "Invitados: " + evento.invitados.joinToString(", ") { it.nombre },
+                    text = "Invitados: " + evento.invitados.joinToString(", ") { it.nombre },
                     fontSize = 14.sp
                 )
+
                 Spacer(modifier = Modifier.height(8.dp))
+
+                /**
+                 * Sección con la categoría del evento y su precio,
+                 * ambas dentro de etiquetas estilizadas.
+                 */
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 0.dp, vertical = 0.dp),
+                        .padding(horizontal = 0.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+
+                    // Categoría del evento.
                     Text(
                         text = evento.categoria.name,
                         style = TextStyle(
@@ -108,6 +145,8 @@ fun EventoCard(evento: Evento, navController: NavController) {
                             )
                             .padding(horizontal = 8.dp, vertical = 8.dp)
                     )
+
+                    // Precio del evento con formato de dos decimales.
                     Text(
                         text = "${formatearPrecio(evento.precio)}€",
                         style = TextStyle(
@@ -121,7 +160,6 @@ fun EventoCard(evento: Evento, navController: NavController) {
                                 shape = RoundedCornerShape(5.dp)
                             )
                             .padding(horizontal = 8.dp, vertical = 8.dp)
-
                     )
                 }
             }

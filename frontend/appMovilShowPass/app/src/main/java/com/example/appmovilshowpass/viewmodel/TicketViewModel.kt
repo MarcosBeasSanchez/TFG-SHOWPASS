@@ -20,25 +20,37 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 
+/**
+ * ViewModel encargado de gestionar todas las operaciones relacionadas con tickets:
+ * - Cargar los tickets del usuario
+ * - Generar y guardar PDFs
+ * - Enviar tickets por correo electrónico
+ * - Eliminar tickets individualmente o en bloque
+ * - Validación de códigos QR
+ *
+ * Utiliza StateFlow para mantener la interfaz sincronizada con el estado de los datos.
+ */
 class TicketViewModel : ViewModel() {
 
-    // Flujo de tickets cargados del backend
+    // Flujo que contiene la lista de tickets obtenidos del backend.
     private val _tickets = MutableStateFlow<List<DTOTicketBajada>>(emptyList())
     val tickets: StateFlow<List<DTOTicketBajada>> get() = _tickets
 
-    //Validación QR de tickets
-    private val _resultadoQR = MutableStateFlow<ResultadoQR?>(null) //Estado inicial nulo
-    val resultadoQR: StateFlow<ResultadoQR?> = _resultadoQR //Enum con estados
+    // Estado de la validación de un código QR.
+    private val _resultadoQR = MutableStateFlow<ResultadoQR?>(null)
+    val resultadoQR: StateFlow<ResultadoQR?> = _resultadoQR
 
     /**
-     * Llama al backend para obtener todos los tickets de un usuario.
+     * Obtiene todos los tickets de un usuario desde el backend.
+     * La lista recibida se publica en el StateFlow correspondiente.
      */
-
     fun cargarTickets(usuarioId: Long) {
         viewModelScope.launch {
             try {
                 Log.d("TicketVM", "Cargando tickets del usuario $usuarioId...")
+
                 val result = RetrofitClient.ticketApiService.obtenerTicketsPorUsuario(usuarioId)
+
                 Log.d("TicketVM", "Tickets recibidos: ${result.size}")
                 result.forEach {
                     Log.d(
@@ -56,17 +68,17 @@ class TicketViewModel : ViewModel() {
     }
 
     /**
-     * Genera y guarda localmente el PDF del ticket seleccionado.
-     * El archivo se guarda en la carpeta "Download" del dispositivo.
+     * Genera el PDF asociado a un ticket y lo guarda en la carpeta "Download" del dispositivo.
+     * Utiliza generarTicketPdf(), que se encarga de construir el archivo en Base64.
      */
     fun generarPdfTicket(context: Context, ticket: DTOTicketBajada) {
         viewModelScope.launch {
             try {
-                //  Obtener el evento completo desde el backend
+                // Obtener información completa del evento (necesaria para el PDF)
                 val eventoDto = RetrofitClient.eventoApiService.findById(ticket.eventoId)
                 val evento = eventoDto.toEvento()
 
-                //  Generar el PDF (usa ticket completo)
+                // Generar PDF como Base64
                 val pdfBase64 = generarTicketPdf(
                     context = context,
                     ticket = ticket,
@@ -74,12 +86,14 @@ class TicketViewModel : ViewModel() {
                     eventoImagenUrl = construirUrlImagen(evento.imagen)
                 )
 
-                // 3.Guardar en carpeta Descargas
+                // Guardar el PDF en la carpeta Descargas
                 val pdfBytes = Base64.decode(pdfBase64, Base64.NO_WRAP)
                 val downloadsDir =
                     Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+
                 val safeName = evento.nombre.replace("[^a-zA-Z0-9-_]".toRegex(), "_")
                 val file = File(downloadsDir, "${safeName}-${ticket.id}.pdf")
+
                 FileOutputStream(file).use { it.write(pdfBytes) }
 
                 withContext(Dispatchers.Main) {
@@ -96,16 +110,15 @@ class TicketViewModel : ViewModel() {
     }
 
     /**
-     *  Genera el ticket y lo envía por correo electrónico usando el backend.
+     * Genera el PDF asociado a un ticket y lo envía por correo electrónico
+     * utilizando el servicio backend.
      */
     fun enviarTicketPorEmail(context: Context, email: String, ticket: DTOTicketBajada) {
         viewModelScope.launch {
             try {
-                // Obtener el evento por ID
                 val eventoDto = RetrofitClient.eventoApiService.findById(ticket.eventoId)
                 val evento = eventoDto.toEvento()
 
-                // Generar PDF (misma lógica)
                 val pdfBase64 = generarTicketPdf(
                     context = context,
                     ticket = ticket,
@@ -113,7 +126,7 @@ class TicketViewModel : ViewModel() {
                     eventoImagenUrl = construirUrlImagen(evento.imagen)
                 )
 
-                // Enviar PDF por email
+                // Payload enviado al backend con el PDF codificado
                 val payload = mapOf(
                     "email" to email,
                     "ticketId" to ticket.id.toString(),
@@ -127,7 +140,7 @@ class TicketViewModel : ViewModel() {
                     if (response.isSuccessful) {
                         val mensaje =
                             response.body()?.get("mensaje") ?: "Ticket enviado correctamente"
-                        Toast.makeText(context, "$mensaje", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, mensaje, Toast.LENGTH_SHORT).show()
                     } else {
                         Toast.makeText(
                             context,
@@ -146,10 +159,15 @@ class TicketViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Elimina todos los tickets del usuario en el backend.
+     * También actualiza la lista local para que la UI refleje el cambio.
+     */
     fun vaciarTickets(context: Context, usuarioId: Long) {
         viewModelScope.launch {
             try {
                 val response = RetrofitClient.ticketApiService.eliminarTodosLosTickets(usuarioId)
+
                 if (response.isSuccessful) {
                     val body = response.body()
                     val mensaje = body?.get("mensaje") ?: "Operación completada"
@@ -160,13 +178,11 @@ class TicketViewModel : ViewModel() {
                     }
 
                     Toast.makeText(context, mensaje, Toast.LENGTH_SHORT).show()
+
                 } else {
-                    Toast.makeText(
-                        context,
-                        "No se pudieron eliminar los tickets",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(context, "No se pudieron eliminar los tickets", Toast.LENGTH_SHORT).show()
                 }
+
             } catch (e: Exception) {
                 e.printStackTrace()
                 Toast.makeText(context, "Error al eliminar tickets", Toast.LENGTH_SHORT).show()
@@ -174,77 +190,74 @@ class TicketViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Elimina un ticket concreto por su ID.
+     * Si la operación tiene éxito, también se elimina del StateFlow local.
+     */
     fun eliminarTicket(context: Context, id: Long) {
         viewModelScope.launch {
             try {
-                Log.d("TicketVM", " Intentando eliminar ticket con id=$id")
+                Log.d("TicketVM", "Intentando eliminar ticket con id=$id")
 
                 val response = RetrofitClient.ticketApiService.eliminarTicket(id)
-                Log.d("TicketVM", " Respuesta HTTP: ${response.code()}")
+
+                Log.d("TicketVM", "Respuesta HTTP: ${response.code()}")
 
                 if (response.isSuccessful) {
                     val body = response.body()
-                    Log.d("TicketVM", "Cuerpo de respuesta: $body")
-
                     val status = body?.get("status")?.toString()
                     val mensaje = body?.get("mensaje")?.toString() ?: "Operación completada"
 
-                    Log.d("TicketVM", " Status: $status | Mensaje: $mensaje")
-
                     if (status == "success") {
-                        Log.d("TicketVM", "Eliminando ticket de la lista local...")
-                        val nuevaLista = _tickets.value.toMutableList().filterNot { it.id == id }
-                        Log.d(
-                            "TicketVM",
-                            " Tickets antes: ${_tickets.value.size}, después: ${nuevaLista.size}"
-                        )
+                        // Eliminación local del ticket
+                        val nuevaLista = _tickets.value.filterNot { it.id == id }
                         _tickets.value = nuevaLista
                     }
 
                     withContext(Dispatchers.Main) {
                         Toast.makeText(context, mensaje, Toast.LENGTH_SHORT).show()
                     }
+
                 } else {
-                    Log.e(
-                        "TicketVM",
-                        " Error HTTP al eliminar: ${response.code()} ${response.message()}"
-                    )
                     withContext(Dispatchers.Main) {
                         Toast.makeText(context, "No se pudo eliminar el ticket", Toast.LENGTH_SHORT)
                             .show()
                     }
                 }
+
             } catch (e: Exception) {
-                Log.e("TicketVM", " Excepción eliminando ticket: ${e.message}", e)
+                Log.e("TicketVM", "Excepción eliminando ticket: ${e.message}", e)
+
                 withContext(Dispatchers.Main) {
                     Toast.makeText(context, "Error al eliminar ticket", Toast.LENGTH_SHORT).show()
                 }
             }
         }
-
     }
 
+    /**
+     * Restablece el estado de la validación QR a nulo.
+     * Se usa para reiniciar la UI después de mostrar el resultado.
+     */
     fun resetearResultadoQR() {
         _resultadoQR.value = null
     }
 
     /**
-     * Recibe un código QR, lo envía al backend para validación y actualiza el estado del resultado.
-     * @param codigoQR El código QR a validar.
-     *
+     * Envía un código QR al backend para validar su autenticidad.
+     * Actualiza el StateFlow resultadoQR con el estado correspondiente.
      */
-
     fun validarQr(codigoQR: String) {
         viewModelScope.launch {
             try {
                 _resultadoQR.value = ResultadoQR.CARGANDO
+
                 val response = RetrofitClient.ticketApiService.validarCodigoQR(codigoQR)
                 Log.d("TicketVM", "Respuesta HTTP: $response")
 
-                // Suponiendo que la API devuelve un booleano (true = válido, false = no válido)
-                if (response.isSuccessful) { //200 ok
-                    val esValido: Boolean? = response.body() // <-- obtenemos el Boolean
-                    Log.d("TicketVM", "Cuerpo de respuesta: $esValido")
+                if (response.isSuccessful) {
+                    val esValido: Boolean? = response.body()
+
                     if (esValido == true) {
                         _resultadoQR.value = ResultadoQR.VALIDO
                     } else {
@@ -253,6 +266,7 @@ class TicketViewModel : ViewModel() {
                 } else {
                     _resultadoQR.value = ResultadoQR.ERROR
                 }
+
             } catch (e: Exception) {
                 Log.e("TicketVM", "Excepción validando QR: ${e.message}")
                 _resultadoQR.value = ResultadoQR.ERROR
@@ -260,12 +274,13 @@ class TicketViewModel : ViewModel() {
         }
     }
 }
-/*
-*  Enum para representar los posibles resultados de la validación de un código QR.
-* */
+
+/**
+ * Enum que representa los posibles estados del resultado en la validación de un código QR.
+ */
 enum class ResultadoQR {
-    CARGANDO, VALIDO, INVALIDO, ERROR
+    CARGANDO,
+    VALIDO,
+    INVALIDO,
+    ERROR
 }
-
-
-

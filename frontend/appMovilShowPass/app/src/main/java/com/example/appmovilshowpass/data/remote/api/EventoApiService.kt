@@ -31,30 +31,8 @@ interface EventoApiService {
     @GET("tfg/evento/findByCategoria/{categoria}")
     suspend fun findByCategoria(@Path("categoria") categoria: String): List<DTOeventoBajada>
 
-    @POST("/tfg/usuario/login")
-    suspend fun login(@Body request: Login): DTOusuarioLoginBajada
-
-    @POST("/tfg/usuario/register")
-    suspend fun register(@Body request: Register): DTOusuarioBajada
-
-    @POST("/tfg/usuario/update/{id}")
-    suspend fun updateUser(@Body usuario: DTOusuarioModificarSubida, @Path("id") id: Long): DTOusuarioBajada
-
-    @PUT("tfg/usuario/reportar")
-    suspend fun reportUser(@Query("email") email: String): DTOUsuarioReportado
-
-    @GET("tfg/usuario/findByEmail")
-    suspend fun findUserByEmail(@Query("email") email: String): DTOUsuarioReportado
-
-    @GET("tfg/usuario/findAllReportados")
-    suspend fun findAllReportados(): List<DTOUsuarioReportado>
-
     @DELETE("tfg/evento/delete/{id}")
     suspend fun deleteEvento(@Path("id") id: Long): Response<Unit>
-
-    @PUT("tfg/usuario/quitarReport")
-    suspend fun removeReport(@Query("email") email: String): DTOUsuarioReportado
-
 
     @POST("tfg/evento/insert/mobile")
     suspend fun crearEvento(@Body evento: DTOeventoSubida): DTOeventoBajada

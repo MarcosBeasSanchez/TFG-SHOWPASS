@@ -80,6 +80,33 @@ import com.example.appmovilshowpass.viewmodel.EventoViewModel
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
+/**
+ * Pantalla utilizada por los usuarios con rol de vendedor para crear un nuevo evento.
+ *
+ * Funcionalidad general:
+ * - Captura todos los datos necesarios para registrar un evento: nombre, localización,
+ *   descripción, precio, aforo, categoría, fecha de inicio y fin.
+ * - Permite seleccionar una imagen principal (portada) en formato Base64.
+ * - Permite seleccionar múltiples imágenes adicionales para el carrusel.
+ * - Permite añadir una lista variable de invitados, cada uno con su propia fotografía y descripción.
+ * - Valida los datos mínimos necesarios antes de enviar la información.
+ * - Envía el DTOeventoSubida al ViewModel para completar el proceso de alta del evento.
+ *
+ * Notas técnicas:
+ * - Utiliza ActivityResultContracts.GetContent y GetMultipleContents para seleccionar imágenes.
+ * - Todas las imágenes se convierten a Base64 antes de ser enviadas al backend.
+ * - La pantalla está diseñada con desplazamiento vertical mediante verticalScroll.
+ * - Utiliza SnackbarHost para mostrar mensajes de éxito o error de manera visible.
+ *
+ * Restricciones:
+ * - Para que el evento pueda crearse debe existir al menos una imagen de portada.
+ * - Los campos principales (nombre, descripción, precio, aforo) deben estar rellenos.
+ *
+ * Parámetros:
+ * authViewModel ViewModel que contiene información del usuario autenticado.
+ * navController NavController para regresar a la pantalla anterior al finalizar la creación.
+ * ventoViewModel ViewModel encargado de gestionar la creación del evento en el backend.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VendedorCrearEventoScreen(
@@ -89,9 +116,14 @@ fun VendedorCrearEventoScreen(
 ) {
     val context = LocalContext.current
     val vendedorId = authViewModel.currentUser?.id ?: return
+
+    // Controlador para mostrar Snackbar con mensajes de validación o éxito
     val snackbarHostState = remember { SnackbarHostState() }
+
+    // Alcance para ejecutar corrutinas relacionadas con el envío de datos
     val scope = rememberCoroutineScope()
 
+    // Estados de los campos del formulario
     var nombre by remember { mutableStateOf("") }
     var localizacion by remember { mutableStateOf("") }
     var descripcion by remember { mutableStateOf("") }
@@ -102,11 +134,18 @@ fun VendedorCrearEventoScreen(
     var inicioEvento by remember { mutableStateOf("") }
     var finEvento by remember { mutableStateOf("") }
 
+    // Imagen principal convertida en Base64
     var portadaBase64 by remember { mutableStateOf<String?>(null) }
 
+    // Listas dinámicas de imágenes del carrusel e invitados
     val carrusel = remember { mutableStateListOf<String>() }
     val invitados = remember { mutableStateListOf<DTOInvitadoSubida>() }
 
+    /**
+     * Selectores de imágenes:
+     * - pickPortada selecciona una única imagen para la portada.
+     * - pickCarrusel selecciona una o varias imágenes adicionales.
+     */
     val pickPortada =
         rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             uri?.let { portadaBase64 = imagenToBase64(context, it) }
@@ -121,8 +160,15 @@ fun VendedorCrearEventoScreen(
         topBar = { CenterAlignedTopAppBar(title = { Text("Crear Evento") }) },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
+
+        /**
+         * Contenido principal de la pantalla.
+         * Todo se organiza en una columna con desplazamiento vertical para permitir
+         * que la pantalla sea accesible incluso cuando contiene muchos campos.
+         */
         Column(
-            Modifier.padding(padding)
+            Modifier
+                .padding(padding)
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
@@ -130,9 +176,14 @@ fun VendedorCrearEventoScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            //  Portada bonita igual que en EditarEvento
+            /**
+             * Sección: Imagen de portada del evento.
+             * Muestra una previsualización si ya se ha seleccionado una imagen.
+             */
             Card(
-                Modifier.fillMaxWidth().height(210.dp),
+                Modifier
+                    .fillMaxWidth()
+                    .height(210.dp),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 if (portadaBase64 != null) {
@@ -146,7 +197,7 @@ fun VendedorCrearEventoScreen(
                     )
                 } else {
                     Box(Modifier.fillMaxSize(), Alignment.Center) {
-                        Icon(Icons.Default.PhotoCamera, null, tint = Color.Gray)
+                        Icon(Icons.Default.PhotoCamera, contentDescription = null, tint = Color.Gray)
                     }
                 }
             }
@@ -155,12 +206,15 @@ fun VendedorCrearEventoScreen(
                 onClick = { pickPortada.launch("image/*") },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Icon(Icons.Default.Image, null)
+                Icon(Icons.Default.Image, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
                 Text("Seleccionar Imagen Principal")
             }
 
-            //  Campos
+            /**
+             * Sección: Información básica del evento.
+             * Incluye campos como nombre, localización, descripción, precio y aforo máximo.
+             */
             FieldSection("Información del Evento") {
                 LabeledInput(nombre, { nombre = it }, "Nombre", Icons.Default.Event)
                 LabeledInput(localizacion, { localizacion = it }, "Localización", Icons.Default.Place)
@@ -169,9 +223,17 @@ fun VendedorCrearEventoScreen(
                 LabeledInput(aforoTxt, { aforoTxt = it }, "Aforo Máximo", Icons.Default.People)
             }
 
+            /**
+             * Sección: Categoría.
+             * Utiliza un componente desplegable para seleccionar entre las categorías enumeradas.
+             */
             SectionTitle("Categoría")
             DropdownMenuCategoria(categoria) { categoria = it }
 
+            /**
+             * Sección: Fechas del evento.
+             * Cada campo abre un selector combinado de fecha y hora.
+             */
             FieldSection("Fecha y Hora") {
                 DateTimeInput("Inicio", formatearFechayHora(inicioEvento)) {
                     showDateTimePicker(context) { inicioEvento = it }
@@ -181,16 +243,18 @@ fun VendedorCrearEventoScreen(
                 }
             }
 
-            // Carrusel igual con preview como Editar
+            /**
+             * Sección: Imágenes del carrusel.
+             * Permite añadir múltiples imágenes mostrando una vista previa de cada una.
+             */
             FieldSection("Carrusel de imágenes") {
+
                 var imagenAEliminar by remember { mutableStateOf<String?>(null) }
 
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                     items(carrusel) { img ->
 
-                        Box(
-                            modifier = Modifier.size(110.dp)
-                        ) {
+                        Box(Modifier.size(110.dp)) {
 
                             Card(
                                 modifier = Modifier.fillMaxSize(),
@@ -206,6 +270,7 @@ fun VendedorCrearEventoScreen(
                                 )
                             }
 
+                            // Botón para eliminar esta imagen del carrusel
                             IconButton(
                                 onClick = { imagenAEliminar = img },
                                 modifier = Modifier
@@ -213,11 +278,15 @@ fun VendedorCrearEventoScreen(
                                     .background(Color.Black.copy(alpha = 0.4f), RoundedCornerShape(50))
                                     .size(26.dp)
                             ) {
-                                Icon(Icons.Default.Close, null, tint = Color.White, modifier = Modifier.size(16.dp))
+                                Icon(Icons.Default.Close, contentDescription = null, tint = Color.White)
                             }
                         }
                     }
                 }
+
+                /**
+                 * Diálogo de confirmación para eliminar una imagen del carrusel.
+                 */
                 if (imagenAEliminar != null) {
                     AlertDialog(
                         onDismissRequest = { imagenAEliminar = null },
@@ -235,19 +304,29 @@ fun VendedorCrearEventoScreen(
                     )
                 }
 
-                OutlinedButton({ pickCarrusel.launch("image/*") }, Modifier.fillMaxWidth()) {
-                    Icon(Icons.Default.AddPhotoAlternate, null)
+                OutlinedButton(
+                    onClick = { pickCarrusel.launch("image/*") },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(Icons.Default.AddPhotoAlternate, contentDescription = null)
                     Text("Añadir al Carrusel")
                 }
             }
 
-            //  Invitados estilo tarjeta igual EditarEvento
+            /**
+             * Sección de edición de invitados.
+             * Utiliza el mismo componente que la pantalla de edición de eventos.
+             */
             InvitadoEditorUIEdit(invitados)
 
+            /**
+             * Botón principal para crear el evento.
+             * Valida los campos principales antes de enviar los datos.
+             */
             Button(
                 onClick = {
                     if (nombre.isBlank() || portadaBase64 == null) {
-                        scope.launch { snackbarHostState.showSnackbar("❌ Rellena todo") }
+                        scope.launch { snackbarHostState.showSnackbar("Rellena todos los campos obligatorios") }
                         return@Button
                     }
 
@@ -268,7 +347,7 @@ fun VendedorCrearEventoScreen(
 
                     eventoViewModel.crearEvento(dto) {
                         scope.launch {
-                            snackbarHostState.showSnackbar("Evento creado")
+                            snackbarHostState.showSnackbar("Evento creado correctamente")
                             navController.popBackStack()
                         }
                     }
@@ -285,13 +364,22 @@ fun VendedorCrearEventoScreen(
 
 // Helpers visuales reutilizables
 
+/**
+ * Sección agrupada que muestra un título y un bloque de contenido relacionado.
+ * Utilizada para organizar visualmente los bloques de información del formulario.
+ */
 @Composable
 fun FieldSection(title: String, content: @Composable ColumnScope.() -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(title, fontWeight = FontWeight.Bold)
         content()
     }
-}
+}/**
+ * Muestra un selector de fecha y hora combinado.
+ * Primero abre un selector de fecha y, tras escogerla, un selector de hora.
+ *
+ * El valor final se devuelve en formato ISO estándar, compatible con el backend.
+ */
 fun showDateTimePicker(
     context: Context,
     onDateTimeSelected: (String) -> Unit
@@ -305,7 +393,7 @@ fun showDateTimePicker(
                 context,
                 { _, hour, min ->
                     val fechaHora = LocalDateTime.of(year, month + 1, day, hour, min)
-                    onDateTimeSelected(fechaHora.toString()) // formato ISO para backend
+                    onDateTimeSelected(fechaHora.toString())
                 },
                 calendar.get(Calendar.HOUR_OF_DAY),
                 calendar.get(Calendar.MINUTE),
@@ -314,10 +402,13 @@ fun showDateTimePicker(
         },
         calendar.get(Calendar.YEAR),
         calendar.get(Calendar.MONTH),
-        calendar.get(Calendar.DAY_OF_MONTH),
+        calendar.get(Calendar.DAY_OF_MONTH)
     ).show()
 }
 
+/**
+ * Menú desplegable que permite seleccionar la categoría del evento.
+ */
 @Composable
 fun DropdownMenuCategoria(
     categoriaActual: Categoria,
@@ -343,20 +434,28 @@ fun DropdownMenuCategoria(
         }
     }
 }
+/**
+ * Campo de texto con etiqueta e icono asociado.
+ * Simplifica la creación de campos repetitivos del formulario.
+ */
 @Composable
 fun LabeledInput(value: String, onValueChange: (String) -> Unit, label: String, icon: ImageVector) {
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
         label = { Text(label) },
-        leadingIcon = { Icon(icon, null) },
+        leadingIcon = { Icon(icon, contentDescription = null) },
         modifier = Modifier.fillMaxWidth()
     )
 }
 
+/**
+ * Título de sección visual con formato más destacado.
+ */
 @Composable
 fun SectionTitle(text: String) {
-    Text(text,
+    Text(
+        text,
         modifier = Modifier.fillMaxWidth(),
         fontWeight = FontWeight.Bold,
         fontSize = 18.sp,
@@ -364,10 +463,13 @@ fun SectionTitle(text: String) {
     )
 }
 
+/**
+ * Botón que muestra un valor de fecha y hora y desencadena un selector al pulsarse.
+ */
 @Composable
 fun DateTimeInput(text: String, value: String, onClick: () -> Unit) {
     OutlinedButton(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
-        Icon(Icons.Default.CalendarMonth, null)
+        Icon(Icons.Default.CalendarMonth, contentDescription = null)
         Spacer(Modifier.width(6.dp))
         Text(if (value.isEmpty()) text else "$text: $value")
     }

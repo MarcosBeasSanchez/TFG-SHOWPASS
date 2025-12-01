@@ -22,20 +22,32 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
+/**
+ * ViewModel responsable de gestionar el estado de autenticación del usuario.
+ * Controla el inicio de sesión, registro, actualización del perfil, carga de fotos,
+ * persistencia de sesión mediante DataStore y auto-login.
+ */
 class AuthViewModel : ViewModel() {
 
-    // Estado observable desde Compose
+    // Usuario actualmente autenticado. Es observado desde Compose.
     var currentUser by mutableStateOf<Usuario?>(null)
         private set
 
+    // Indica si hay una operación en curso (login, auto-login, actualización...).
     var loading by mutableStateOf(false)
         private set
 
+    // Se activa cuando se ha comprobado la sesión persistente en autoLogin().
     var isSessionChecked by mutableStateOf(false)
         private set
 
+    // Mensaje de error para mostrar en la interfaz cuando falle alguna operación.
     var error by mutableStateOf<String?>(null)
 
+    /**
+     * Guarda el token de autenticación en DataStore.
+     * Se utiliza tras un login exitoso para mantener la sesión activa.
+     */
     private fun saveToken(context: Context, token: String) {
         viewModelScope.launch {
             context.dataStore.edit { prefs ->
@@ -44,12 +56,20 @@ class AuthViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Recupera el token guardado en DataStore.
+     * Se usa principalmente en autoLogin para validar la sesión.
+     */
     private suspend fun getToken(context: Context): String? {
         return context.dataStore.data
             .map { prefs -> prefs[UserPreferencesKeys.USER_TOKEN] }
             .firstOrNull()
     }
 
+    /**
+     * Borra todos los datos de sesión y foto guardados.
+     * Se usa en logout y también cuando el token es inválido o expirado.
+     */
     private fun clearSession(context: Context) {
         viewModelScope.launch {
             context.dataStore.edit { prefs ->
@@ -60,6 +80,10 @@ class AuthViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Cierra la sesión del usuario manualmente.
+     * Elimina token y foto almacenados en DataStore.
+     */
     fun logout(context: Context) {
         viewModelScope.launch {
             context.dataStore.edit { prefs ->
@@ -70,6 +94,11 @@ class AuthViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Realiza el inicio de sesión utilizando el backend.
+     * Recibe email y contraseña, guarda el token si es válido
+     * y actualiza currentUser con los datos recibidos.
+     */
     fun login(
         context: Context,
         email: String,
@@ -78,44 +107,44 @@ class AuthViewModel : ViewModel() {
     ) {
         loading = true
         error = null
+
         viewModelScope.launch {
             try {
-                val dto: DTOusuarioLoginBajada =
-                    RetrofitClient.usuarioApiService.login(Login(email, password))
+                val dto = RetrofitClient.usuarioApiService.login(Login(email, password))
+
+                // El backend indica si la operación fue exitosa mediante exito.
                 if (!dto.exito) {
-                    Log.d("Login", "Error de login: ${dto.mensaje}")
                     throw Exception(dto.mensaje)
-                } else {
-                    Log.d("Login", "Login: ${dto.mensaje}")
-                    Log.d("Usuario", "Usuario: ${dto.dtousuarioBajada}")
-
-                    //Guardamos token
-                    if (dto.token.isNotEmpty()) {
-                        saveToken(context, dto.token)
-                    }
-
-                    var user = dto.dtousuarioBajada?.toUsuario()
-
-                    // 🔹 Recuperamos la foto guardada si el backend no envió nada
-                    val fotoGuardada = context.dataStore.data
-                        .map { prefs -> prefs[UserPreferencesKeys.USER_PHOTO] }
-                        .firstOrNull()
-
-                    if (user != null) {
-                        if (user.foto.isEmpty() && !fotoGuardada.isNullOrEmpty()) {
-                            user = user.copy(foto = fotoGuardada)
-                        }
-
-                        // Guardamos la foto (si existe) en DataStore
-                        if (user.foto.isNotEmpty()) {
-                            saveUserPhoto(context, user.foto)
-                        }
-                    }
-
-                    currentUser = user
-                    loading = false
-                    onComplete(true)
                 }
+
+                // Si el backend devuelve token, se guarda.
+                if (dto.token.isNotEmpty()) {
+                    saveToken(context, dto.token)
+                }
+
+                // Convertimos DTO -> modelo Usuario.
+                var user = dto.dtousuarioBajada?.toUsuario()
+
+                // Si la foto no viene desde el backend, intentamos recuperar la guardada localmente.
+                val fotoGuardada = context.dataStore.data
+                    .map { prefs -> prefs[UserPreferencesKeys.USER_PHOTO] }
+                    .firstOrNull()
+
+                if (user != null) {
+                    if (user.foto.isEmpty() && !fotoGuardada.isNullOrEmpty()) {
+                        user = user.copy(foto = fotoGuardada)
+                    }
+
+                    // Guardamos la foto si existe.
+                    if (user.foto.isNotEmpty()) {
+                        saveUserPhoto(context, user.foto)
+                    }
+                }
+
+                currentUser = user
+                loading = false
+                onComplete(true)
+
             } catch (e: Exception) {
                 error = e.message ?: "Error de conexión"
                 loading = false
@@ -124,6 +153,10 @@ class AuthViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Registra un nuevo usuario.
+     * Tras el registro marca currentUser con los datos devueltos por el backend.
+     */
     fun register(
         nombre: String,
         email: String,
@@ -134,10 +167,10 @@ class AuthViewModel : ViewModel() {
     ) {
         loading = true
         error = null
+
         viewModelScope.launch {
             try {
-                Log.d("Registro", "Registro: $nombre, $email, $password, $fechaNacimiento, $rol")
-                val dto: DTOusuarioBajada = RetrofitClient.eventoApiService.register(
+                val dto = RetrofitClient.usuarioApiService.register(
                     Register(
                         nombre,
                         email,
@@ -146,11 +179,14 @@ class AuthViewModel : ViewModel() {
                         rol
                     )
                 )
-                currentUser = dto.toUsuario() //parseo dto a usuario
+
+                // Convertimos DTO -> Usuario.
+                currentUser = dto.toUsuario()
+
                 loading = false
                 onComplete(true)
+
             } catch (e: Exception) {
-                Log.e("Registro", "Error en register", e)
                 error = e.message ?: "Error de conexión"
                 loading = false
                 onComplete(false)
@@ -158,15 +194,17 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-
-
-
+    /**
+     * Actualiza los datos del usuario en el backend.
+     * Envía un DTO con los campos modificados y luego actualiza el estado local del ViewModel.
+     */
     fun updateUser(context: Context, usuario: Usuario, onComplete: (Boolean) -> Unit = {}) {
         loading = true
         error = null
+
         viewModelScope.launch {
             try {
-                // Convertimos Usuario -> DTOusuarioUpdate
+                // Usuario -> DTO para la API.
                 val dto = DTOusuarioModificarSubida(
                     nombre = usuario.nombre,
                     email = usuario.email,
@@ -177,21 +215,21 @@ class AuthViewModel : ViewModel() {
                     cuenta = usuario.cuenta?.toDTOsubida(),
                 )
 
-                // Llamamos al endpoint
-                val updatedDto = RetrofitClient.eventoApiService.updateUser(dto, usuario.id)
+                // Enviamos los datos al backend.
+                val updatedDto = RetrofitClient.usuarioApiService.updateUser(dto, usuario.id)
 
-                // Actualizamos usuario en ViewModel
+                // Actualizamos el usuario en el ViewModel.
                 currentUser = updatedDto.toUsuario()
 
-                // Guardamos la foto en DataStore
+                // Guardamos la foto en DataStore si existe.
                 currentUser?.foto?.let { foto ->
                     saveUserPhoto(context, foto)
                 }
 
                 loading = false
                 onComplete(true)
+
             } catch (e: Exception) {
-                Log.e("UpdateUser", "Error en updateUser", e)
                 error = e.message ?: "Error de conexión"
                 loading = false
                 onComplete(false)
@@ -200,11 +238,12 @@ class AuthViewModel : ViewModel() {
     }
 
     /**
-     * Recupera el objeto Usuario completo y actualizado desde el backend.
-     * Utiliza el ID del usuario actualmente almacenado en currentUser.
+     * Descarga del backend el usuario actualmente logueado usando su ID.
+     * Se utiliza para refrescar el perfil cuando ha podido cambiar en el servidor.
      */
     fun fetchLoggedInUser(context: Context, onComplete: (Boolean) -> Unit = {}) {
-        val userId = currentUser?.id // Obtener el ID del usuario actual
+
+        val userId = currentUser?.id
         if (userId == null) {
             error = "No hay usuario logueado para actualizar."
             onComplete(false)
@@ -213,28 +252,22 @@ class AuthViewModel : ViewModel() {
 
         loading = true
         error = null
+
         viewModelScope.launch {
             try {
-                // Llamar al endpoint para obtener los datos del usuario por ID
-                val updatedDto: DTOusuarioBajada =
-                    RetrofitClient.usuarioApiService.getUserById(userId)
-
-                // Convertir y actualizar el estado
+                val updatedDto = RetrofitClient.usuarioApiService.getUserById(userId)
                 val updatedUser = updatedDto.toUsuario()
 
-                // Actualizamos la foto en DataStore y en el estado si es necesario
-                updatedUser.foto.let { foto ->
-                    if (foto.isNotEmpty()) {
-                        saveUserPhoto(context, foto)
-                    }
+                // Se guarda la foto en DataStore para mantenerla persistente.
+                if (updatedUser.foto.isNotEmpty()) {
+                    saveUserPhoto(context, updatedUser.foto)
                 }
 
-                currentUser = updatedUser // ⭐️ ESTO REFLEJA LOS CAMBIOS EN LA UI
-
+                currentUser = updatedUser
                 loading = false
                 onComplete(true)
+
             } catch (e: Exception) {
-                Log.e("FetchUser", "Error al cargar el usuario por ID", e)
                 error = "Error al recargar el perfil: ${e.message ?: "Conexión fallida"}"
                 loading = false
                 onComplete(false)
@@ -242,6 +275,9 @@ class AuthViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Guarda la URL o Base64 de una foto en DataStore.
+     */
     fun saveUserPhoto(context: Context, fotoUrl: String) {
         viewModelScope.launch {
             context.dataStore.edit { prefs ->
@@ -250,6 +286,10 @@ class AuthViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Carga la foto almacenada en DataStore y la aplica al usuario actualmente logueado.
+     * Esto evita depender únicamente del backend para la imagen del usuario.
+     */
     fun loadUserPhoto(context: Context) {
         viewModelScope.launch {
             val fotoUrl = context.dataStore.data
@@ -262,26 +302,32 @@ class AuthViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Comprueba si existe un token guardado e intenta validar la sesión con el backend.
+     * Equivalente a mantener la sesión abierta entre reinicios de la aplicación.
+     */
     fun autoLogin(context: Context) {
         viewModelScope.launch {
             loading = true
+
             try {
                 val token = getToken(context)
 
                 if (token.isNullOrEmpty()) {
-                    // No hay token guardado -> usuario deslogueado
+                    // No hay token, así que no hay sesión activa.
                     currentUser = null
                 } else {
-                    // Llamamos al backend igual que en la web
+                    // Validamos el token enviándolo al backend.
                     val response = RetrofitClient.usuarioApiService.getPerfil("Bearer $token")
 
                     when {
                         response.isSuccessful -> {
                             val dto = response.body()
+
                             if (dto != null) {
                                 var user = dto.toUsuario()
 
-                                // Recuperar foto guardada si el backend no la manda
+                                // Recuperamos foto local si el backend no la devuelve.
                                 val fotoGuardada = context.dataStore.data
                                     .map { prefs -> prefs[UserPreferencesKeys.USER_PHOTO] }
                                     .firstOrNull()
@@ -295,32 +341,27 @@ class AuthViewModel : ViewModel() {
                                 }
 
                                 currentUser = user
-                                Log.d("AutoLogin", "Sesión persistente activa para ${user.email}")
                             } else {
                                 currentUser = null
                             }
                         }
 
+                        // Token expirado o inválido.
                         response.code() == 401 -> {
-                            // Token expirado / inválido
-                            Log.d("AutoLogin", "Token inválido o expirado. Logout.")
                             clearSession(context)
                         }
 
                         else -> {
-                            Log.e("AutoLogin", "Error al validar sesión: ${response.code()}")
                             clearSession(context)
                         }
                     }
                 }
+
             } catch (e: Exception) {
-                Log.e("AutoLogin", "Error de red al validar sesión", e)
             } finally {
                 loading = false
-                isSessionChecked = true  // ya hemos terminado de comprobar
+                isSessionChecked = true
             }
         }
     }
-
-
 }
