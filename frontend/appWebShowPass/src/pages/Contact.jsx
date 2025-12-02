@@ -1,14 +1,26 @@
 import datosDesarrolladores from "../config/datosDesarrolladores";
 
+/**
+ * Componente de la página de contacto.
+ * Muestra un mapa de ubicación y la información de los desarrolladores.
+ */
 export default function Contact() {
-    // Extraer los desarrolladores en un array
+// ----------------------------------------------------
+// 1. OBTENCIÓN DE DATOS
+// ----------------------------------------------------
+
+    // Extrae los objetos de los desarrolladores (Marcos y Dylan) en un array para poder mapearlos en el JSX.
     const devs = [datosDesarrolladores.marcos, datosDesarrolladores.dylan];
 
+// ----------------------------------------------------
+// 2. RENDERIZADO DEL COMPONENTE
+// ----------------------------------------------------
     return (
         <section className="">
             <div className="w-full p-6 sm:p-8 text-gray-900 shadow-lg rounded-lg">
                 <h1 className="text-3xl font-bold mb-6 text-center oscuroTextoGris">Contáctanos</h1>
 
+                {/* Contenedor del mapa */}
                 <div className="w-full flex justify-center mt-8">
                     <iframe
                         src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d6076.256045189071!2d-3.6002503999999997!3d40.4060146!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd42255d3a247575%3A0xd8a0a40edf810cff!2sIES%20Villablanca!5e0!3m2!1ses!2ses!4v1756133631395!5m2!1ses!2ses"
@@ -23,6 +35,7 @@ export default function Contact() {
                     ></iframe>
                 </div>
 
+                {/* Lista de desarrolladores */}
                 <ul className="flex flex-row gap-10 md:gap-20 justify-center items-center w-full my-10 ">
                     {devs.map((dev, idx) => (
                         <li key={idx} className="flex flex-col items-center bg-gray-100/80 backdrop-blur-md p-4 rounded-lg flex-1 max-w-xs oscuro">
@@ -49,6 +62,7 @@ export default function Contact() {
                 </ul>
             </div>
 
+            {/* Sección de contacto */}
             <div className="w-full p-8  bg-blue-400/80 backdrop-blur-md text-white-900 shadow-lg rounded-lg ">
                 <h2 className="text-2xl font-bold mb-4 text-center">¿Tienes alguna pregunta?</h2>
                 <p className="text-black text-center">

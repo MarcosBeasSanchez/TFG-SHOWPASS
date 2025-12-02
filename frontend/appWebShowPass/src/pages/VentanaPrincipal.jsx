@@ -1,33 +1,68 @@
-import { set } from "@cloudinary/url-gen/actions/variable";
 import { useEffect, useState } from "react";
 import config from "../config/config";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 
-export default function VentanaPrincipal() {
-  const [entradas, setEntradas] = useState([]);
-  const [entradasAleatorias, setEntradasAleatorias] = useState([]);
-  const [busqueda, setBusqueda] = useState("");
-  const location = useLocation();
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
 
+//---------------
+// Componente Principal: VentanaPrincipal
+//-------------
+
+/**
+ * Componente principal de la página de inicio que muestra el buscador
+ * y una lista aleatoria de eventos disponibles.
+ */
+export default function VentanaPrincipal() {
+  // Estado para almacenar todos los eventos (entradas) cargados.
+  const [entradas, setEntradas] = useState([]);
+  // Estado para almacenar los eventos mezclados (aleatorios) para la visualización.
+  const [entradasAleatorias, setEntradasAleatorias] = useState([]);
+  // Estado para el texto introducido en la barra de búsqueda.
+  const [busqueda, setBusqueda] = useState("");
+  // Hook para acceder al objeto de localización de React Router (info de la URL actual).
+  const location = useLocation();
+  // Hook para la navegación programática.
+  const navigate = useNavigate();
+  // Estado para controlar el estado de carga de los eventos.
+  const [loading, setLoading] = useState(true);
+  // Determina si se debe mostrar el buscador (no se muestra en /login o /register).
   const mostrarBuscador = !["/login", "/register"].includes(location.pathname);
 
-  // Función para redirigir al hacer Enter en el input
+
+//---------------
+// Seccion: Funciones de Búsqueda y Navegación
+//-------------
+  /**
+   * Redirige a la página de resultados de búsqueda al presionar la tecla "Enter"
+   * si el campo de búsqueda no está vacío.
+   * @param {Event} e - Evento de teclado.
+   */
   const handleInputKeyDown = (e) => {
     if (e.key === "Enter" && busqueda.trim()) {
       navigate(`/busqueda?query=${encodeURIComponent(busqueda.trim())}`);
     }
   };
 
-  // Función para redirigir al hacer click en el icono de búsqueda
+ /**
+   * Redirige a la página de resultados de búsqueda al hacer clic en el icono de búsqueda.
+   */
   const handleSearchClick = () => {
     if (busqueda.trim()) {
+      // Redirigir a la página de búsqueda con el término de búsqueda
       navigate(`/busqueda?query=${encodeURIComponent(busqueda.trim())}`);
     }
   };
 
-  // Función para detectar si la imagen es URL o Base64
+
+//---------------
+// Seccion: Funciones de Utilidad (Imágenes)
+//-------------
+
+  /**
+   * Devuelve la fuente (src) correcta para mostrar una imagen.
+   * Maneja Base64, URLs externas y rutas relativas del backend.
+   * @param {string} img - La URL o cadena Base64 de la imagen.
+   * @returns {string|null} - La fuente de la imagen.
+   */
   const getImageSrc = (img) => {
     if (!img) return null; // si no hay imagen, devolvemos vacío
     if (img.startsWith("data:image/")) return img; // ya es Base64 con prefijo → no hacer nada
@@ -35,8 +70,12 @@ export default function VentanaPrincipal() {
     if (img.startsWith("/uploads/")) return `${config.apiBaseUrl}${img}`; // es ruta relativa del backend
     return `data:image/png;base64,${img}`; // es Base64 crudo → agregamos el prefijo necesario
   };
+  
+//---------------
+// Seccion: useEffect - Carga de Eventos
+//-------------
 
-  // Cargar eventos desde el backend
+  // Cargar eventos desde el backend al montar el componente.
   useEffect(() => {
     const fetchEventos = async () => {
       try {
@@ -52,25 +91,33 @@ export default function VentanaPrincipal() {
         setLoading(false);
       }
     };
-    fetchEventos();
-  }, []);
+    fetchEventos();// Llamada a la función para cargar los eventos.
+  }, []); // El array vacío asegura que esto solo se ejecute una vez al montar el componente.
 
+//---------------
+// Seccion: Renderizado del Componente
+//-------------
+  // Separar el primer evento del resto para destacarlo.
   const primerEvento = entradasAleatorias[0];
+  // El resto de eventos
   const restoEventos = entradasAleatorias.slice(1);
 
+  
   // Obtener usuario desde localStorage para depuración
-  const userFromStorage = localStorage.getItem("user")
-    ? JSON.parse(localStorage.getItem("user"))
-    : null;
-
+  const userFromStorage = localStorage.getItem("user")? JSON.parse(localStorage.getItem("user")): null;
   console.log("Usuario desde localStorage:", userFromStorage);
 
+  // Muestra un mensaje de carga mientras se obtienen los datos.
   if (loading) {
     return <p className="text-center mt-10 text-gray-500">Cargando eventos...</p>;
   }
 
+//---------------
+// Seccion: Renderizado del Componente
+//-------------
   return (
     <div>
+      {/* Barra de Búsqueda Condicional */}
       {mostrarBuscador && (
         <div className="flex justify-center items-center bg-gray-800 p-4">
           <div className="flex items-center gap-4 w-full max-w-3xl bg-gray-700 rounded-md px-2">
@@ -92,7 +139,11 @@ export default function VentanaPrincipal() {
           </div>
         </div>
       )}
+
+      {/* Contenedor Principal de Eventos */}
       <div className="max-w-7/8 mx-auto ">
+
+      {/* Renderizado del Evento Destacado (el primero de la lista aleatoria) */}
         {primerEvento && (
           <div className="grid place-items-center p-5 sm:p-10 ">
             <h1 className="text-2xl font-bold mb-4 text-gray-600 oscuroTextoGris">PRÓXIMOS EVENTOS</h1>
@@ -145,7 +196,9 @@ export default function VentanaPrincipal() {
           </div>
         )}
       </div>
-      {/* Mostrar resto de eventos */}
+
+      
+     {/* Cuadrícula de Eventos Restantes */}
       <div className=" max-w-7/8 mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-5 p-5 sm:p-10 ">
         {restoEventos.map((entrada) => (
           <div key={entrada.id} className="claro oscuro shadow-lg overflow-hidden hover:scale-101 transition transform group h-full ">

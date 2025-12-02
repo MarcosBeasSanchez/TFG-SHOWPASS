@@ -1,24 +1,48 @@
+// Importa el hook useState de React para manejar el estado de los campos del formulario.
 import { useState } from "react";
 
+
+/**
+ * Componente de formulario de autenticación reutilizable.
+ * * @param {object} props - Propiedades del componente.
+ * @param {string} props.type - Define el modo del formulario ('login' o 'register').
+ * @param {function} props.onSubmit - Función callback que se ejecuta al enviar el formulario con los datos.
+ */
 export default function AuthForm({ type, onSubmit }) {
+
+// ----------------------------------------------------
+// 1. ESTADO DEL FORMULARIO
+// ----------------------------------------------------
+
+  // Campos comunes a ambos formularios
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  // Campos exclusivos del registro
   const [nombre, setName] = useState("");
   const [fechaNacimiento, setBirthDate] = useState("");
   const [rol, setRol] = useState(); // valor por defecto
 
+// ----------------------------------------------------
+// 2. MANEJADOR DE ENVÍO
+// ----------------------------------------------------
   const handleSubmit = (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Previene el comportamiento por defecto de recarga del formulario HTML
+
+    // ('register' o 'login')
     if (type === "register") {
       onSubmit({ nombre, email, password, fechaNacimiento, rol });
     } else {
       onSubmit({ email, password });
     }
   };
-
+// ----------------------------------------------------
+// 3. RENDERIZADO DEL FORMULARIO
+// ----------------------------------------------------
   return (
     <div className="flex flex-col items-center justify-center min-h-screen min-w-full p-5">
 
+      {/* BIENVENIDA */}
       <h1 className="text-3xl font-bold text-center text-blue-950 mb-10 oscuroTextoGris">
         {type === "register" ? "¡BIENVENIDO!" : "¡HOLA DE NUEVO!"}
       </h1>
@@ -32,7 +56,7 @@ export default function AuthForm({ type, onSubmit }) {
           {type === "register" ? "CREAR CUENTA" : "INICIAR SESIÓN"}
         </h2>
 
-        {/* Nombre */}
+        {/* NOMBRE */}
         {type === "register" && (
           <input
             type="text"
@@ -44,7 +68,7 @@ export default function AuthForm({ type, onSubmit }) {
           />
 
         )}
-        {/* email */}
+        {/* EMAIL */}
         <input
           type="email"
           placeholder="Correo electrónico"
@@ -53,7 +77,7 @@ export default function AuthForm({ type, onSubmit }) {
           className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 placeholder-gray-400 text-gray-500"
           required
         />
-        {/* contraseña */}
+        {/* CONTRASEÑA */}
         <input
           type="password"
           placeholder="Contraseña"
@@ -62,10 +86,9 @@ export default function AuthForm({ type, onSubmit }) {
           className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:border-blue-300 placeholder-gray-400 text-gray-500"
           required
         />
-        {/* Fecha de nacimiento */}
+        {/* FECHA DE NACIMIENTO */}
         {type === "register" && (
           <> 
-            {/* Fecha de nacimiento */}
             <input
               type="date"
               value={fechaNacimiento}
@@ -74,7 +97,7 @@ export default function AuthForm({ type, onSubmit }) {
               required
             />
 
-            {/* Rol */}
+            {/* ROL */}
             <select
               value={rol}
               onChange={(e) => setRol(e.target.value)}
@@ -86,7 +109,8 @@ export default function AuthForm({ type, onSubmit }) {
             </select>
           </>
         )}
-
+        
+        {/* BOTÓN DE ENVÍO */}
         <button
           type="submit"
           className="w-50 mx-auto mt-5 block bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition "

@@ -1,13 +1,29 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import config from "../config/config";
 
+
+// Obtiene el ID del usuario actual del localStorage.
 const usuarioId = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")).id : null;
 
+/**
+ * Componente principal para la edición de eventos.
+ * Permite a un vendedor seleccionar y modificar los detalles de sus eventos creados.
+ */
 const EditEventSection = () => {
+
+//---------------------------
+// Estados del componente
+//---------------------------
+
+    // Estado para almacenar la lista de eventos que el vendedor ha creado.
     const [events, setEvents] = useState([]);
+    // Estado para controlar si los datos de los eventos están cargando.
     const [loading, setLoading] = useState(true);
+    // Estado para guardar el ID del evento seleccionado en el dropdown.
     const [selectedEventId, setSelectedEventId] = useState("");
+    // Estado para mostrar mensajes de retroalimentación (éxito/error) al usuario.
     const [message, setMessage] = useState("");
+    // Estado que contiene todos los datos del formulario para el evento seleccionado.
     const [formData, setFormData] = useState({
         nombre: "",
         localizacion: "",
@@ -23,60 +39,41 @@ const EditEventSection = () => {
         vendedorId: ""
     });
 
+   // Hook useEffect para cargar los eventos al montar el componente.
     useEffect(() => {
-        fetchEventos();
+        fetchEventos(); // Llama a la función para obtener los eventos del vendedor.
     }, []);
 
-    const getImageSrc = (img) => {
-        if (!img) return ""; // si no hay imagen, devolvemos vacío
-        if (img instanceof File) return URL.createObjectURL(img); // Nuevo archivo
-        if (img.startsWith("data:image/")) return img; // ya es Base64 con prefijo → no hacer nada
-        if (img.startsWith("http://") || img.startsWith("https://")) return img; // es URL externa → usar tal cual
-        if (img.startsWith("/uploads/")) return `${config.apiBaseUrl}${img}`; // es ruta relativa del backend
-        return `data:image/png;base64,${img}`; // es Base64 crudo → agregamos el prefijo necesario
-    };
 
-    /**
-   * Convierte un objeto File a una cadena Base64 (data:image/...).
-   * Devuelve una Promise que resuelve la cadena Base64 o la cadena original si no es un File.
-   */
-    const fileToBase64 = (file) => {
-        return new Promise((resolve, reject) => {
-            if (!file || !(file instanceof File)) {
-                // Si ya es una URL/Base64 string existente (o null), la devolvemos sin cambios.
-                resolve(file);
-                return;
-            }
-            const reader = new FileReader();
-            // Usamos readAsDataURL para obtener el prefijo 'data:image/...' que el backend puede manejar.
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = (error) => reject(error);
-        });
-    };
-
-    // Función para obtener todos los eventos
+    // Función para obtener todos los eventos creados por el usuario vendedor.
     const fetchEventos = async () => {
-        setLoading(true);
-
+        setLoading(true); // Inicia el estado de carga
         try {
+            // Llama al endpoint para obtener los eventos del usuario actual.
             const res = await fetch(`${config.apiBaseUrl}/tfg/usuario/findAllEventosCreados/${usuarioId}`);
             if (!res.ok) throw new Error("Error al obtener eventos");
             const data = await res.json();
-            setEvents(data);
+            setEvents(data); // Actualiza el estado con los eventos obtenidos
             console.log("Eventos cargados:", data);
         } catch (err) {
             console.error(err);
-            setEvents([]);
+            setEvents([]); // En caso de error, establece una lista vacía
         } finally {
-            setLoading(false);
+            setLoading(false); // Finaliza el estado de carga
         }
     };
+
+//---------------------------
+// Fnciones de manejo de formulario
+//---------------------------
+
     // Manejar selección de evento
     const handleEventSelect = (e) => {
         const eventId = e.target.value;
-        setSelectedEventId(eventId);
+        setSelectedEventId(eventId);  // Actualiza el ID del evento seleccionado
+        // Busca el evento completo en el array 'events'.
         const event = events.find((evt) => String(evt.id) === eventId);
+        // Carga los datos del evento seleccionado en el estado del formulario (formData).
         if (event) {
             setFormData({
                 nombre: event.nombre || "",
@@ -95,14 +92,16 @@ const EditEventSection = () => {
             console.log("Evento seleccionado:", event);
         }
     };
-    // Manejar cambios en el formulario
+    // Manejar cambios en campos de texto y subidas de archivos (imagen principal/carrusel).
     const handleChange = (e) => {
         const { name, value, files } = e.target;
         if (files) {
+            // Si es la imagen principal, guarda el nuevo objeto File.
             if (name === "imagen") {
                 // Guarda el nuevo objeto File (esto sobreescribirá la URL anterior si existía)
                 setFormData((prev) => ({ ...prev, imagen: files[0] }));
-            } else if (name === "carrusels") {
+            } else if (name === "carrusels") { 
+                // Si es el carrusel, agrega los nuevos objetos File a la lista existente.
                 const newFiles = Array.from(files);
                 setFormData((prev) => ({
                     ...prev,
@@ -110,19 +109,23 @@ const EditEventSection = () => {
                 }));
             }
         } else {
+            // Maneja los cambios en campos de texto/número.
             setFormData((prev) => ({
                 ...prev,
                 [name]: value,
             }));
         }
     };
-    // Eliminar imagen del carrusel
+
+    // Eliminar una imagen del carrusel por su índice.
     const removeCarruselImage = (index) => {
         const nuevas = [...formData.carrusels];
         nuevas.splice(index, 1);
         setFormData((prev) => ({ ...prev, carrusels: nuevas }));
     };
+    
     // Agregar invitado
+    // Agregar un nuevo objeto de invitado al array.
     const agregarInvitado = () => {
         setFormData((prev) => ({
             ...prev,
@@ -132,13 +135,15 @@ const EditEventSection = () => {
             ],
         }));
     };
-    // Eliminar invitado
+
+    // Eliminar un invitado por su índice.
     const eliminarInvitado = (index) => {
         const nuevosInvitados = [...formData.invitados];
         nuevosInvitados.splice(index, 1);
         setFormData((prev) => ({ ...prev, invitados: nuevosInvitados }));
     };
 
+    /// Manejar cambios en los campos de un invitado específico.
     const handleInvitadoChange = (index, e) => {
         const { name, value, files } = e.target;
         const nuevosInvitados = [...formData.invitados];
@@ -162,6 +167,7 @@ const EditEventSection = () => {
         }
     };
 
+    // Función principal para enviar la actualización del evento.
     const updateEvento = async (e) => {
         e.preventDefault();
         if (!selectedEventId) {
@@ -171,7 +177,6 @@ const EditEventSection = () => {
 
         try {
             //  1. Conversión de Imágenes a Base64 (Asíncrona) 
-
             // 1a: Convierte File a Base64 o mantiene la URL existente
             const imagenBase64OUrl = await fileToBase64(formData.imagen);
             //convierte todos los archivos del carrusel
@@ -223,12 +228,54 @@ const EditEventSection = () => {
         }
     };
 
+//---------------------------
+// Funciones auxiliares para manejo de imágenes
+//---------------------------
+
+    /**
+     * Devuelve la fuente (src) correcta para mostrar una imagen en la etiqueta <img>.
+     * Maneja diferentes tipos: File, Base64 completo, URL externa, o ruta relativa del backend.
+     * @param {File|string} img - Objeto File o cadena de URL/Base64.
+     */
+    const getImageSrc = (img) => {
+        if (!img) return ""; // si no hay imagen, devolvemos vacío
+        if (img instanceof File) return URL.createObjectURL(img); // Nuevo archivo
+        if (img.startsWith("data:image/")) return img; // ya es Base64 con prefijo → no hacer nada
+        if (img.startsWith("http://") || img.startsWith("https://")) return img; // es URL externa → usar tal cual
+        if (img.startsWith("/uploads/")) return `${config.apiBaseUrl}${img}`; // es ruta relativa del backend
+        return `data:image/png;base64,${img}`; // es Base64 crudo → agregamos el prefijo necesario
+    };
+
+    /**
+     * Convierte un objeto File a una cadena Base64 (data:image/...).
+     * Es asíncrona y devuelve una Promise que resuelve la cadena Base64.
+     * Si no es un File, devuelve la cadena original (ej. una URL existente).
+     */
+    const fileToBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            if (!file || !(file instanceof File)) {
+                // Si ya es una URL/Base64 string existente (o null), la devolvemos sin cambios.
+                resolve(file);
+                return;
+            }
+            const reader = new FileReader();
+            // Usamos readAsDataURL para obtener el prefijo 'data:image/...' que el backend puede manejar.
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = (error) => reject(error);
+        });
+    };
+
+//---------------------------
+// Render del componente
+//---------------------------
     return (
         <div className="mt-4 text-gray-700">
             <h2 className="text-2xl font-bold oscuroTextoGris mb-6">
                 Editar Evento
             </h2>
 
+            {/* Selección de evento */}
             {loading ? (
                 <p className="text-gray-500">Cargando eventos...</p>
             ) : (
@@ -250,7 +297,8 @@ const EditEventSection = () => {
                     </select>
                 </div>
             )}
-
+            
+            {/* Formulario de edición del evento */}
             {selectedEventId && (
                 <form
                     onSubmit={updateEvento}

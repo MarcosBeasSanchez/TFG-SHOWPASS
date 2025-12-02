@@ -1,9 +1,17 @@
-import React, { useEffect, useState } from "react";
+// Importa hooks esenciales de React (useEffect, useState) y la configuración de la API.
+import  { useEffect, useState } from "react";
 import config from "../config/config";
 
+/**
+ * Componente funcional para el panel de administración de eventos.
+ * Permite listar y eliminar todos los eventos de la base de datos.
+ */
 const AdminEvents = () => {
+    // Estado para almacenar la lista de eventos obtenida de la API.
     const [eventos, setEventos] = useState([]);
+    // Estado booleano para indicar si los datos están siendo cargados.
     const [loading, setLoading] = useState(true);
+    // Estado 'formData': Mantiene la estructura de un evento completo.
     const [formData, setFormData] = useState({
         nombre: "",
         localizacion: "",
@@ -12,98 +20,54 @@ const AdminEvents = () => {
         descripcion: "",
         precio: "",
         categoria: "",
-        imagen: null,
-        carrusels: [],
-        invitados: []
+        imagen: null, // Archivo de la imagen principal
+        carrusels: [], // Array de archivos para el carrusel
+        invitados: [] // Array de datos anidados (objetos de invitado)
     });
+
+    // Estado para mostrar mensajes de éxito o error (p.ej., después de una eliminación).
     const [message, setMessage] = useState("");
 
+    //----------------------------------------------------
+    // 1. EFECTOS (Lifecycle)
+    // ----------------------------------------------------
+    // useEffect se ejecuta una sola vez al montar el componente (gracias al array de dependencias vacío []).
+    // Su propósito es cargar la lista inicial de eventos.
     useEffect(() => {
         fetchEventos();
     }, []);
 
+
+    /**
+     * Función asíncrona para obtener todos los eventos del backend.
+     */
     const fetchEventos = async () => {
-        setLoading(true);
+        setLoading(true); // Indica que la carga está en progreso
         try {
             const res = await fetch(`${config.apiBaseUrl}/tfg/evento/findAll`);
             if (!res.ok) throw new Error("Error al obtener eventos");
             const data = await res.json();
-            setEventos(data);
+            setEventos(data); // Actualiza el estado con la lista de eventos
         } catch (err) {
             console.error(err);
-            setEventos([]);
+            setEventos([]); // Limpia la lista en caso de error de conexión/API
         } finally {
-            setLoading(false);
+            setLoading(false); // Indica que la carga ha finalizado
         }
     };
-
-    const handleChange = (e) => {
-        const { name, value, files } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: files ? files[0] : value
-        }));
-    };
-
-    const handleCarruselChange = (e) => {
-        const files = Array.from(e.target.files);
-        setFormData((prev) => ({
-            ...prev,
-            carrusels: [...prev.carrusels, ...files]
-        }));
-    };
-
-    const removerImagenCarrusel = (index) => {
-        const nuevasImagenes = [...formData.carrusels];
-        nuevasImagenes.splice(index, 1);
-        setFormData((prev) => ({ ...prev, carrusels: nuevasImagenes }));
-    };
-
-    const handleInvitadoChange = (index, e) => {
-        const { name, value, files } = e.target;
-        const nuevosInvitados = [...formData.invitados];
-
-        if (files) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                nuevosInvitados[index] = {
-                    ...nuevosInvitados[index],
-                    [name]: reader.result
-                };
-                setFormData((prev) => ({ ...prev, invitados: nuevosInvitados }));
-            };
-            reader.readAsDataURL(files[0]);
-        } else {
-            nuevosInvitados[index] = {
-                ...nuevosInvitados[index],
-                [name]: value
-            };
-            setFormData((prev) => ({ ...prev, invitados: nuevosInvitados }));
-        }
-    };
-
-    const agregarInvitado = () => {
-        setFormData((prev) => ({
-            ...prev,
-            invitados: [...prev.invitados, { nombre: "", apellidos: "", fotoURL: null }]
-        }));
-    };
-
-    const removerInvitado = (index) => {
-        const nuevosInvitados = [...formData.invitados];
-        nuevosInvitados.splice(index, 1);
-        setFormData((prev) => ({ ...prev, invitados: nuevosInvitados }));
-    };
-
-
+    
+    /**
+     * Función asíncrona para eliminar un evento por su ID (CRUD: DELETE).
+     * @param {number} id - El ID del evento a eliminar.
+     */
     const eliminarEvento = async (id) => {
-        setMessage("");
+        setMessage(""); // Limpia mensajes previos
         try {
             const res = await fetch(`${config.apiBaseUrl}/tfg/evento/delete/${id}`, {
                 method: "DELETE"
             });
             if (!res.ok) throw new Error("Error al eliminar evento");
-            setMessage("✅ Evento eliminado correctamente");
+            setMessage("✅ Evento eliminado correctamente"); 
             fetchEventos();
         } catch (err) {
             console.error(err);
@@ -111,12 +75,16 @@ const AdminEvents = () => {
         }
     };
 
+    // ----------------------------------------------------
+    // 2. RENDERIZADO (JSX)
+    // ----------------------------------------------------
     return (
         <div className="mt-4 px-2 md:px-0 text-gray-500 ">
+
             {/* Lista de eventos */}
-            {loading ? (
+            {loading ? ( // Muestra un mensaje de carga mientras se obtienen los datos
                 <p className="text-red-500 text-center">Cargando eventos...</p>
-            ) : (
+            ) : ( // Muestra la lista de eventos una vez cargados
                 <div>
                     <h2 className="text-xl font-bold oscuroTextoGris my-4">Todos los Eventos</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -126,6 +94,8 @@ const AdminEvents = () => {
                                 <p>{evento.localizacion}</p>
                                 <p>{evento.categoria}</p>
                                 <p>{evento.precio} €</p>
+                                
+                                {/* Botón para eliminar el evento. Llama a la función 'eliminarEvento' con el ID. */}
                                 <button onClick={() => eliminarEvento(evento.id)} className="bg-red-500 text-white p-2 rounded hover:bg-red-600 transition mt-2">Eliminar</button>
                             </div>
                         ))}

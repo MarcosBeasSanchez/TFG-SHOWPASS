@@ -1,3 +1,4 @@
+// Objeto JavaScript constante que almacena información sobre el proyecto y sus desarrolladores.
 const datosDesarrolladores = {
     proyecto: {
         repositorio: "https://github.com/MarcosBeasSanchez/TFG"
