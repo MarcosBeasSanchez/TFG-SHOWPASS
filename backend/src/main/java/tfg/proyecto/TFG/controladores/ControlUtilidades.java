@@ -30,6 +30,10 @@ import tfg.proyecto.TFG.repositorio.RepositorioUsuario;
 import tfg.proyecto.TFG.servicios.IServicioPdfEmail;
 import org.springframework.http.ResponseEntity;
 
+/**
+ * Controlador de utilidades generales para la aplicación.
+ * Incluye funcionalidades como envío de PDF por email y generación de datos para recomendaciones.
+ */
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/tfg/utilidades/")
@@ -50,6 +54,18 @@ public class ControlUtilidades {
     private  String microServicioURL;  
 	
 
+	/**
+     * Envía un PDF de ticket por email al usuario.
+     *
+     * @param payload Mapa con las claves:
+     *                - "email": email del destinatario
+     *                - "ticketId": ID del ticket
+     *                - "eventoNombre": nombre del evento
+     *                - "pdfBase64": contenido del PDF codificado en Base64
+     * @return Mensaje indicando que el correo fue enviado al destinatario.
+     * @throws MessagingException si ocurre un error al enviar el email.
+     * @throws IOException si ocurre un error al procesar el archivo PDF.
+     */
 	@PostMapping("/enviarPdfEmail")
 	public String enviarPdfEmail(@RequestBody Map<String, String> payload) throws MessagingException, IOException {
 		String email = payload.get("email");
@@ -101,6 +117,14 @@ public class ControlUtilidades {
 	}
 	
 	
+	 /**
+     * Obtiene los datos completos de usuarios y eventos para alimentar el microservicio de recomendación.
+     * Incluye información de tickets y detalles de invitados para cada evento.
+     *
+     * @return Mapa con:
+     *         - "usuarios": Lista de DTOUsuarioDataIA con tickets por usuario
+     *         - "eventos": Lista de DTOEventoDataIA con eventos e invitados
+     */
 	@GetMapping("/data")
 	public ResponseEntity<Map<String, Object>> getRecommendationData() {
 	    // Usuarios con sus tickets

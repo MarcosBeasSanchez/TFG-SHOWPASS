@@ -10,14 +10,35 @@ import org.springframework.stereotype.Repository;
 
 import tfg.proyecto.TFG.modelo.Categoria;
 import tfg.proyecto.TFG.modelo.Evento;
+
+/**
+ * Repositorio JPA para la entidad {@link Evento}.
+ * 
+ * Permite realizar operaciones de consulta relacionadas con eventos,
+ * incluyendo búsquedas por nombre, categoría y vendedor.
+ */
 @Repository
 public interface RepositorioEvento extends CrudRepository<Evento, Long>{
 	
+
 	Optional<Evento> findByNombre(String nombre);
 	List<Evento> findByCategoria(Categoria categoria);
-	// Busca todos los eventos cuyo nombre contenga la cadena 'nombre', ignorando mayúsculas/minúsculas
-    List<Evento> findByNombreContainingIgnoreCase(String nombre);
+	
+	/**
+     * Busca eventos cuyo nombre contenga la cadena proporcionada,
+     * ignorando mayúsculas y minúsculas.
+     *
+     * @param nombre parte del nombre a buscar.
+     * @return lista de eventos cuyo nombre contiene la cadena indicada.
+     */    
+	List<Evento> findByNombreContainingIgnoreCase(String nombre);
     
-    @Query("SELECT e FROM Evento e WHERE e.vendedor.id = :vendedorId")
-    List<Evento> findByVendedorId(@Param("vendedorId") Long vendedorId);
+    /**
+     * Obtiene todos los eventos asociados a un vendedor específico.
+     *
+     * @param vendedorId el ID del vendedor cuyos eventos se desean consultar.
+     * @return lista de eventos publicados por el vendedor.
+     */
+     @Query("SELECT e FROM Evento e WHERE e.vendedor.id = :vendedorId")
+     List<Evento> findByVendedorId(@Param("vendedorId") Long vendedorId);
 }

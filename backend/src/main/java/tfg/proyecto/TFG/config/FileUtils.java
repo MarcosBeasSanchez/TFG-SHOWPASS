@@ -10,22 +10,40 @@ import java.util.Base64;
 import org.springframework.web.multipart.MultipartFile;
 
 
+/**
+ * Clase de utilidades para manejo de archivos e imágenes.
+ * <p>
+ * Incluye métodos para convertir archivos a Base64 y guardar imágenes en disco a partir de Base64 o URLs.
+ */
 public class FileUtils {
 
 	/**
-     * Convierte un archivo MultipartFile a String Base64
+     * Convierte un archivo {@link MultipartFile} a una cadena en Base64.
+     *
+     * @param archivo Archivo a convertir.
+     * @return Cadena Base64 representando el archivo.
+     * @throws IOException Si ocurre un error al leer los bytes del archivo.
      */
     public static String convertirArchivoAString(MultipartFile archivo) throws IOException {
         return Base64.getEncoder().encodeToString(archivo.getBytes());
     }
 
     /**
-     * Guarda una imagen en disco a partir de un String Base64 o una URL.
-     * Si la cadena no es Base64 válida, simplemente devuelve la misma ruta/URL.
+     * Guarda una imagen en disco a partir de un String Base64 o devuelve la URL/ruta original.
+     * <p>
+     * Reglas de funcionamiento:
+     * <ul>
+     *     <li>Si la cadena comienza con "http", "/uploads/" o "C:\", se asume que es una URL o ruta existente y se devuelve tal cual.</li>
+     *     <li>Si la cadena tiene prefijo tipo "data:image/png;base64,", se elimina antes de decodificar.</li>
+     *     <li>Se crea automáticamente la carpeta destino si no existe.</li>
+     *     <li>El archivo se guarda con nombre único usando timestamp.</li>
+     *     <li>Si la cadena Base64 no es válida, se devuelve tal cual.</li>
+     * </ul>
      *
-     * base64     Cadena Base64 o URL
-     * subcarpeta Carpeta donde guardar (ej: "usuarios" o "eventos/12")
-     * Ruta relativa del archivo (para guardar en BD)
+     * @param base64     Cadena Base64 o URL/ruta de la imagen.
+     * @param subcarpeta Carpeta donde guardar la imagen (ej: "usuarios", "eventos/12").
+     * @return Ruta relativa de la imagen guardada (ej: "/uploads/usuarios/img_123456.png") o la URL/ruta original.
+     * @throws IOException Si ocurre un error al crear directorios o escribir el archivo.
      */
     public static String guardarImagenBase64(String base64, String subcarpeta) throws IOException {
         if (base64 == null || base64.isBlank()) {

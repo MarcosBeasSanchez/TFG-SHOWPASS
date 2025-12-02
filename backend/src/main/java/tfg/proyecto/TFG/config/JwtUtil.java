@@ -7,20 +7,39 @@ import io.jsonwebtoken.security.Keys;
 import java.util.Date;
 import java.security.Key;
 
+/**
+ * Clase utilitaria para generar, extraer y validar tokens JWT.
+ * <p>
+ * Se utiliza principalmente para autenticación y autorización de usuarios.
+ */
 public class JwtUtil {
 	
-	private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256); // clave secreta para firmar el token
-    private static final long EXPIRATION_TIME = 1000 * 60 * 60; // 1 hora = 3600 segundos
+	 /** Clave secreta utilizada para firmar los tokens JWT */
+	private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+	 /** Tiempo de expiración del token en milisegundos (1 hora) */
+    private static final long EXPIRATION_TIME = 1000 * 60 * 60;
+    
+    /**
+     * Genera un token JWT para un usuario dado usando su email como subject.
+     *
+     * @param email Email del usuario (se almacena en el subject del token)
+     * @return Token JWT firmado
+     */
     public static String generateToken(String email) {
         return Jwts.builder()
                 .setSubject(email) // puedes usar el email o el id del usuario
-                .setIssuedAt(new Date(System.currentTimeMillis())) 
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME)) // 1 hora
-                .signWith(SECRET_KEY) //H265
+                .setIssuedAt(new Date(System.currentTimeMillis())) // Fecha de emisión
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME)) // Expiración
+                .signWith(SECRET_KEY) // Firma con la clave secreta
                 .compact();
     }
 
- // Extrae el email (Subject) del token
+    /**
+     * Extrae el email (subject) de un token JWT.
+     *
+     * @param token Token JWT
+     * @return Email contenido en el subject del token, o null si no es válido
+     */
     public static String extractEmail(String token) {
         try {
             return Jwts.parser()
@@ -34,7 +53,20 @@ public class JwtUtil {
         }
     }
     
- // Valida la expiración y que el email extraído sea el esperado
+    /**
+    * Valida un token JWT.
+    * <p>
+    * Comprueba que:
+    * <ul>
+    *     <li>El token no esté expirado</li>
+    *     <li>La firma sea válida</li>
+    *     <li>El email extraído coincida con el esperado</li>
+    * </ul>
+    *
+    * @param token Token JWT a validar
+    * @param expectedEmail Email esperado (subject)
+    * @return true si el token es válido y corresponde al email, false en caso contrario
+    */
     public static Boolean validateToken(String token, String expectedEmail) {
         final String extractedEmail = extractEmail(token);
         

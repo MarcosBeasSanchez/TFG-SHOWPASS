@@ -28,6 +28,20 @@ import tfg.proyecto.TFG.repositorio.RepositorioEvento;
 import tfg.proyecto.TFG.repositorio.RepositorioTicket;
 import tfg.proyecto.TFG.repositorio.RepositorioUsuario;
 
+
+/**
+ * Servicio que gestiona la lógica de negocio relacionada con los usuarios.
+ *
+ * <p>Funcionalidades principales:</p>
+ * <ul>
+ *     <li>Crear, modificar y eliminar usuarios.</li>
+ *     <li>Registrar usuarios con datos mínimos o completos.</li>
+ *     <li>Login y validación de credenciales mediante JWT.</li>
+ *     <li>Gestión de foto de perfil (Base64 o URL).</li>
+ *     <li>Gestión de usuarios reportados y desbloqueo.</li>
+ *     <li>Obtener eventos creados por un usuario.</li>
+ * </ul>
+ */
 @Service
 public class ServicioUsuarioImpl implements IServicioUsuario {
 
@@ -45,7 +59,17 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 	ServicioImagenImpl servicioImagen;
 
 	private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+	
+	
 
+    /**
+     * Inserta un nuevo usuario en la base de datos.
+     * Si el rol no se especifica, se asigna CLIENTE por defecto.
+     * La contraseña se codifica con BCrypt y se inicializa el carrito.
+     *
+     * @param usuarioDto DTO con los datos del usuario a crear
+     * @return DTO con los datos del usuario guardado
+     */
 	@Override
 	public DTOusuarioBajada insert(DTOusuarioSubida usuarioDto) {
 		// Rol por defecto
@@ -64,7 +88,7 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 			throw new RuntimeException("Error guardando foto de usuario", e);
 		}
 
-		// Hash de contraseña
+		// Hash de contraseña y creación de carrito
 		if (usuario.getPassword() != null) {
 			usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
 
@@ -78,6 +102,13 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 		return dtoConverter.map(usuario, DTOusuarioBajada.class);
 	}
 
+    /**
+     * Actualiza los datos de un usuario existente.
+     * Solo actualiza campos que vengan no nulos en el DTO.
+     *
+     * @param usuarioDto DTO con datos actualizados
+     * @return DTO con datos actualizados
+     */
 	@Override
 	public DTOusuarioBajada update(DTOusuarioModificarSubida usuarioDto) {
 		Usuario u = repoUsuario.findById(usuarioDto.getId())
@@ -122,6 +153,12 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 		return dtoConverter.map(u, DTOusuarioBajada.class);
 	}
 
+	 /**
+     * Elimina un usuario por ID.
+     *
+     * @param id ID del usuario
+     * @return 1 si se eliminó, 0 si no existía
+     */
 	@Override
 	public Integer deleteById(Long id) {
 		if (!repoUsuario.existsById(id))
@@ -130,46 +167,61 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 		return 1;
 	}
 
-	// devuelve nulo si no lo encuentra
+	/**
+     * Obtiene un usuario por su ID.
+     *
+     * @param id ID del usuario
+     * @return DTO con los datos del usuario
+     */
 	@Override
 	public DTOusuarioBajada findById(Long id) {
 		Usuario u = repoUsuario.findById(id).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 		return dtoConverter.map(u, DTOusuarioBajada.class);
 	}
 
+	   /**
+     * Obtiene todos los usuarios registrados.
+     *
+     * @return lista de DTOs de usuarios
+     */
 	@Override
 	public List<DTOusuarioBajada> findAllUsuarios() {
 		return dtoConverter.mapAll((List<Usuario>) repoUsuario.findAll(), DTOusuarioBajada.class);
 
 	}
 	
-	
+	 /**
+     * Valida un token JWT y obtiene el perfil del usuario asociado.
+     *
+     * @param authHeader Encabezado de autorización con el token Bearer
+     * @return DTO del usuario si el token es válido y el usuario no está reportado; null en caso contrario
+     */
 	@Override
     public DTOusuarioBajada validarTokenYObtenerPerfil(String authHeader) {
         
-        // 1. Verificar el formato del encabezado
+        // Verificar el formato del encabezado
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             System.out.println("Validacion Fallida: No se proporcionó Token o el formato es incorrecto.");
             return null; // Rechazo inmediato
         }
         
-        // 2. Extraer el Token JWT
+        // Extraer el Token JWT
         String token = authHeader.substring(7);
         
-        // 3. Obtener el email del Token (el 'Subject')
+        // Obtener el email del Token (el 'Subject')
         String email = JwtUtil.extractEmail(token);
         
-        // 4. Validar el Token y el Email
+        // Validar el Token y el Email
         // Se valida que el email no sea nulo y que el Token no esté expirado y sea auténtico.
         if (email == null || !JwtUtil.validateToken(token, email)) {
             System.out.println("Validacion Fallida: Token expirado, inválido o falsificado.");
             return null;
         }
 
-        // 5. Buscar el usuario en la base de datos
+        // Buscar el usuario en la base de datos
         Usuario u = repoUsuario.findByEmail(email);
 
-        // 6. Comprobaciones de Estado Final
+        // Comprobaciones de Estado Final
         if (u == null) {
             System.out.println("Validacion Fallida: Usuario no encontrado para el Token válido.");
             return null;
@@ -180,7 +232,7 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
             return null;
         }
 
-        // 7. Éxito: Token válido, usuario activo. Mapear y devolver el DTO.
+        // Éxito: Token válido, usuario activo. Mapear y devolver el DTO.
         System.out.println("Validacion Exitosa: Sesión persistente activa para " + u.getEmail());
         DTOusuarioBajada dtoUser = dtoConverter.map(u, DTOusuarioBajada.class);
         return dtoUser;
@@ -188,6 +240,12 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 
 	
 
+	/**
+     * Registro de usuario con datos mínimos.
+     *
+     * @param usuarioDto DTO con datos básicos
+     * @return DTO del usuario registrado
+     */
 	@Override
 	public DTOusuarioBajada register(DTOusuarioSubidaMinimo usuarioDto) {
 		Usuario u = dtoConverter.map(usuarioDto, Usuario.class);
@@ -223,12 +281,27 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 		return dtoConverter.map(u, DTOusuarioBajada.class);
 	}
 
+
+    /**
+     * Registro de usuario con datos completos (mismo que insert()).
+     *
+     * @param usuarioDto DTO con datos completos
+     * @return DTO del usuario registrado
+     */
 	@Override
 	public DTOusuarioBajada registerConDatos(DTOusuarioSubida usuarioDto) {
 		return insert(usuarioDto); // misma lógica de insert
 	}
 
-	@Override // login que compara los hashes de las contraseñas y tmb los emails
+	
+	 /**
+     * Login de usuario.
+     * Comprueba email y contraseña (BCrypt) y genera token JWT.
+     *
+     * @param dtoLogin DTO con credenciales
+     * @return DTO con resultado del login y token si es exitoso
+     */
+	@Override 
 	public DTOusuarioLoginBajada login(DTOusuarioLogin dtoLogin) {
 		Usuario u = repoUsuario.findByEmail(dtoLogin.getEmail());
 		DTOusuarioLoginBajada out = new DTOusuarioLoginBajada();
@@ -239,9 +312,7 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 	        out.setMensaje("El correo no está registrado. ¿Deseas crear una cuenta?");
 	        return out;
 	    }
-		//
-
-
+		
 		if (u != null && passwordEncoder.matches(dtoLogin.getPassword(), u.getPassword())) {
 			
 			//Si el usuario está reportado
@@ -267,6 +338,12 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 		return out;
 	}
 
+	 /**
+     * Obtiene un usuario reportado por email.
+     *
+     * @param email Email del usuario
+     * @return DTO de usuario reportado o null
+     */
 	@Override
 	public DTOUsuarioReportado findByEmail(String email) {
 		// TODO Auto-generated method stub
@@ -277,6 +354,12 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 		return null;
 	}
 
+	/**
+     * Obtiene todos los eventos creados por un usuario.
+     *
+     * @param id ID del usuario
+     * @return lista de DTOs de eventos
+     */
 	@Override
 	@Transactional
 	public List<DTOeventoBajada> findAllEventosCreadosPorUnUsuario(Long id) {
@@ -293,6 +376,11 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 		return null; // Devuelve lista vacía de DTOs
 	}
 
+	 /**
+     * Obtiene todos los usuarios reportados.
+     *
+     * @return lista de DTOs de usuarios reportados
+     */
 	@Override
 	public List<DTOUsuarioReportado> findAllReportados() {
 		// TODO Auto-generated method stub
@@ -301,6 +389,12 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 		return dtoConverter.mapAll(usuariosReportados, DTOUsuarioReportado.class);
 	}
 
+	 /**
+     * Cambia el estado de reportado de un usuario.
+     *
+     * @param email Email del usuario
+     * @return DTO del usuario actualizado
+     */
 	@Override
 	public DTOUsuarioReportado reportarUsuario(String email) {
 		// TODO Auto-generated method stub
@@ -320,6 +414,12 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 		return dto;
 	}
 
+	/**
+     * Quita el estado de reportado a un usuario.
+     *
+     * @param email Email del usuario
+     * @return DTO del usuario actualizado
+     */
 	@Override
 	public DTOUsuarioReportado quitarReport(String email) {
 		// TODO Auto-generated method stub

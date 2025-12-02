@@ -2,12 +2,8 @@ package tfg.proyecto.TFG.controladores;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,13 +30,26 @@ import tfg.proyecto.TFG.dtos.DTOeventoBajada;
 import tfg.proyecto.TFG.dtos.DTOeventoSubida;
 import tfg.proyecto.TFG.dtos.EventoRecomendadoDTO;
 import tfg.proyecto.TFG.modelo.Categoria;
-import tfg.proyecto.TFG.modelo.Evento;
 import tfg.proyecto.TFG.repositorio.RepositorioEvento;
 import tfg.proyecto.TFG.repositorio.RepositorioInvitado;
 import tfg.proyecto.TFG.servicios.IServicioEvento;
 
-
-@CrossOrigin(origins = "*") //permite las peticiones desde el front
+/**
+ * Controlador REST para la gestión de eventos y sus invitados.
+ *
+ * <p>Proporciona endpoints para:
+ * <ul>
+ *     <li>Insertar un evento (con soporte para imágenes y carrusel)</li>
+ *     <li>Actualizar eventos (JSON o móvil)</li>
+ *     <li>Eliminar eventos o invitados</li>
+ *     <li>Obtener eventos por id, nombre, categoría, vendedor o búsqueda parcial</li>
+ *     <li>Obtener recomendaciones para un usuario o eventos similares</li>
+ * </ul>
+ *
+ * <p>Todos los endpoints están prefijados con <code>/tfg/evento/</code> y permiten 
+ * solicitudes CORS desde cualquier origen.
+ */
+@CrossOrigin(origins = "*") 
 @RestController
 @RequestMapping("/tfg/evento/")
 public class ControlEvento {
@@ -59,7 +68,22 @@ public class ControlEvento {
 
 
 	
-	//Con parametros porque multifilePart y JSOn Da error
+	/**
+     * Inserta un nuevo evento usando parámetros form-data (para compatibilidad con MultipartFile).
+     *
+     * @param nombre       Nombre del evento
+     * @param localizacion Ubicación del evento
+     * @param inicioEvento Fecha y hora de inicio en formato ISO
+     * @param finEvento    Fecha y hora de fin en formato ISO
+     * @param descripcion  Descripción del evento
+     * @param precio       Precio del evento
+     * @param categoria    Categoría del evento
+     * @param vendedorId   ID del vendedor que crea el evento
+     * @param imagen       Imagen principal (opcional)
+     * @param carrusels    Carrusel de imágenes (opcional)
+     * @param invitadosJson JSON con la lista de invitados
+     * @return DTO del evento creado o BAD_REQUEST si hay errores
+     */
 	@PostMapping("insert")
 	public ResponseEntity<DTOeventoBajada> insertarEvento(
 	        @RequestParam String nombre,
@@ -119,6 +143,12 @@ public class ControlEvento {
 	}
 	
 	
+	/**
+     * Inserta un evento desde mobile/JSON directamente.
+     *
+     * @param dto DTO de subida con los datos del evento
+     * @return DTO del evento creado
+     */
 	@PostMapping("insert/mobile")
 	public ResponseEntity<DTOeventoBajada> insertarEventoMobile(
 	        @RequestBody DTOeventoSubida dto
@@ -133,7 +163,12 @@ public class ControlEvento {
 	}
 	
 
-	
+
+	/**
+     * Obtiene todos los eventos existentes.
+     *
+     * @return Lista de DTOeventoBajada
+     */
 	@GetMapping("findAll")
     public ResponseEntity<List<DTOeventoBajada>> obtenerTodosEventos() {
         List<DTOeventoBajada> lista = eventoServicio.obtenerTodosLosEventos();
@@ -141,8 +176,13 @@ public class ControlEvento {
     }
 	
 	
-	// Método de Edición (PUT) que usa JSON/DTO
-	// Controlador:
+	/**
+     * Actualiza un evento existente usando JSON.
+     *
+     * @param id Id del evento a actualizar
+     * @param dto DTO con los nuevos datos del evento
+     * @return DTO del evento actualizado o NOT_FOUND si no existe
+     */
 	@PutMapping("update/{id}")
 	public ResponseEntity<DTOeventoBajada> actualizarEvento(@PathVariable Long id, @RequestBody DTOeventoSubida dto) {
 	    try {
@@ -156,6 +196,13 @@ public class ControlEvento {
 	    }
 	}
 	
+	 /**
+     * Actualización específica para móviles.
+     *
+     * @param id Id del evento
+     * @param dto DTO del evento
+     * @return DTO actualizado o NOT_FOUND si no existe
+     */
 	@PutMapping("updateMovil/{id}")
     public ResponseEntity<DTOeventoBajada> actualizarEventoMovil(@PathVariable Long id, @RequestBody DTOeventoSubida dto) {
         try {
@@ -166,7 +213,12 @@ public class ControlEvento {
         }
     }
 	
-	
+	 /**
+     * Elimina un evento por id.
+     *
+     * @param id Id del evento
+     * @return OK si eliminado, NOT_FOUND si no existe
+     */
 	@DeleteMapping("delete/{id}")
     public ResponseEntity<Void> eliminarEvento(@PathVariable Long id) {
         boolean eliminado = eventoServicio.eliminarEvento(id);
@@ -176,7 +228,13 @@ public class ControlEvento {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-	//trae un evento unicamente escribiendolo de manera exacta
+	
+	/**
+     * Obtiene un evento por nombre exacto.
+     *
+     * @param nombre Nombre del evento
+     * @return DTO del evento o NOT_FOUND si no existe
+     */
 	@GetMapping("findByNombre") 
     public ResponseEntity<DTOeventoBajada> obtenerPorNombre(@RequestParam String nombre) {
         try {
@@ -187,7 +245,12 @@ public class ControlEvento {
         }
     }
 	
-	//trae un evento unicamente escribiendolo de manera exacta
+	/**
+     * Obtiene un evento por id exacto.
+     *
+     * @param id Id del evento
+     * @return DTO del evento o NOT_FOUND
+     */
 		@GetMapping("findById") 
 	    public ResponseEntity<DTOeventoBajada> obtenerPorId(@RequestParam Long id) {
 	        try {
@@ -198,6 +261,12 @@ public class ControlEvento {
 	        }
 	    }
 	
+	/**
+	* Obtiene los eventos filtrados por categoría.
+	*
+	* @param categoria Nombre de la categoría
+	* @return Lista de eventos de esa categoría
+	*/
 	@GetMapping("findByCategoria/{categoria}")
 	public ResponseEntity<List<DTOeventoBajada>> obtenerPorCategoria(@PathVariable String categoria) {
 		 try {
@@ -211,7 +280,13 @@ public class ControlEvento {
 		    }
 	
 	}
-	// Busca todos los eventos que contengan la palabra `nombre`, ignorando mayúsculas/minúsculas
+	
+	/**
+     * Busca eventos cuyo nombre contenga cierta palabra.
+     *
+     * @param nombre Subcadena a buscar
+     * @return Lista de eventos que coinciden
+     */
 	@GetMapping("filterByBusqueda")
 	public ResponseEntity<List<DTOeventoBajada>> busquedaPorIA(@RequestParam String nombre) {
 	    try {
@@ -222,11 +297,23 @@ public class ControlEvento {
 	    }
 	}
 	
+	 /**
+     * Obtiene todos los eventos de un vendedor específico.
+     *
+     * @param idVendedor Id del vendedor
+     * @return Lista de eventos
+     */
 	@GetMapping("findByVendedor/{idVendedor}")
 	public ResponseEntity<List<DTOeventoBajada>> findByVendedor(@PathVariable Long idVendedor) {
 	    return ResponseEntity.ok(eventoServicio.obtenerPorVendedor(idVendedor));
 	}
 	
+	/**
+     * Elimina un invitado de un evento.
+     *
+     * @param id Id del invitado
+     * @return OK si eliminado, NOT_FOUND si no existe
+     */
 	@DeleteMapping("deleteInvitado/{id}")
 	public ResponseEntity<Void> eliminar(@PathVariable Long id) {
 		if (invitadoDAO.existsById(id)) {
@@ -237,12 +324,23 @@ public class ControlEvento {
 	}
 	
 	
-	
+	/**
+     * Obtiene eventos recomendados para un usuario.
+     *
+     * @param userId Id del usuario
+     * @return Lista de eventos recomendados
+     */
 	@GetMapping("/recomendacionUsuario/{userId}")
     public ResponseEntity<List<EventoRecomendadoDTO>> obtenerRecomendacionesUsuario(@PathVariable Long userId) {
         return ResponseEntity.ok(eventoServicio.obtenerRecomendacionesUsuario(userId));
     }
 
+	/**
+     * Obtiene eventos similares a un evento dado.
+     *
+     * @param eventoId Id del evento
+     * @return Lista de eventos similares
+     */
     @GetMapping("/recomendacionEvento/{eventoId}")
     public ResponseEntity<List<EventoRecomendadoDTO>> obtenerSimilaresEvento(@PathVariable Long eventoId) {
         return ResponseEntity.ok(eventoServicio.obtenerSimilaresEvento(eventoId));

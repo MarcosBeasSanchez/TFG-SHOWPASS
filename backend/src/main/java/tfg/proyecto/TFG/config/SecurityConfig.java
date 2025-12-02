@@ -19,6 +19,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import tfg.proyecto.TFG.servicios.IServicioUsuario;
 
+/**
+ * Configuración de seguridad de la aplicación.
+ * <p>
+ * Incluye:
+ * <ul>
+ *   <li>Deshabilitación de CSRF (para APIs REST)</li>
+ *   <li>Permite todas las solicitudes HTTP (puede ajustarse según roles/endpoints)</li>
+ *   <li>Configuración CORS para permitir acceso desde el frontend</li>
+ *   <li>Bean de PasswordEncoder (BCrypt) para codificación de contraseñas</li>
+ * </ul>
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -26,6 +37,17 @@ public class SecurityConfig {
     @Autowired
     private IServicioUsuario servicioUsuario;
 
+    
+    /**
+     * Configura el filtro de seguridad HTTP.
+     * <p>
+     * Actualmente permite todas las solicitudes sin autenticación.
+     * Puede ajustarse para proteger rutas específicas.
+     *
+     * @param http Objeto HttpSecurity proporcionado por Spring Security
+     * @return SecurityFilterChain configurada
+     * @throws Exception Si ocurre algún error durante la configuración
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -34,7 +56,15 @@ public class SecurityConfig {
             .anyRequest().permitAll();  // permite todas las solicitudes
         return http.build();
     }
-    //Configuración dle cors
+    
+    /**
+     * Configuración de CORS para permitir solicitudes desde el frontend.
+     * <p>
+     * Se permiten los métodos GET, POST, PUT, DELETE y OPTIONS.
+     * Se permiten todas las cabeceras y se permite enviar credenciales.
+     *
+     * @return CorsConfigurationSource configurada
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -48,6 +78,13 @@ public class SecurityConfig {
         return source;
     }
 
+    /**
+     * Bean de codificador de contraseñas BCrypt.
+     * <p>
+     * Se utiliza para hashear contraseñas de usuarios antes de almacenarlas en la base de datos.
+     *
+     * @return PasswordEncoder usando BCrypt
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
