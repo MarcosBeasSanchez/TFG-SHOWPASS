@@ -1,19 +1,36 @@
   import React, { useState, useEffect, useCallback } from "react";
   import config from "../config/config";
 
+  /**
+ * Componente funcional para la gestión de usuarios en el Panel de Administración.
+ * Permite buscar usuarios por email, gestiona su estado de reporte y permite eliminarlos.
+ */
   const AdminUserSection = () => {
-    const [email, setEmail] = useState("");
-    const [usuario, setUsuario] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState("");
+    // ----------------------------------------------------
+    // 1. ESTADO
+    // ----------------------------------------------------
 
-    // Reportados
+    // Estado para almacenar el email ingresado en el input de búsqueda.
+    const [email, setEmail] = useState("");
+    // Estado para almacenar los datos del usuario encontrado tras la búsqueda.
+    const [usuario, setUsuario] = useState(null);
+    // Estado booleano para indicar si hay una operación en curso (búsqueda, reporte, eliminación).
+    const [loading, setLoading] = useState(false);
+    // Estado para mostrar mensajes de éxito/error al usuario.
+    const [message, setMessage] = useState("");
+    // Estado para almacenar la lista de todos los usuarios marcados como reportados.
     const [usuariosReportados, setUsuarios] = useState([]);
 
-    // Callback para obtener usuarios reportados
-    // Esto hace que la función sea accesible en todo el componente y que React la optimice.
+    // ----------------------------------------------------
+    // 2. FETCHING DE DATOS (Usuarios Reportados)
+    // ----------------------------------------------------
+
+    /**
+     * Función memoizada para obtener la lista de usuarios reportados.
+     * Es optimizada con useCallback porque se usa como dependencia en useEffect.
+     */
     const fetchReportados = useCallback(async () => {
-      setLoading(true);
+      setLoading(true); // Indica que se está cargando
       try {
         const res = await fetch(`${config.apiBaseUrl}/tfg/usuario/findAllReportados`);
         if (!res.ok) throw new Error("Error al obtener usuarios reportados");
@@ -22,19 +39,27 @@
         setMessage(""); // Limpia mensajes si la carga es exitosa
       } catch (err) {
         console.error("❌ Error cargando usuarios reportados:", err);
-        setUsuarios([]);
+        setUsuarios([]); // Limpia la lista en caso de error
         setMessage("❌ Error cargando usuarios reportados."); // Muestra el error en la UI
       } finally {
-        setLoading(false);
+        setLoading(false); // Finaliza el estado de carga
       }
-    }, []); 
+    }, []);  // No tiene dependencias externas
 
-    // useEffect PARA LLAMAR A LA FUNCIÓN AL MONTARSE
+    // useEffect: Se ejecuta una sola vez al montar el componente (y cuando fetchReportados cambie, 
+    // aunque gracias a useCallback, esto es solo la primera vez).
     useEffect(() => {
       fetchReportados();
     }, [fetchReportados]); // Dependencia: fetchReportados (debe estar en useCallback)
 
-    // Buscar usuario por email
+
+    // ----------------------------------------------------
+    // 3. OPERACIONES DE CRUD (Búsqueda, Reporte, Eliminación)
+    // ----------------------------------------------------
+
+    /**
+     * Función para buscar un usuario por su email.
+     */
     const buscarUsuario = async () => {
       if (!email) {
         setMessage("Por favor, introduce un email.");
@@ -45,6 +70,7 @@
       setUsuario(null);
 
       try {
+        // Petición GET usando el email como parámetro de consulta.
         const res = await fetch(`${config.apiBaseUrl}/tfg/usuario/findByEmail?email=${encodeURIComponent(email)}`);
         if (res.status === 404) {
           setMessage("❌ Usuario no encontrado");
@@ -52,7 +78,7 @@
         }
         if (!res.ok) throw new Error(`Error al buscar usuario: ${res.status}`);
         const data = await res.json();
-        setUsuario(data);
+        setUsuario(data); // Almacena los datos del usuario encontrado.
         setMessage(`✅ Usuario:  ${data.email} encontrado.`);
       } catch (err) {
         console.error(err);
@@ -62,7 +88,10 @@
       }
     };
 
-    // Reportar usuario usando el email ingresado
+    /**
+     * Función para alternar el estado de reporte de un usuario (Reportar/Des-reportar).
+     * Utiliza una petición PUT.
+     */
     const reportarUsuario = async () => {
       // Si el usuario ya está cargado, usamos su email, si no, usamos el input
       const targetEmail = usuario ? usuario.email : email;
@@ -71,6 +100,7 @@
       setLoading(true);
       setMessage("");
       try {
+        // Petición PUT para reportar/des-reportar. El backend maneja el toggle.
         const res = await fetch(
           `${config.apiBaseUrl}/tfg/usuario/reportar?email=${encodeURIComponent(targetEmail)}`,
           {
@@ -84,10 +114,8 @@
         if (!res.ok) throw new Error(`Error al reportar usuario: ${res.status}`);
 
         const data = await res.json();
-        setUsuario(data); // Actualiza el estado del usuario encontrado
-
-        // Intentar refrescar la lista de reportados (Si es necesario)
-        fetchReportados(); 
+        setUsuario(data);// Actualiza el estado del usuario encontrado para reflejar el cambio.
+        fetchReportados();    // Intentar refrescar la lista de reportados (Si es necesario)
       } catch (err) {
         console.error(err);
       } finally {
@@ -95,7 +123,9 @@
       }
     };
 
-    // Eliminar usuario por ID
+    /**
+     * Función para eliminar un usuario por su ID (CRUD: DELETE).
+     */
     const eliminarUsuario = async () => {
       if (!usuario || !usuario.id) {
         setMessage("Por favor, busca un usuario primero.");
@@ -105,16 +135,16 @@
       setMessage("");
 
       try {
+        // Petición DELETE usando el ID del usuario cargado en el estado.
         const res = await fetch(`${config.apiBaseUrl}/tfg/usuario/delete/${usuario.id}`, {
           method: "DELETE",
         });
         if (!res.ok) throw new Error(`Error al eliminar usuario: ${res.status}`);
 
         setMessage(`✅ Usuario con ID ${usuario.id} eliminado correctamente`);
-        setUsuario(null);
-        setEmail("");
-        // Refrescar la lista de reportados
-         fetchReportados(); 
+        setUsuario(null); // Limpia el usuario mostrado
+        setEmail(""); // Limpia el input de email
+        fetchReportados(); // Refresca la lista de reportados, ya que el usuario puede haber sido eliminado de ella.
 
       } catch (err) {
         console.error(err);
@@ -124,9 +154,13 @@
       }
     };
 
-    // El renderizado de la lista de usuarios debe manejar el estado de carga
+    // Variable auxiliar para el renderizado condicional.
     const hasReportedUsers = usuariosReportados && usuariosReportados.length > 0;
 
+
+    // ----------------------------------------------------
+    // 4. RENDERIZADO (JSX)
+    // ----------------------------------------------------
     return (
       <div className="mt-4 flex flex-col gap-4 w-full mx-auto">
         <h3 className="text-xl text-gray-500 font-bold oscuroTextoGris">Administración de Usuarios</h3>
@@ -165,19 +199,10 @@
               className={`mt-4 p-4 border rounded flex flex-col gap-2 bg-gray-50 oscuroBox ${usuario.reportado ? "border-red-500" : "border-gray-300"
                 }`}
             >
-              <p className="text-black oscuroTextoGris">
-                <strong>ID:</strong> {usuario.id}
-              </p>
-              <p className="text-black oscuroTextoGris">
-                <strong>Email:</strong> {usuario.email}
-              </p>
-              <p className="text-black oscuroTextoGris">
-                <strong>Nombre:</strong> {usuario.nombre}
-              </p>
-              <p className="text-black oscuroTextoGris">
-                <strong>Reportado:</strong> {usuario.reportado ? "Sí" : "No"}
-              </p>
-
+              <p className="text-black oscuroTextoGris"><strong>ID:</strong> {usuario.id}</p>
+              <p className="text-black oscuroTextoGris"><strong>Email:</strong> {usuario.email}</p>
+              <p className="text-black oscuroTextoGris"><strong>Nombre:</strong> {usuario.nombre}</p>
+              <p className="text-black oscuroTextoGris"><strong>Reportado:</strong> {usuario.reportado ? "Sí" : "No"}</p>
               <div className="flex flex-col sm:flex-row gap-2 mt-2">
                 <button
                   onClick={reportarUsuario} // <-- Se usa la misma función que gestiona el toggle en el backend

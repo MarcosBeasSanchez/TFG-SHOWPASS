@@ -1,33 +1,55 @@
 import { useEffect, useState } from "react";
 import config from "../config/config";
-import jsPDF from "jspdf";
 import { descargarPDF, enviarPDF } from "../utils/entradasPdf";
 
+/**
+ * Componente que gestiona el carrito de compras y la finalización de la compra del usuario.
+ * Muestra los ítems en el carrito, el total, permite modificarlo y muestra las recomendaciones.
+ */
+export default function ShoppingCart() {
 
-export default function ShoppingCart({ user }) {
+  // ----------------------------------------------------
+  // 1. ESTADO
+  // ----------------------------------------------------
+  // Estado para almacenar la estructura del carrito (ej: {id, items: [...]}).
   const [carrito, setCarrito] = useState(null);
+  // Estado para almacenar el precio total de los ítems en el carrito.
   const [total, setTotal] = useState(0);
+  // Estado para almacenar los eventos recomendados por la IA.
   const [recomendaciones, setRecomendaciones] = useState([]);
+  // Estado para gestionar el estado de carga (loading).
   const [loading, setLoading] = useState(true);
+  // Estado para gestionar y mostrar errores de fetching.
   const [error, setError] = useState(null);
+  // Estado para almacenar la lista de tickets comprados tras finalizar la compra.
   const [ticketsComprados, setTicketsComprados] = useState([]);
-  const [totalCompra, setTotalCompra] = useState([])
+  // Estado para almacenar el total gastado en la última compra.
+  const [totalCompra, setTotalCompra] = useState([]);
+  // Estado para controlar el orden de visualización de los tickets comprados (Recientes/Antiguos).
   const [reverseOrder, setReverseOrder] = useState(true); // NUEVA VARIABLE
 
+  // ----------------------------------------------------
+  // 2. RECUPERACIÓN DE DATOS DEL USUARIO (localStorage)
+  // ----------------------------------------------------
 
-  //cogemos el id del usuario desde localStorage
+  // Extrae el ID del usuario.
   const usuarioId = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")).id : null;
+  // Extrae el ID del carrito asociado al usuario.
   const carritoId = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")).carritoId : null;
+  // Obtiene la información del usuario desde localStorage.
   const userFromStorage = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null;
 
+  // ----------------------------------------------------
+  // 3. EFECTOS: Carga Inicial del Carrito
+  // ----------------------------------------------------
 
-
-  //recuperar el carrito del usuario
+  // useEffect se ejecuta al montar el componente para cargar el carrito.
   useEffect(() => {
     const userFromStorage = localStorage.getItem("user")
       ? JSON.parse(localStorage.getItem("user"))
       : null;
 
+    // Comprueba si el usuario y el ID del carrito existen.
     if (!userFromStorage || !userFromStorage.carritoId) {
       console.log("⚠️ No se encontró carritoId en el usuario");
       setLoading(false);
@@ -37,6 +59,7 @@ export default function ShoppingCart({ user }) {
     const fetchCarrito = async () => {
       try {
         setLoading(true);
+        // 1. Fetch del contenido del carrito
         const res = await fetch(`${config.apiBaseUrl}/tfg/carrito/${carritoId}`);
         if (!res.ok) throw new Error("No se pudo cargar el carrito");
         const data = await res.json();
@@ -44,7 +67,7 @@ export default function ShoppingCart({ user }) {
         console.log("Carrito recibido del backend:", data);
         setCarrito(data);
 
-        // Si quieres calcular el total también
+        // 2. Fetch del total € del carrito
         const totalRes = await fetch(`${config.apiBaseUrl}/tfg/carrito/total/${carritoId}`);
         const totalData = await totalRes.json();
         setTotal(totalData);
@@ -55,19 +78,28 @@ export default function ShoppingCart({ user }) {
         setLoading(false);
       }
     };
+    fetchCarrito(); // Llama a la función para cargar el carrito.
+  }, []); // El array vacío [] asegura que se ejecute solo una vez al montar el componente.
 
-    fetchCarrito();
-  }, []);
-
+  // ----------------------------------------------------
+  // 4. FUNCIONES DE MANEJO DEL CARRITO (CRUD)
+  // ----------------------------------------------------
+  /**
+   * Elimina un ítem específico del carrito.
+   * @param {number} itemId - ID del ítem del carrito (CarritoItem) a eliminar.
+   * */
   const eliminarEvento = async (itemId) => {
     console.log("Eliminando evento con ID:", itemId);
     try {
+      // Petición DELETE para eliminar un ítem del carrito.
       const res = await fetch(`${config.apiBaseUrl}/tfg/carrito/itemEliminar/${usuarioId}/${itemId}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Error eliminando evento");
+      // Recibe el carrito actualizado como respuesta.
+
       const data = await res.json();
-      setCarrito(data);
+      setCarrito(data); // Actualiza el estado del carrito
 
       // Actualizar total
       const totalRes = await fetch(`${config.apiBaseUrl}/tfg/carrito/total/${usuarioId}`);
@@ -79,8 +111,12 @@ export default function ShoppingCart({ user }) {
     }
   };
 
+  /**
+  * Vacía completamente el carrito del usuario.
+  */
   const vaciarCarrito = async () => {
     try {
+      // Petición DELETE para vaciar el carrito.
       const res = await fetch(`${config.apiBaseUrl}/tfg/carrito/vaciar/${usuarioId}`,
         { method: "DELETE" });
       if (!res.ok) throw new Error("Error vaciando carrito");
@@ -93,8 +129,12 @@ export default function ShoppingCart({ user }) {
     }
   };
 
+  /**
+  * Finaliza la compra, convirtiendo el contenido del carrito en tickets.
+  */
   const finalizarCompra = async () => {
     try {
+      // Petición POST para finalizar la compra.
       const res = await fetch(`${config.apiBaseUrl}/tfg/carrito/finalizar/${carritoId}`, {
         method: "POST"
       });
@@ -102,13 +142,14 @@ export default function ShoppingCart({ user }) {
       if (!res.ok) throw new Error("Error al finalizar la compra");
       console.log("Enviando datos de compra:", JSON.stringify(res));
 
-      // Actualizar el carrito tras la compra
+      // 1. Obtener los tickets recién comprados
       const ticketRes = await fetch(`${config.apiBaseUrl}/tfg/ticket/findByUsuarioId/${usuarioId}`)
       const tickts = await ticketRes.json();
 
-      setTicketsComprados(tickts)
+      setTicketsComprados(tickts) // Actualiza el estado con los tickets comprados
 
-      const total = tickts.reduce((acc, ticket) => acc + ticket.precioPagado, 0); 
+      // 2. Calcular y almacenar el total de la compra
+      const total = tickts.reduce((acc, ticket) => acc + ticket.precioPagado, 0);
       setTotalCompra(total);
       console.log("tickets comprados:", tickts);
 
@@ -120,10 +161,16 @@ export default function ShoppingCart({ user }) {
     }
   };
 
-  // Fetch de recomendaciones de usuario
+
+  // ----------------------------------------------------
+  // 5. EFECTO: Carga de Recomendaciones (Basadas en IA/Usuario)
+  // ----------------------------------------------------
+
+  // Este efecto se ejecuta al montar y si cambia el ID del usuario (aunque solo lo hace al inicio).
   useEffect(() => {
     const fetchRecomendaciones = async () => {
       try {
+        // Petición GET a la API para obtener recomendaciones personalizadas.
         const res = await fetch(
           `${config.apiBaseUrl}/tfg/evento/recomendacionUsuario/${userFromStorage?.id}`,
           {
@@ -135,7 +182,7 @@ export default function ShoppingCart({ user }) {
         if (!res.ok) throw new Error("Error al obtener recomendaciones");
 
         const recomendaciones = await res.json();
-        setRecomendaciones(recomendaciones);
+        setRecomendaciones(recomendaciones); // Actualiza el estado con las recomendaciones recibidas.
         console.log("Recomendaciones recibidas:", recomendaciones);
 
       } catch (err) {
@@ -148,18 +195,26 @@ export default function ShoppingCart({ user }) {
     }
   }, [userFromStorage?.id]);
 
+
+  // ----------------------------------------------------
+  // 6. RENDERIZADO CONDICIONAL (Loading, Error, Carrito Vacío)
+  // ----------------------------------------------------
+
   {/*if (loading) return <p className="p-4">Cargando carrito...</p>;*/ }
   if (error) return <p className="p-4 text-red-500">Error: {error}</p>;
 
+  // Caso de carrito vacío o no encontrado
   if (!carrito || carrito.items.length === 0)
     return (
       <div className="flex flex-col items-center justify-center min-h-screen w-full px-4">
+        {/* JSX para mostrar el mensaje de carrito vacío */}
         <div className="bg-white shadow-lg rounded-lg p-6 sm:p-8 flex flex-col items-center w-full max-w-md oscuro">
           <span className="material-symbols-outlined text-5xl sm:text-6xl text-gray-400 mb-4 osc">
             shopping_cart_off
           </span>
           <h2 className="text-xl sm:text-2xl font-bold text-gray-700 mb-2 text-center oscuroTextoGris ">Tu carrito está vacío</h2>
           <p className="text-gray-500 mb-4 text-center">¡Añade eventos para empezar tu compra!</p>
+          {/* GIF de un carrito vacío */}
           <img
             src="https://i.giphy.com/giXLnhxp60zEEIkq8K.webp"
             alt="vacio..."
@@ -174,10 +229,15 @@ export default function ShoppingCart({ user }) {
         </div>
       </div>
     );
+  // ----------------------------------------------------
+  // 7. RENDERIZADO PRINCIPAL (Carrito con contenido)
+  // ----
 
   return (
     <div className="max-w-5xl mx-auto p-6 md-6  ">
       <h1 className="text-3xl font-bold mb-6 text-blue-950 oscuroTextoGris" >Tu Carrito de Compras</h1>
+
+      {/* Listado de ítems del carrito */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
 
         {carrito.items.map((item, index) => (
@@ -201,6 +261,7 @@ export default function ShoppingCart({ user }) {
         ))}
       </div>
 
+      {/* Controles de carrito */}
       <div className="mt-6 flex justify-between items-center">
         <div className="flex gap-4">
           <button
@@ -220,45 +281,46 @@ export default function ShoppingCart({ user }) {
 
       </div>
 
-      {/* Recomendaciones */}
-          <h2 className="text-2xl font-semibold mb-3 mt-6 claroEvento oscuroEvento">
-            Eventos recomendados con IA
-          </h2>
-{recomendaciones.length > 0 ? (
-  <div className="overflow-x-auto flex space-x-4 pb-4 carrusel-sin-scrollbar">
-    {recomendaciones.map((rec) => (
-      <div
-        key={rec.id}
-        className="bg-gray-50 rounded-lg shadow flex-none flex flex-col text-gray-800 oscuroBox w-50 cursor-pointer"
-        onClick={() => window.location.href = `/evento/${encodeURIComponent(rec.id)}`}
-      >
-        {rec.imagen ? (
-          <>
-            <img
-              src={rec.imagen}
-              alt={rec.nombre}
-              className="w-full h-50 object-cover aspect-square rounded-t-lg"
-            />
-            <div className="flex flex-col items-center justify-center p-4 text-center w-full">
-              <h3 className="text-lg font-medium">{rec.nombre}</h3>
-              <p className="text-sm">{rec.localizacion}</p>
-              <p className="text-sm font-semibold mt-1">{rec.precio} €</p>
+      {/* Recomendaciones de Eventos */}
+      <h2 className="text-2xl font-semibold mb-3 mt-6 claroEvento oscuroEvento">
+        Eventos recomendados con IA
+      </h2>
+      {recomendaciones.length > 0 ? (
+        <div className="overflow-x-auto flex space-x-4 pb-4 carrusel-sin-scrollbar">
+          {recomendaciones.map((rec) => (
+            <div
+              key={rec.id}
+              className="bg-gray-50 rounded-lg shadow flex-none flex flex-col text-gray-800 oscuroBox w-50 cursor-pointer"
+              onClick={() => window.location.href = `/evento/${encodeURIComponent(rec.id)}`}
+            >
+              {/* Renderizado de imagen o placeholder */}
+              {rec.imagen ? (
+                <>
+                  <img
+                    src={rec.imagen}
+                    alt={rec.nombre}
+                    className="w-full h-50 object-cover aspect-square rounded-t-lg"
+                  />
+                  <div className="flex flex-col items-center justify-center p-4 text-center w-full">
+                    <h3 className="text-lg font-medium">{rec.nombre}</h3>
+                    <p className="text-sm">{rec.localizacion}</p>
+                    <p className="text-sm font-semibold mt-1">{rec.precio} €</p>
+                  </div>
+                </>
+              ) : (
+                <div className="w-50 h-50 rounded-lg bg-gray-300 flex items-center justify-center">
+                  <span className="text-gray-500">Sin imagen</span>
+                </div>
+              )}
             </div>
-          </>
-        ) : (
-          <div className="w-50 h-50 rounded-lg bg-gray-300 flex items-center justify-center">
-            <span className="text-gray-500">Sin imagen</span>
-          </div>
-        )}
-      </div>
-    ))}
-  </div>
-) : (
-  <div className="mb-6 text-gray-500">No hay recomendaciones por ahora</div>
-)}
+          ))}
+        </div>
+      ) : (
+        <div className="mb-6 text-gray-500">No hay recomendaciones por ahora</div>
+      )}
 
 
-      {/* Resumen tickets comprados */}
+      {/*Resumen tickets comprados (Se muestra después de finalizar la compra) */}
       {ticketsComprados.length > 0 && (
         <div className="mt-6 p-4 bg-white shadow rounded oscuro">
 
@@ -272,6 +334,7 @@ export default function ShoppingCart({ user }) {
             </a>
           </div>
 
+          {/* Botón para alternar el orden de los tickets */}
           <div className="w-full flex justify-end">
             <button
               onClick={() => setReverseOrder((prev) => !prev)}
@@ -281,6 +344,7 @@ export default function ShoppingCart({ user }) {
             </button>
           </div>
 
+          {/* Lista de tickets comprados (el orden depende de 'reverseOrder') */}
           <ul className={`flex ${reverseOrder ? "flex-col-reverse" : "flex-col"}`}>
             {ticketsComprados.map((ticket) => (
               <li key={ticket.id} className="flex md:flex-row flex-col justify-between  items-center border p-2 rounded gap-2 border-none ">

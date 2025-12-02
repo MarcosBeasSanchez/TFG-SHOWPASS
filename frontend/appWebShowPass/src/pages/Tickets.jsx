@@ -1,20 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import jsPDF from "jspdf";
 import config from '../config/config';
-import ticketSVG from '../assets/TICKETSVG.svg';
 import { descargarPDF, enviarPDF } from "../utils/entradasPdf";
 
 
+//---------------
+// Componente Principal: UserTickets
+//-------------
 
+/**
+ * Componente que muestra la lista de tickets (entradas) comprados por el usuario.
+ * Permite ver detalles, cambiar el orden, descargar, enviar por email y eliminar tickets.
+ */
 const UserTickets = () => {
+  // Estado para almacenar la lista de tickets recibidos del backend.
   const [tickets, setTickets] = useState([]);
+  // Estado para controlar el orden de visualización de los tickets (true = Recientes/Inverso).
   const [reverseOrder, setReverseOrder] = useState(true); // NUEVA VARIABLE
+  // Obtiene el ID del usuario actual desde el localStorage.
   const userId = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")).id : null;
 
 
   useEffect(() => {
     const fetchTickets = async () => {
       try {
+        // Realiza la llamada a la API para obtener todos los tickets asociados al userId.
         const response = await fetch(`${config.apiBaseUrl}/tfg/ticket/findByUsuarioId/${userId}`);
         if (response.ok) {
           const data = await response.json();
@@ -23,17 +32,26 @@ const UserTickets = () => {
         } else {
           console.error('Error fetching tickets');
         }
+        // Solo realiza la carga si el userId está disponible.
       } catch (error) {
         console.error('Fetch error:', error);
       }
     };
 
     if (userId) {
-      fetchTickets();
+      fetchTickets(); // Llama a la función para cargar los tickets al montar el componente.
     }
-  }, [userId]);
+  }, [userId]); //// Dependencia: se ejecuta al montar el componente y si el userId cambia.
 
 
+//---------------
+// Seccion: Funciones de Manejo de Tickets
+//-------------
+
+    /**
+     * Lógica para eliminar un ticket específico.
+     * @param {number} ticketId - ID del ticket a eliminar.
+     */
    const eliminarTicket = async (ticketId) => {
     let resultado = confirm("¿Estás seguro de que deseas eliminar este ticket?");
     if (!resultado) return;
@@ -52,6 +70,10 @@ const UserTickets = () => {
       }
     };
 
+ /**
+     * Devuelve la clase CSS de Tailwind para colorear el estado del ticket.
+     * @param {string} estado - El estado actual del ticket (VALIDO, USADO, ANULADO).
+     */
   const getEstadoColorClass = (estado) => {
     switch (estado) {
         case 'VALIDO':
@@ -65,13 +87,17 @@ const UserTickets = () => {
     }
 };
 
-
+//---------------
+// Seccion: Renderizado
+//-------------
 
   return (
     <div className="max-w-5xl mx-auto p-6 md-6  ">
       <div className='p-10 bg-white shadow rounded oscuro'>
 
         <h2 className="text-2xl font-bold mb-4 text-gray-500 oscuroTextoGris">Tus Tickets</h2>
+
+        {/* Botón para cambiar el orden de la lista */}
         <div className="w-full flex justify-end">
           <button
             onClick={() => setReverseOrder((prev) => !prev)}
@@ -82,9 +108,12 @@ const UserTickets = () => {
         </div>
         
 
+        {/* Lista de Tickets */}
         <ul className={`flex ${reverseOrder ? "flex-col-reverse" : "flex-col"} gap-2`}>
           {tickets.length > 0 ? tickets.map((ticket) => (
             <li key={ticket.id} className="flex md:justify-between border-none p-2 rounded flex-col md:flex-row gap-2 border- ">
+
+              {/* Información del Ticket */}
               <div className="flex items-center gap-4">
                 <span className="material-symbols-outlined text-gray-400 " style={{ fontSize: "60px" }}>
                   qr_code
@@ -98,6 +127,7 @@ const UserTickets = () => {
                 </div>
               </div>
 
+              {/* Botones de Acciones */}
               <div className='gap-2 flex md:flex-col w-auto flex-row'>
                 <button
                   onClick={() => descargarPDF(ticket)}
@@ -124,6 +154,7 @@ const UserTickets = () => {
 
             </li>
           )) : (
+            // Mensaje si no hay tickets
             <li className="text-gray-500 text-center py-8">No tienes tickets comprados.</li>
           )}
         </ul>

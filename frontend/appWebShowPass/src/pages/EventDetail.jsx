@@ -2,38 +2,43 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import config from "../config/config";
 
+/*
+* Componente principal para mostrar los detalles de un evento específico.
+*/
 export default function EventDetail() {
-  const { id } = useParams();
-  const [evento, setEvento] = useState(null);
-  const [recomendaciones, setRecomendaciones] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [animate, setAnimate] = useState(false);
-  const [fullscreenImg, setFullscreenImg] = useState(null);
-  const [cantidad, setCantidad] = useState(1);
 
+//---------------
+// Seccion: Estados y Variables
+//-------------
+  const { id } = useParams(); // Obtener el ID del evento desde la URL
+  const [evento, setEvento] = useState(null); // Estado para almacenar los datos del evento
+  const [recomendaciones, setRecomendaciones] = useState([]); // Estado para almacenar las recomendaciones de eventos
+  const [loading, setLoading] = useState(true); // Estado para controlar la carga de datos
+  const [error, setError] = useState(null); // Estado para manejar errores
+  const [animate, setAnimate] = useState(false); // Estado para controlar animaciones
+  const [fullscreenImg, setFullscreenImg] = useState(null); // Estado para imagen en pantalla completa
+  const [cantidad, setCantidad] = useState(1); // Estado para la cantidad seleccionada
 
-  const getImageSrc = (img) => {
-    if (!img) return ""; // si no hay imagen, devolvemos vacío
-    if (img.startsWith("data:image/")) return img; // ya es Base64 con prefijo → no hacer nada
-    if (img.startsWith("http://") || img.startsWith("https://")) return img; // es URL externa → usar tal cual
-    if (img.startsWith("/uploads/")) return `${config.apiBaseUrl}${img}`; // es ruta relativa del backend
-    return `data:image/png;base64,${img}`; // es Base64 crudo → agregamos el prefijo necesario
-  };
-
+  // Obtener usuario desde localStorage
   const userFromStorage = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null;
-  // Fetch del evento
+
+
+ 
+ //---------------
+// Seccion: useEffect - Carga del Evento Principal
+//-------------
   useEffect(() => {
     const fetchEvento = async () => {
       try {
+        // Realizar la solicitud GET al backend para obtener los datos del evento
         const res = await fetch(
           `${config.apiBaseUrl}/tfg/evento/findById?id=${encodeURIComponent(id)}`
         );
         if (!res.ok) throw new Error("Evento no encontrado");
         const data = await res.json();
         console.log("Evento recibido del backend:", data);
-        setEvento(data);
-        setAnimate(true);
+        setEvento(data); // Actualizar el estado con los datos del evento
+        setAnimate(true); // Activar animación después de cargar los datos
       } catch (err) {
         console.error(err);
         setError(err.message);
@@ -42,16 +47,19 @@ export default function EventDetail() {
       }
     };
 
-    fetchEvento();
-  }, [id]);
+    fetchEvento(); // Llamar a la función para obtener los datos del evento
+  }, [id]); // Ejecutar cuando el ID del evento cambie
 
-  // Fetch de recomendaciones de usuario
+//-------------------------------------------
+// Seccion: useEffect - Carga de Recomendaciones
+//-------------------------------------------
   useEffect(() => {
     const fetchRecomendaciones = async () => {
       if (!evento?.id) return; // asegurarnos de que exista el ID
       const eventoId = evento.id;
 
       try {
+        // Llama al endpoint de la API que proporciona recomendaciones basadas en el evento actual.
         const res = await fetch(
           `${config.apiBaseUrl}/tfg/evento/recomendacionEvento/${eventoId}`,
           {
@@ -71,33 +79,31 @@ export default function EventDetail() {
         alert("Hubo un error al obtener las recomendaciones ❌");
       }
     };
+    // Solo busca recomendaciones si hay un usuario logueado.
     if (userFromStorage?.id) {
-      fetchRecomendaciones();
+      fetchRecomendaciones();// Llamar a la función para obtener recomendaciones
     }
-  }, [evento]);
+  }, [evento]);// Ejecutar cuando cambie el evento
 
-  // Formateo de fechas
-  const formatDate = (fechaStr) => {
-    if (!fechaStr) return "Por definir";
-    const fecha = new Date(fechaStr);
-    return `${fecha.getDate().toString().padStart(2, "0")}/${(fecha.getMonth() + 1).toString().padStart(2, "0")
-      }/${fecha.getFullYear()} - ${fecha.getHours().toString().padStart(2, "0")}:${fecha
-        .getMinutes()
-        .toString()
-        .padStart(2, "0")}`;
-  };
-
+//-----------------------------
+// Seccion: Manejo del Carrito
+//----------------------------
+/**
+   * Manejador para agregar entradas al carrito a través de una llamada a la API.
+   * @param {number} cantidadSeleccionada - Número de entradas a agregar.
+   */
   const handleEventoAlCarrito = async (cantidadSeleccionada) => {
     const user = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null;
-    const usuarioId = user?.id;
-    const eventoId = evento?.id;
-
+    const usuarioId = user?.id; // Obtener el ID del usuario desde el almacenamiento local
+    const eventoId = evento?.id; // Obtener el ID del evento actual
+    // Validar que ambos IDs estén disponibles
     if (!usuarioId || !eventoId) {
       alert("No se pudo identificar el carrito o el evento");
       return;
     }
     // Llamada al backend para agregar el evento al carrito
     try {
+      // Realizar la solicitud POST al backend para agregar el evento al carrito
       const res = await fetch(
         `${config.apiBaseUrl}/tfg/carrito/item/${usuarioId}/${eventoId}`,
         {
@@ -108,7 +114,7 @@ export default function EventDetail() {
       );
 
       if (!res.ok) throw new Error("Error al agregar evento al carrito");
-      const data = await res.json();
+      const data = await res.json(); // Respuesta del backend
       console.log("Carrito actualizado:", data);
 
       alert(`Entrada agregada al carrito para: ${evento.nombre} (Cantidad: ${cantidadSeleccionada})`);
@@ -118,13 +124,16 @@ export default function EventDetail() {
     }
   };
 
-
-
+//-----------------------------
+// Seccion: Renderizado Condicional
+//----------------------------
   if (loading) return <p className="p-4 text-gray-800">Cargando evento...</p>;
   if (error) return <p className="p-4 text-red-500">Error: {error}</p>;
   if (!evento) return null;
 
-  // Fullscreen
+//-----------------------------
+// Seccion: Renderizado de Modal de Imagen Ampliada
+//-----------------------------
   if (fullscreenImg) {
     return (
       <div
@@ -142,6 +151,7 @@ export default function EventDetail() {
             className="max-h-[90vh] max-w-[90vw] shadow-2xl transition-transform duration-300 scale-100"
             onClick={(e) => e.stopPropagation()}
           />
+          {/* Botón de X */}
           <button
             className="absolute top-2 right-2 h-10 w-10 text-white text-2xl font-bold bg-red-500 bg-opacity-50 rounded-full hover:bg-opacity-80 transition"
             style={{ zIndex: 60 }}
@@ -155,25 +165,64 @@ export default function EventDetail() {
     );
   }
 
+
+//-----------------------------
+// Seccion: Funciones de Utilidad (Imágenes y Formato)
+//----------------------------
+  /**
+   * Devuelve la fuente (src) correcta para mostrar una imagen.
+   * Maneja Base64, URLs externas y rutas relativas del backend.
+   */
+  const getImageSrc = (img) => {
+    if (!img) return ""; // si no hay imagen, devolvemos vacío
+    if (img.startsWith("data:image/")) return img; // ya es Base64 con prefijo → no hacer nada
+    if (img.startsWith("http://") || img.startsWith("https://")) return img; // es URL externa → usar tal cual
+    if (img.startsWith("/uploads/")) return `${config.apiBaseUrl}${img}`; // es ruta relativa del backend
+    return `data:image/png;base64,${img}`; // es Base64 crudo → agregamos el prefijo necesario
+  };
+
+   // Formateo de fechas
+  const formatDate = (fechaStr) => {
+    if (!fechaStr) return "Por definir";
+    const fecha = new Date(fechaStr);
+    return `${fecha.getDate().toString().padStart(2, "0")}/${(fecha.getMonth() + 1).toString().padStart(2, "0")
+      }/${fecha.getFullYear()} - ${fecha.getHours().toString().padStart(2, "0")}:${fecha
+        .getMinutes()
+        .toString()
+        .padStart(2, "0")}`;
+  };
+
+
+//---------------
+// Seccion: Renderizado Principal de la Página de Detalle
+//-------------
   return (
     <div className="flex flex-col items-center">
       <div className="relative w-full">
+
+        {/* Imagen principal del evento */}
         <img
           src={getImageSrc(evento.imagenPrincipalUrl)}
           alt={evento.nombre}
           className="w-full h-120 object-cover"
         />
+
+        {/* Título superpuesto */}
         <h1 className="absolute top-95 left-30 text-2xl sm:text-3xl md:text-4xl font-bold text-white px-4 py-2 bg-blue-950 max-w-full">
           {evento.nombre}
         </h1>
       </div>
 
+      {/* Contenedor principal del contenido del evento */}
       <div
         className={`claro oscuro shadow-xl max-w w-full p-8 
           transform transition-all duration-700 ease-out ${animate ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
         style={{ position: "relative" }}
       >
+        
         <div className="mx-auto sm:max-w-8/8 md:max-w-7/8 lg:max-w-5/8">
+
+        {/* Datos Generales (Localización, Fechas) */}
           <h2 className="text-2xl font-semibold mb-0 claroEvento oscuroEvento">Datos del evento</h2>
           <div className="flex flex-col md:flex-row md:justify-between mb-0 text-gray-800 text-lg py-8">
             <div className="bg-blue-100 oscuroBox p-1">
@@ -187,6 +236,7 @@ export default function EventDetail() {
             </div>
           </div>
 
+          {/* Descripción */}
           <div className="mb-6">
             <h2 className="text-2xl font-semibold mb-3 claroEvento oscuroEvento">Descripción</h2>
             <p className="text-gray-700 text-base mb-6 leading-relaxed claroEvento oscuroEvento">
@@ -214,7 +264,7 @@ export default function EventDetail() {
                 </div>
               </div>
             </div>
-          ) : (
+          ) : ( // No hay imágenes en la galería
             <p className="mb-6 text-gray-500">No hay imágenes en la galería.</p>
           )}
 
@@ -248,7 +298,7 @@ export default function EventDetail() {
           ) : (
             <div className="mb-6 text-gray-500 ">No hay invitados por ahora</div>
           )}
-
+          {/* Aforo */}
           <h2 className="text-2xl font-semibold mb-3 claroEvento oscuroEvento">Aforo máximo</h2>
           <p className="text-gray-700 font-bold md:text-left text-center claroEvento oscuroEvento">
             {typeof evento.aforo === "number"
@@ -265,7 +315,7 @@ export default function EventDetail() {
               : "Precio no disponible"}
           </p>
 
-          {/* Recomendaciones */}
+          {/* Sección de Recomendaciones con IA */}
           <h2 className="text-2xl font-semibold mb-3 mt-6 claroEvento oscuroEvento">
             Eventos recomendados con IA
           </h2>
@@ -304,7 +354,7 @@ export default function EventDetail() {
           )}
 
 
-          {/* Botones cantidad + carrito */}
+         {/* Botones de Cantidad y Carrito */}
           {userFromStorage ? (
             <div className="flex md:justify-end justify-center items-center mt-3 py-8">
               <button
@@ -332,7 +382,7 @@ export default function EventDetail() {
               </button>
             </div>
 
-          ) : (
+          ) : ( // Usuario no logueado
             <p className="flex md:justify-end justify-center items-center mt-3 text-gray-700 font-bold py-8 oscuroTextoGris">
               Inicia sesión para comprar entradas 🎟️
             </p>
