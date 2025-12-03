@@ -14,11 +14,23 @@ import org.springframework.stereotype.Component;
 import tfg.proyecto.TFG.dtos.DTOusuarioBajada;
 import tfg.proyecto.TFG.modelo.Usuario;
 
+/**
+ * Bean de utilidad para mapear entidades a DTOs y viceversa usando ModelMapper.
+ * <p>
+ * Incluye configuración flexible (MatchingStrategies.LOOSE) y mapeos personalizados
+ * para colecciones de IDs en ciertas entidades, como {@link Usuario} → {@link DTOusuarioBajada}.
+ * <p>
+ * Este bean se declara como {@link org.springframework.stereotype.Component} y también puede ser definido como {@link Bean} en configuración.
+ */
 @Component
 public class DtoConverter {
 	
 	private ModelMapper modelMapper;
 	
+	/**
+     * Constructor por defecto.
+     * Inicializa {@link ModelMapper} con estrategia de coincidencia flexible.
+     */
 	public DtoConverter ()
 	{
 		  modelMapper = new ModelMapper();
@@ -27,10 +39,29 @@ public class DtoConverter {
 		
 	}
 	
+
+    /**
+     * Mapea un objeto de tipo T a un DTO de tipo D.
+     *
+     * @param input    Objeto fuente a mapear.
+     * @param outClass Clase destino.
+     * @param <D>      Tipo de DTO.
+     * @param <T>      Tipo de entidad u objeto origen.
+     * @return DTO mapeado.
+     */
 	 public <D, T> D map(final T input, Class<D> outClass) {
 	        return modelMapper.map(input, outClass);
 	 }
 	 
+	 /**
+	     * Mapea una colección de objetos a una lista de DTOs.
+	     *
+	     * @param inputList Lista de objetos origen.
+	     * @param outCLass Clase DTO destino
+	     * @param <D>       Tipo de DTO.
+	     * @param <T>       Tipo de objeto origen.
+	     * @return Lista de DTOs mapeados.
+	     */
 	 public <D, T> List<D> mapAll(final Collection<T> inputList, Class<D> outCLass)
 	 {
 			        return inputList.stream()
@@ -38,6 +69,15 @@ public class DtoConverter {
 			                .collect(Collectors.toList());
 	 }
 	 
+	 /**
+	     * Método llamado al inicializar el bean.
+	     * <p>
+	     * Configura mapeos personalizados, especialmente para colecciones:
+	     * <ul>
+	     *     <li>Convierte List&lt;Entity&gt; a List&lt;Long&gt; obteniendo el ID de cada objeto.</li>
+	     *     <li>Aplica este mapeo en {@link Usuario} → {@link DTOusuarioBajada} para tickets y eventos creados.</li>
+	     * </ul>
+	     */
 	 public void inicializarBean () {
 		    modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.LOOSE);
 
@@ -78,6 +118,10 @@ public class DtoConverter {
 		    System.out.println("bean dtoConverter inicializado con mapeos personalizados para colecciones.");
 		}
 	 
+	 /**
+	     * Método llamado al destruir el bean.
+	     * Solo imprime un mensaje de finalización.
+	     */
 	 public void finalizarBean ()
 	 {
 		 System.out.println("bean dtoConverter finalizado...");

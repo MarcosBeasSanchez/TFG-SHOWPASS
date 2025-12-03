@@ -14,6 +14,19 @@ import tfg.proyecto.TFG.repositorio.RepositorioCuentaBancaria;
 import tfg.proyecto.TFG.repositorio.RepositorioEvento;
 import tfg.proyecto.TFG.repositorio.RepositorioTicket;
 import tfg.proyecto.TFG.repositorio.RepositorioUsuario;
+
+/**
+ * Servicio encargado de gestionar las cuentas bancarias (tarjetas) de los usuarios.
+ * 
+ * <p>Proporciona operaciones CRUD básicas sobre la entidad {@link TarjetaBancaria}:</p>
+ * <ul>
+ *     <li>Insertar nuevas tarjetas.</li>
+ *     <li>Actualizar tarjetas existentes.</li>
+ *     <li>Eliminar tarjetas por ID.</li>
+ *     <li>Buscar tarjetas por ID.</li>
+ *     <li>Listar todas las tarjetas bancarias.</li>
+ * </ul>
+ */
 @Service
 public class ServicioTarjetaBancaria implements IServicioTarjetaBancaria{
 	
@@ -28,6 +41,12 @@ public class ServicioTarjetaBancaria implements IServicioTarjetaBancaria{
 	@Autowired
 	DtoConverter dtoConverter;
 	
+	/**
+     * Inserta una nueva tarjeta bancaria en la base de datos.
+     *
+     * @param dto DTO de subida con los datos de la tarjeta
+     * @return DTO de bajada con los datos guardados
+     */
 	@Override
 	public DTOtarjetaBancariaBajada insert(DTOtarjetaBancariaSubida dto) {
 		DTOtarjetaBancariaBajada dtoBajada;
@@ -39,6 +58,14 @@ public class ServicioTarjetaBancaria implements IServicioTarjetaBancaria{
 		
 		return dtoBajada;
 	}
+	
+
+    /**
+     * Actualiza una tarjeta bancaria existente.
+     *
+     * @param dto DTO con datos actualizados y el ID de la tarjeta
+     * @return DTO de bajada con los datos actualizados, o null si no existe
+     */
 	@Override
 	public DTOtarjetaBancariaBajada update(DTOtarjetaBancariaSubidaUpdate dto) {
 		DTOtarjetaBancariaBajada dtoBajada;
@@ -52,6 +79,13 @@ public class ServicioTarjetaBancaria implements IServicioTarjetaBancaria{
 		}
 		return dtoBajada;
 	}
+	
+	/**
+     * Elimina una tarjeta bancaria por su ID.
+     *
+     * @param id ID de la tarjeta a eliminar
+     * @return true si se eliminó correctamente, false si no existía
+     */
 	@Override
 	public boolean deleteById (Long id) {
 		boolean exito;
@@ -63,6 +97,13 @@ public class ServicioTarjetaBancaria implements IServicioTarjetaBancaria{
 		}
 		return exito;
 	}
+	
+	 /**
+     * Obtiene una tarjeta bancaria por su ID.
+     *
+     * @param id ID de la tarjeta
+     * @return DTO de bajada con los datos de la tarjeta, o null si no existe
+     */
 	@Override
 	public DTOtarjetaBancariaBajada findById(Long id) {
 		DTOtarjetaBancariaBajada dtobajada;
@@ -77,6 +118,12 @@ public class ServicioTarjetaBancaria implements IServicioTarjetaBancaria{
 		
 		return dtobajada;
 	}
+	
+	 /**
+     * Lista todas las cuentas bancarias registradas.
+     *
+     * @return lista de DTOs de bajada con todas las tarjetas
+     */
 	@Override
 	public List<DTOtarjetaBancariaBajada> listAllCuentasBancarias() {
 		return dtoConverter.mapAll((List<TarjetaBancaria>) repoCuentaBancaria.findAll(), DTOtarjetaBancariaBajada.class);

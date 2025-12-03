@@ -20,7 +20,22 @@ import tfg.proyecto.TFG.dtos.DTOtarjetaBancariaSubida;
 import tfg.proyecto.TFG.dtos.DTOtarjetaBancariaSubidaUpdate;
 import tfg.proyecto.TFG.servicios.IServicioTarjetaBancaria;
 
-@CrossOrigin(origins = "*") //permite las peticiones desde el front
+/**
+ * Controlador REST para la gestión de cuentas bancarias / tarjetas de usuario.
+ *
+ * <p>Proporciona endpoints para:
+ * <ul>
+ *     <li>Insertar una nueva cuenta bancaria</li>
+ *     <li>Actualizar una cuenta existente</li>
+ *     <li>Eliminar una cuenta por id</li>
+ *     <li>Obtener una cuenta por id</li>
+ *     <li>Listar todas las cuentas</li>
+ * </ul>
+ *
+ * <p>Todos los endpoints están prefijados con <code>/tfg/cuentaBancaria/</code> y permiten 
+ * solicitudes CORS desde cualquier origen.
+ */
+@CrossOrigin(origins = "*") 
 @RestController
 @RequestMapping("/tfg/cuentaBancaria/")
 public class ControlCuentaBancaria {
@@ -28,12 +43,25 @@ public class ControlCuentaBancaria {
 	@Autowired
 	IServicioTarjetaBancaria daoCuentaBancaria;
 
+
+    /**
+     * Inserta una nueva cuenta bancaria (tarjeta) en el sistema.
+     *
+     * @param dto DTO de subida con los datos de la tarjeta
+     * @return DTO de bajada con la tarjeta creada
+     */
 	@PostMapping("insert")
 	public ResponseEntity<DTOtarjetaBancariaBajada> insertarCuenta(@RequestBody DTOtarjetaBancariaSubida dto) {
 		DTOtarjetaBancariaBajada cuenta = daoCuentaBancaria.insert(dto);
 		return new ResponseEntity<>(cuenta, HttpStatus.OK);
 	}
 	
+	/**
+     * Actualiza una cuenta bancaria existente.
+     *
+     * @param dto DTO de actualización con los datos nuevos
+     * @return DTO de bajada actualizado o NOT_FOUND si no existe
+     */
 	@PutMapping("update")
     public ResponseEntity<DTOtarjetaBancariaBajada> actualizarCuenta(@RequestBody DTOtarjetaBancariaSubidaUpdate dto) {
         DTOtarjetaBancariaBajada cuenta = daoCuentaBancaria.update(dto);
@@ -44,6 +72,12 @@ public class ControlCuentaBancaria {
         }
     }
 	
+	/**
+     * Elimina una cuenta bancaria por su ID.
+     *
+     * @param id ID de la cuenta a eliminar
+     * @return OK si se eliminó, NOT_FOUND si no existe
+     */
 	@DeleteMapping("delete/{id}")
     public ResponseEntity<Void> eliminarCuenta(@PathVariable Long id) {
         boolean eliminado = daoCuentaBancaria.deleteById(id);
@@ -54,6 +88,12 @@ public class ControlCuentaBancaria {
         }
     }
 
+	/**
+     * Obtiene una cuenta bancaria por su ID.
+     *
+     * @param id ID de la cuenta
+     * @return DTO de bajada con la cuenta o NOT_FOUND si no existe
+     */
     @GetMapping("findById/{id}")
     public ResponseEntity<DTOtarjetaBancariaBajada> obtenerCuentaPorId(@PathVariable Long id) {
         DTOtarjetaBancariaBajada cuenta = daoCuentaBancaria.findById(id);
@@ -64,6 +104,11 @@ public class ControlCuentaBancaria {
         }
     }
 
+    /**
+     * Lista todas las cuentas bancarias registradas.
+     *
+     * @return Lista de DTOs de bajada de todas las cuentas
+     */
     @GetMapping("findAll")
     public ResponseEntity<List<DTOtarjetaBancariaBajada>> listarTodasCuentas() {
         List<DTOtarjetaBancariaBajada> cuentas = daoCuentaBancaria.listAllCuentasBancarias();

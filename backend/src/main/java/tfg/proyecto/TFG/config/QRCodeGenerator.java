@@ -14,19 +14,22 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 
 /**
- * Clase utilitaria para generar códigos QR como imágenes PNG en memoria.
- * Devuelve los bytes de la imagen para que puedan guardarse en disco o convertirse a Base64.
+ * Componente Spring para generar códigos QR en memoria.
+ * <p>
+ * Permite generar un código QR a partir de un texto y obtenerlo como un arreglo de bytes en formato PNG.
+ * Esto es útil para enviarlo por email, almacenarlo en disco, o convertirlo a Base64.
  */
 @Component
 public class QRCodeGenerator {
 
-    /**
-     * Genera un código QR en formato PNG a partir de un texto.
+	 /**
+     * Genera un código QR en formato PNG.
      *
-     *  texto Texto que contendrá el QR (por ejemplo, datos del ticket)
-     *  ancho Anchura del QR en píxeles
-     *  alto  Altura del QR en píxeles
-     *  Bytes de la imagen PNG generada
+     * @param texto Texto que contendrá el QR (por ejemplo, información de un ticket)
+     * @param ancho Anchura del QR en píxeles
+     * @param alto  Altura del QR en píxeles
+     * @return Arreglo de bytes con la imagen PNG generada
+     * @throws RuntimeException Si ocurre un error generando la matriz del QR o escribiendo la imagen
      */
     public byte[] generarQRBytes(String texto, int ancho, int alto) {
         QRCodeWriter qrCodeWriter = new QRCodeWriter();

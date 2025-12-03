@@ -23,17 +23,37 @@ import tfg.proyecto.TFG.repositorio.RepositorioCarritoItem;
 import tfg.proyecto.TFG.repositorio.RepositorioEvento;
 import tfg.proyecto.TFG.repositorio.RepositorioUsuario;
 
+
+
+/**
+ * Implementación del servicio {@link IServicioCarrito} encargado de gestionar toda la lógica
+ * relacionada con el carrito de compras.
+ * 
+ * Este servicio maneja operaciones como:
+ * <ul>
+ *     <li>Obtención o creación automática del carrito de un usuario.</li>
+ *     <li>Inserción de items en el carrito.</li>
+ *     <li>Actualización y eliminación de items.</li>
+ *     <li>Vaciado del carrito.</li>
+ *     <li>Cálculo del total y finalización de compra con generación de tickets.</li>
+ * </ul>
+ */
 @Service
 public class ServicioCarritoImpl implements IServicioCarrito{
 
-	 /*
-     * Servicio encargado de gestionar toda la lógica relacionada con el carrito
-     * de compra: creación automática, inserción de items, modificación, eliminación,
-     * vaciado, cálculo del total y finalización de compra (con generación de tickets).
-     */
-
     private final PasswordEncoder passwordEncoder;
-
+    
+    
+    
+    /*
+     * Repositorios y servicios inyectados:
+     * - carritoDAO: maneja la persistencia de Carrito.
+     * - itemDAO: maneja los CarritoItem.
+     * - eventoDAO: consulta eventos para validar existencia y precio.
+     * - usuarioDAO: consulta datos del usuario, principalmente su tarjeta y saldo.
+     * - servicioTicket: genera tickets al finalizar la compra.
+     * - dtoConverter: convierte entidades a DTOs para enviar a la capa de controlador.
+     */
     @Autowired private RepositorioCarrito carritoDAO;
     @Autowired private RepositorioCarritoItem itemDAO;
     @Autowired private RepositorioEvento eventoDAO;
@@ -41,6 +61,12 @@ public class ServicioCarritoImpl implements IServicioCarrito{
     @Autowired private ServicioTicketImpl servicioTicket;
     @Autowired private DtoConverter dtoConverter;
 
+    
+    /*
+     * EntityManager de JPA.
+     * Se utiliza para forzar sincronización y limpiar el contexto de persistencia
+     * tras eliminar un item del carrito, evitando problemas de caché de JPA.
+     */
     @PersistenceContext
     private EntityManager em;
 
@@ -54,7 +80,10 @@ public class ServicioCarritoImpl implements IServicioCarrito{
     }
 
     /**
-     * Obtiene el carrito activo del usuario. Si no existe, se crea.
+     * Obtiene el carrito activo de un usuario. Si no existe, se crea automáticamente.
+     *
+     * @param usuarioId el ID del usuario
+     * @return un {@link DTOCarritoBajada} representando el carrito activo
      */
     @Override
     public DTOCarritoBajada obtenerCarritoPorUsuario(Long usuarioId) {
@@ -62,9 +91,15 @@ public class ServicioCarritoImpl implements IServicioCarrito{
         return dtoConverter.map(carrito, DTOCarritoBajada.class);
     }
 
-    /**
+     /**
      * Agrega un nuevo item al carrito del usuario.
      * Si el carrito no existe, se crea automáticamente.
+     *
+     * @param usuarioId el ID del usuario
+     * @param eventoId el ID del evento a agregar
+     * @param cantidad la cantidad de entradas del evento
+     * @return el {@link DTOCarritoBajada} actualizado
+     * @throws RuntimeException si el evento no existe
      */
     @Override
     @Transactional
@@ -97,6 +132,12 @@ public class ServicioCarritoImpl implements IServicioCarrito{
     /**
      * Actualiza la cantidad de un item existente dentro del carrito.
      * Valida que el item pertenece al carrito del usuario.
+     *
+     * @param usuarioId el ID del usuario
+     * @param itemId el ID del item a actualizar
+     * @param cantidad la nueva cantidad
+     * @return el {@link DTOCarritoBajada} actualizado
+     * @throws RuntimeException si el item no existe o no pertenece al carrito del usuario
      */
     @Override
     @Transactional
@@ -104,6 +145,7 @@ public class ServicioCarritoImpl implements IServicioCarrito{
 
         Carrito carrito = obtenerOCrearCarrito(usuarioId);
 
+        // Verificación: el item existe
         CarritoItem item = itemDAO.findById(itemId)
                 .orElseThrow(() -> new RuntimeException("Item no encontrado"));
 
@@ -119,8 +161,13 @@ public class ServicioCarritoImpl implements IServicioCarrito{
     }
 
     /**
-     * Elimina un item del carrito, validando que pertenece al usuario.
-     * Utiliza EntityManager para asegurar recarga limpia desde la base de datos.
+     * Elimina un item del carrito del usuario.
+     * Valida que pertenece al usuario.
+     *
+     * @param usuarioId el ID del usuario
+     * @param itemId el ID del item a eliminar
+     * @return el {@link DTOCarritoBajada} actualizado
+     * @throws RuntimeException si el item no existe o no pertenece al usuario
      */
     @Override
     @Transactional
@@ -128,7 +175,8 @@ public class ServicioCarritoImpl implements IServicioCarrito{
 
         CarritoItem item = itemDAO.findById(itemId)
                 .orElseThrow(() -> new RuntimeException("Item no encontrado"));
-
+        
+        // Validación: el item pertenece al usuario
         if (!item.getCarrito().getUsuario().getId().equals(usuarioId))
             throw new RuntimeException("No tienes permiso para eliminar este item");
 
@@ -148,7 +196,10 @@ public class ServicioCarritoImpl implements IServicioCarrito{
     }
 
     /**
-     * Elimina todos los items del carrito del usuario.
+     * Vacía todos los items del carrito del usuario.
+     *
+     * @param usuarioId el ID del usuario
+     * @return el {@link DTOCarritoBajada} actualizado
      */
     @Override
     @Transactional
@@ -160,8 +211,12 @@ public class ServicioCarritoImpl implements IServicioCarrito{
         return dtoConverter.map(carrito, DTOCarritoBajada.class);
     }
 
-    /**
+     /**
      * Calcula el importe total del carrito.
+     * Multiplica cantidad por precio unitario de cada item.
+     *
+     * @param usuarioId el ID del usuario
+     * @return el total como {@code double}
      */
     @Override
     public double calcularTotal(Long usuarioId) {
@@ -172,8 +227,17 @@ public class ServicioCarritoImpl implements IServicioCarrito{
     }
 
     /**
-     * Finaliza la compra del carrito: valida saldo, genera tickets,
-     * descuenta saldo y vacía el carrito.
+     * Finaliza la compra del carrito:
+     * <ul>
+     *     <li>Valida saldo suficiente.</li>
+     *     <li>Genera tickets por cada item del carrito.</li>
+     *     <li>Descuenta saldo del usuario.</li>
+     *     <li>Vacia el carrito.</li>
+     * </ul>
+     *
+     * @param usuarioId el ID del usuario
+     * @return el {@link DTOCarritoBajada} actualizado (vacío)
+     * @throws RuntimeException si el carrito está vacío, el usuario no existe o saldo insuficiente
      */
     @Override
     @Transactional
@@ -201,7 +265,7 @@ public class ServicioCarritoImpl implements IServicioCarrito{
             throw new RuntimeException("Saldo insuficiente para realizar la compra");
         }
 
-        // Registro de tickets
+        // Generación de tickets
         for (CarritoItem item : carrito.getItems()) {
             for (int i = 0; i < item.getCantidad(); i++) {
 
@@ -229,7 +293,11 @@ public class ServicioCarritoImpl implements IServicioCarrito{
 
     /**
      * Obtiene el carrito activo del usuario.
-     * Si el usuario no tiene uno, se crea automáticamente.
+     * Si no tiene uno, se crea automáticamente.
+     *
+     * @param usuarioId el ID del usuario
+     * @return el carrito activo como {@link Carrito}
+     * @throws RuntimeException si el usuario no existe
      */
     private Carrito obtenerOCrearCarrito(Long usuarioId) {
 
