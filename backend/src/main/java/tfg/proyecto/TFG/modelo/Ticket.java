@@ -32,8 +32,8 @@ public class Ticket {
     private Long id;
 
     private String codigoQR; // Ruta IMG a la bbdd
-    private String contenidoQR; // UUID
-    private String urlQR; // url para abrir qr en el movil
+    private String contenidoQR; // UUID 
+    private String urlQR; // url para abrir qr en el movil / endpoint=validarQR
     private LocalDateTime fechaCompra;
     private double precioPagado;
 

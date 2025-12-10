@@ -47,7 +47,7 @@ public class Evento implements TieneId{
     private String localizacion;
 
     @Lob
-    private String imagen; // Base64 o URL
+    private String imagen; 
 
     private LocalDateTime inicioEvento;
     private LocalDateTime finEvento;

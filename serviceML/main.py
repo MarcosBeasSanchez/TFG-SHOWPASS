@@ -201,7 +201,7 @@ def recomendar_por_compras(usuario_id):
 
     return [eid for eid, _ in predicciones[:5]]
 
-
+#
 def recomendar_por_evento(evento_id):
     """ Similitud por contenido TF-IDF. """
 
@@ -250,25 +250,25 @@ def recomendar_hibrido(usuario_id):
 
 
 #  5) ENDPOINTS PÚBLICOS
-
+# Recomendaciones híbridas (SVD + TF-IDF)
 @app.get("/recommendations")
 def get_recommendations(userId: int):
     recargar_si_hay_cambios()
     return {"eventos_recomendados": recomendar_hibrido(userId)}
 
-
+# Recomendaciones por evento (similares)
 @app.get("/recommendations/event")
 def get_similares(eventoId: int):
     recargar_si_hay_cambios()
     return {"eventos_similares": recomendar_por_evento(eventoId)}
 
-
+# Endpoint para reentrenar manualmente
 @app.get("/reload")
 def reload_data():
     entrenar_modelos()
     return {"status": "retrained manually"}
 
-
+# Endpoint de prueba
 @app.get("/prueba")
 def prueba():
     return {"test": "hola desde el servicio de recomendación"}

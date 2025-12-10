@@ -1,6 +1,7 @@
 package tfg.proyecto.TFG.servicios;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -255,7 +256,6 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 		if (existente != null) {
 			throw new IllegalArgumentException("El email " + u.getEmail() + " ya existe");
 		}
-
 		// Codificar contraseña antes de guardar
 		u.setPassword(passwordEncoder.encode(u.getPassword()));
 
@@ -265,9 +265,17 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 		if (u.getFoto() == null) {
 			u.setFoto("https://i.pinimg.com/736x/d9/d8/8e/d9d88e3d1f74e2b8ced3df051cecb81d.jpg"); // foto por defecto
 		}
-		// Tarjeta por defecto
-		if (u.getTarjeta() == null)
-			u.setTarjeta(new TarjetaBancaria());
+		// Tarjeta por defecto 
+		if (u.getTarjeta() == null || u.getTarjeta().getId() == null) {
+			
+			// Creamos una nueva instancia de TarjetaBancaria con el saldo por defecto
+			TarjetaBancaria nuevaTarjeta = new TarjetaBancaria(null, u.getNombre(), null, null, null, BigDecimal.valueOf(500), u);
+            // Establecer otros campos de la tarjeta
+            nuevaTarjeta.setNombreTitular(u.getNombre()); // Usamos el nombre del usuario
+            nuevaTarjeta.setFechaCaducidad(java.time.LocalDate.now()); // O la lógica que uses para la fecha
+			//seteamos
+            u.setTarjeta(nuevaTarjeta);
+		}
 
 		// Carrito por defecto(importante setear usuario)
 		if (u.getCarrito() == null) {
@@ -275,7 +283,7 @@ public class ServicioUsuarioImpl implements IServicioUsuario {
 			carrito.setUsuario(u); // Muy importante
 			u.setCarrito(carrito);
 		}
-
+		System.out.println("Registrando usuario..." + u);
 		repoUsuario.save(u);
 
 		return dtoConverter.map(u, DTOusuarioBajada.class);
