@@ -13,7 +13,7 @@ const usuarioId = localStorage.getItem("user") ? JSON.parse(localStorage.getItem
  */
 const AddEventSection = () => {
     //const [loading, setLoading] = useState(true);
-    
+
     // Estado principal que almacena todos los datos del formulario.
     const [formData, setFormData] = useState({
         nombre: "",
@@ -28,13 +28,13 @@ const AddEventSection = () => {
         carrusels: [],
         invitados: [],
     });
-    
+
     // Estado para mensajes de éxito o error
     const [message, setMessage] = useState("");
 
-// ----------------------------------------------------
-// 2. MANEJADORES DE CAMBIOS BÁSICOS
-// ----------------------------------------------------
+    // ----------------------------------------------------
+    // 2. MANEJADORES DE CAMBIOS BÁSICOS
+    // ----------------------------------------------------
     // Maneja los cambios de los inputs de texto, números, fechas y la imagen principal (un solo archivo).
     const handleChange = (e) => {
         const { name, value, files } = e.target;
@@ -59,11 +59,11 @@ const AddEventSection = () => {
         nuevasImagenes.splice(index, 1); // Elimina el elemento en la posición 'index'
         setFormData((prev) => ({ ...prev, carrusels: nuevasImagenes }));
     };
-// ----------------------------------------------------
-// 3. MANEJADORES DE INVITADOS (Datos Anidados)
-// ---------------------------------------------------- 
+    // ----------------------------------------------------
+    // 3. MANEJADORES DE INVITADOS (Datos Anidados)
+    // ---------------------------------------------------- 
 
-// Maneja el cambio en cualquier campo de un invitado específico.
+    // Maneja el cambio en cualquier campo de un invitado específico.
     const handleInvitadoChange = (index, e) => {
         const { name, value, files } = e.target;
         const nuevosInvitados = [...formData.invitados];
@@ -104,49 +104,70 @@ const AddEventSection = () => {
         setFormData((prev) => ({ ...prev, invitados: nuevosInvitados }));
     };
 
-// ----------------------------------------------------
-// 4. CREACIÓN DEL EVENTO (Envío al Backend)
-// ----------------------------------------------------
+    // ----------------------------------------------------
+    // 4. CREACIÓN DEL EVENTO (Envío al Backend)
+    // ----------------------------------------------------
 
     const crearEvento = async (e) => {
         e.preventDefault();
         setMessage("");
 
         try {
-            const payload = new FormData();
-            //Error si no hay usuarioId
+            // 1. Validación básica
             if (!usuarioId) {
                 alert("No se encontró el ID del usuario (vendedor).");
                 return;
             }
-            // Agregar el vendedorId al payload
+
+            // 2. Inicializar el objeto FormData para manejar archivos y datos
+            const payload = new FormData();
+
+            // --- CONVERSIÓN DE CAMPOS NUMÉRICOS A NÚMERO ---
+            // Se asegura que "precio" y "aforo" se envíen como números.
+            const precioNumero = Number(formData.precio);
+            const aforoMaximo = Number(formData.aforo);
+
+            // 3. Adjuntar todos los datos al FormData
             payload.append("vendedorId", usuarioId); // IMPORTANTE
-            // Resto de campos
+
+            // Campos de texto y fechas
             payload.append("nombre", formData.nombre);
             payload.append("localizacion", formData.localizacion);
             payload.append("inicioEvento", formData.inicioEvento);
             payload.append("finEvento", formData.finEvento);
             payload.append("descripcion", formData.descripcion);
-            payload.append("precio", formData.precio);
             payload.append("categoria", formData.categoria);
-            payload.append("aforoMax", formData.aforo);
-            // Agregar archivos de imagen
-            if (formData.imagen) payload.append("imagen", formData.imagen);
-            // Agregar múltiples archivos de carrusel (el backend debe procesar esta lista)
+
+            // Campos numéricos (ya convertidos)
+            payload.append("precio", precioNumero);
+            payload.append("aforoMax", aforoMaximo);
+
+            // Archivos
+            if (formData.imagen) {
+                payload.append("imagen", formData.imagen); // Imagen principal
+            }
+
+            // Múltiples archivos de carrusel (el backend debe procesar esta lista)
             formData.carrusels.forEach((file) => payload.append("carrusels", file));
-            // Los datos anidados (invitados) se envían como una cadena JSON, 
-            // ya que FormData no maneja objetos anidados directamente. El backend debe parsear esta cadena.
+
+            // Datos anidados: Invitados (debe enviarse como cadena JSON)
             payload.append("invitados", JSON.stringify(formData.invitados));
 
+            // 4. Envío de la petición
             const res = await fetch(`${config.apiBaseUrl}/tfg/evento/insert`, {
                 method: "POST",
-                body: payload,
+                body: payload, // FormData se envía directamente como body
+                // No se establece Content-Type, el navegador lo hace automáticamente (multipart/form-data)
             });
 
-            // Manejo de errores básico
-            if (!res.ok) throw new Error("Error al crear evento");
+            // 5. Manejo de errores
+            if (!res.ok) {
+                const errorData = await res.json();
+                // Lanza un error más específico si el servidor proporciona un mensaje
+                throw new Error(`Error ${res.status}: ${errorData.message || res.statusText}`);
+            }
 
-            // Éxito: Muestra mensaje y resetea el formulario.
+            // 6. Éxito: Muestra mensaje y resetea el formulario.
             setMessage("✅ Evento creado correctamente");
             setFormData({
                 nombre: "",
@@ -156,23 +177,23 @@ const AddEventSection = () => {
                 descripcion: "",
                 precio: "",
                 categoria: "",
-                aforo: "",
+                aforo: "", // Usamos el nombre original del estado 'aforo'
                 imagen: null,
                 carrusels: [],
                 invitados: [],
             });
-            
-            console.log("Envio al backend" + JSON.stringify(payload));
+
+            console.log("Evento creado y formulario reseteado.");
             //fetchEventos();
         } catch (err) {
             console.error(err);
-            setMessage("❌ Error al crear evento");
+            setMessage("❌ Error al crear evento: " + (err.message || "Error desconocido"));
         }
     };
 
-// ----------------------------------------------------
-// 5. RENDERIZADO
-// ----------------------------------------------------
+    // ----------------------------------------------------
+    // 5. RENDERIZADO
+    // ----------------------------------------------------
     return (
         <div className="mt-4 px-2 md:px-0 text-gray-500 ">
             <h2 className="text-2xl font-bold oscuroTextoGris mb-4">Crear Evento</h2>
@@ -193,7 +214,7 @@ const AddEventSection = () => {
                     <input type="datetime-local" name="finEvento" value={formData.finEvento} onChange={handleChange} required className="p-2  rounded  bg-gray-200 text-black oscuroBox" />
 
                     <label>Precio:</label>
-                    <input type="number" name="precio" value={formData.precio} onChange={handleChange} min="0" className="p-2  rounded  bg-gray-200 text-black oscuroBox" />
+                    <input type="number" name="precio" value={formData.precio} onChange={handleChange} min="0" step="0.01" className="p-2  rounded  bg-gray-200 text-black oscuroBox" />
 
                     <label>Aforo máximo:</label>
                     <input type="number" name="aforo" value={formData.aforo} onChange={handleChange} min="0" className="p-2  rounded  bg-gray-200 text-black oscuroBox" />
@@ -215,7 +236,7 @@ const AddEventSection = () => {
                     <textarea name="descripcion" value={formData.descripcion} onChange={handleChange} className="h-32 p-2  bg-gray-200 rounded text-black md:col-span-2 oscuroBox" />
 
                     <label>Carrusel de imágenes:</label>
-                    <input type="file" multiple  accept=".png, .jpg, .jpeg, image/png, image/jpeg" onChange={handleCarruselChange} className="w-1/2 p-2 bg-gray-200 rounded text-black md:col-span-2 oscuroBox" />
+                    <input type="file" multiple accept=".png, .jpg, .jpeg, image/png, image/jpeg" onChange={handleCarruselChange} className="w-1/2 p-2 bg-gray-200 rounded text-black md:col-span-2 oscuroBox" />
                     <div className="flex flex-wrap gap-2 md:col-span-2">
                         {formData.carrusels.map((file, idx) => (
                             <div key={idx} className="relative w-24 h-24">
@@ -249,7 +270,7 @@ const AddEventSection = () => {
                     className="bg-gray-500 text-white mt-6 p-2 rounded hover:bg-blue-600 transition w-40">
                     + Agregar invitado
                 </button>
-                
+
                 {/* Botón de Submit */}
                 <div className="flex flex-col gap-4 mt-4 items-end">
                     <button

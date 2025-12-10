@@ -197,7 +197,7 @@ public class ControlTicket {
 
         if (ticket.getCodigoQR() == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
+        }		
         //coge la ruta absoluta da igual el sistema operativo
         Path rutaAbsoluta = Paths.get(System.getProperty("user.dir"), ticket.getCodigoQR());
 

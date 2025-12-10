@@ -93,7 +93,8 @@ public class ControlEvento {
 	        @RequestParam String descripcion,
 	        @RequestParam double precio,
 	        @RequestParam String categoria,
-	        @RequestParam Long vendedorId, 
+	        @RequestParam Long vendedorId,
+	        @RequestParam int aforoMax,
 	        @RequestParam(value = "imagen", required = false) MultipartFile imagen,
 	        @RequestParam(value = "carrusels", required = false) MultipartFile[] carrusels,
 	        @RequestParam(value = "invitados") String invitadosJson
@@ -112,6 +113,7 @@ public class ControlEvento {
 	        dto.setCategoria(Categoria.valueOf(categoria.toUpperCase()));
 	        dto.setInvitados(invitados);
 	        dto.setVendedorId(vendedorId);
+	        dto.setAforoMax(aforoMax);
 
 	        // Imagen principal
 	        if (imagen != null && !imagen.isEmpty()) {

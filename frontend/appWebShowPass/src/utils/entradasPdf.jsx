@@ -11,13 +11,13 @@ import config from '../config/config';
 // 2. FUNCIÓN AUXILIAR: DETERMINAR FUENTE DE IMAGEN
 // ----------------------------------------------------
 // determina cómo interpretar y construir la URL o Data URI de una imagen.
-  const getImageSrc = (img) => {
+const getImageSrc = (img) => {
     if (!img) return null; // si no hay imagen, devolvemos vacío
     if (img.startsWith("data:image/")) return img; // ya es Base64 con prefijo → no hacer nada
     if (img.startsWith("http://") || img.startsWith("https://")) return img; // es URL externa → usar tal cual
     if (img.startsWith("/uploads/")) return `${config.apiBaseUrl}${img}`; // es ruta relativa del backend
     return `data:image/png;base64,${img}`; // es Base64 crudo → agregamos el prefijo necesario
-  };
+};
 
 // ----------------------------------------------------
 // 3. FUNCIÓN AUXILIAR: CARGAR IMAGEN A BASE64
@@ -28,7 +28,7 @@ async function loadImageAsBase64(url) {
     const response = await fetch(url);
     if (!response.ok) throw new Error("No se pudo cargar la imagen");
     const blob = await response.blob(); // Obtiene la imagen como Blob
-    
+
     // Usa FileReader para la conversión asíncrona de Blob a Data URI (Base64)
     return new Promise((resolve) => {
         const reader = new FileReader();
@@ -62,8 +62,8 @@ async function hacerPDF(ticket, evento, ticketQR) {
     // Lógica de la Imagen del evento
     if (evento.imagenPrincipalUrl) {
         // Usa la función getImageSrc para obtener la fuente y la añade al PDF.
-        doc.addImage(getImageSrc(evento.imagenPrincipalUrl) , "JPEG", margin + 10, margin + 85, 120, 120);
-    }else{
+        doc.addImage(getImageSrc(evento.imagenPrincipalUrl), "JPEG", margin + 10, margin + 85, 120, 120);
+    } else {
         // Si no hay imagen, carga un placeholder (desde una URL externa).
         const placeholder = await loadImageAsBase64('https://via.placeholder.com/120x120.png?text=No+Image');
         doc.addImage(placeholder, "PNG", margin + 10, margin + 85, 120, 120);
@@ -73,17 +73,29 @@ async function hacerPDF(ticket, evento, ticketQR) {
     doc.setTextColor(255, 215, 0);
     doc.text(evento.nombre, margin + 140, margin + 100);
     doc.setFontSize(12);
-    doc.setTextColor(255, 255, 255); 
+    doc.setTextColor(255, 255, 255);
     doc.text(`Inicio del evento: ${new Date(evento.inicioEvento).toLocaleString()}`, margin + 140, margin + 120);
     doc.text(`Fecha de compra: ${new Date(evento.finEvento).toLocaleString()}`, margin + 140, margin + 140);
     doc.text(`Precio: ${evento.precio.toFixed(2)} €`, margin + 140, margin + 160);
 
-   // Lógica del Código QR
+    // Lógica del Código QR
     if (ticketQR) {
-        const qrSize = 100;
         // Carga el QR (que es una URL a la imagen del QR) y lo convierte a Base64
+        const qrSource = getImageSrc(ticketQR); // <-- Usa la utilidad para obtener la URL completa o Base64
+        const qrSize = 100;
         try {
-            const qrBase64 = await loadImageAsBase64(ticketQR);
+
+            let qrBase64;
+            // Si getImageSrc devuelve un Data URI (Base64), lo usamos directamente.
+            if (qrSource && qrSource.startsWith("data:image/")) {
+                qrBase64 = qrSource;
+            } else if (qrSource) {
+                // Si es una URL completa (gracias a getImageSrc), la cargamos y convertimos a Base64.
+                qrBase64 = await loadImageAsBase64(qrSource);
+            } else {
+                throw new Error("Fuente de QR inválida.");
+            }
+
             doc.addImage(
                 qrBase64,
                 "PNG",
@@ -109,7 +121,7 @@ async function hacerPDF(ticket, evento, ticketQR) {
     doc.text(`Evento ID: ${ticket.eventoId}`, margin + 10, infoStartY + 60);
     doc.text(`Nombre del evento: ${ticket.nombreEvento}`, margin + 10, infoStartY + 80);
     doc.text(`Inicio del evento: ${new Date(evento.inicioEvento).toLocaleString()}`, margin + 10, infoStartY + 100);
-    
+
     // Nota legal
     doc.setFontSize(10);
     doc.setTextColor(120, 120, 120);
@@ -126,7 +138,7 @@ async function hacerPDF(ticket, evento, ticketQR) {
 // Orquesta la obtención de datos y la descarga del PDF en el navegador.
 async function descargarPDF(ticket) {
     try {
-       // 1. Obtener datos del Evento
+        // 1. Obtener datos del Evento
         const res = await fetch(`${config.apiBaseUrl}/tfg/evento/findById?id=${ticket.eventoId}`);
         if (!res.ok) throw new Error("Error obteniendo el evento del backend");
         const evento = await res.json();
@@ -140,7 +152,7 @@ async function descargarPDF(ticket) {
         ticket.codigoQR = qrData.codigoQR;
         ticket.contenidoQR = qrData.contenidoQR;
         console.log("Código QR recibido del backend para PDF:", ticket.codigoQR, ticket.contenidoQR);
-        
+
         // 3. Crear y guardar el PDF
         const doc = await hacerPDF(ticket, ticket.evento, ticket.codigoQR);
         // Utiliza el método nativo de jsPDF para forzar la descarga en el navegador.
@@ -165,7 +177,7 @@ async function enviarPDF(ticket) {
             return;
         }
 
-       // 2. Obtener datos faltantes (Evento y QR), si no están ya en el objeto ticket
+        // 2. Obtener datos faltantes (Evento y QR), si no están ya en el objeto ticket
         if (!ticket.evento) {
             const resEvento = await fetch(`${config.apiBaseUrl}/tfg/evento/findById?id=${ticket.eventoId}`);
             if (!resEvento.ok) throw new Error("Error obteniendo el evento del backend");
@@ -194,7 +206,7 @@ async function enviarPDF(ticket) {
             headers: { "Content-Type": "application/json" },
             //crear JSON
             body: JSON.stringify({
-                email : email, // email del usuario
+                email: email, // email del usuario
                 ticketId: ticket.id, // ID del ticket
                 eventoNombre: ticket.nombreEvento, //nombre del evento
                 pdfBase64 //pdf en base64
