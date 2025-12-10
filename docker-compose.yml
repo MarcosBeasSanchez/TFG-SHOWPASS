@@ -45,7 +45,8 @@ services:
     container_name: showpass_frontend_web
     ports:
       - "80:80" # El puerto 80 del contenedor se mapea al 80 del host
-   
+    environment:
+      VITE_API_URL: http://localhost:8080 
     depends_on:
       backend:  # El frontend web necesita que el backend esté listo para funcionar
         condition: service_healthy

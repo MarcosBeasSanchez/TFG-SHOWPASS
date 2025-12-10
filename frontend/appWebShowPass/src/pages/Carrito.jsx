@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import config from "../config/config";
 import { descargarPDF, enviarPDF } from "../utils/entradasPdf";
+import { getImageSrc } from "../utils/imageUtils";
 
 /**
  * Componente que gestiona el carrito de compras y la finalización de la compra del usuario.
@@ -297,7 +298,7 @@ export default function ShoppingCart() {
               {rec.imagen ? (
                 <>
                   <img
-                    src={rec.imagen}
+                    src={getImageSrc(rec.imagen)}
                     alt={rec.nombre}
                     className="w-full h-50 object-cover aspect-square rounded-t-lg"
                   />

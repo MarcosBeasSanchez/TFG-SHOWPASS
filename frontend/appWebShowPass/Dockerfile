@@ -18,7 +18,8 @@ COPY . .
 
 # Compila la aplicación para producción (AJUSTE CRÍTICO AQUÍ)
 # La variable VITE_API_URL debe apuntar al nombre del servicio y puerto interno de Docker Compose
-RUN VITE_API_URL=http://localhost:8080 npm run build
+#RUN VITE_API_URL=http://localhost:8080 npm run build
+RUN npm run build
 
 # FASE 2: Ejecución (Run)
 # Usa una imagen ligera de Nginx para servir los archivos estáticos

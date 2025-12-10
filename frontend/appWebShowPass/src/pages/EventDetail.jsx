@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import config from "../config/config";
-
+import { getImageSrc } from "../utils/imageUtils";
 /*
 * Componente principal para mostrar los detalles de un evento específico.
 */
@@ -135,7 +135,7 @@ export default function EventDetail() {
 // Seccion: Renderizado de Modal de Imagen Ampliada
 //-----------------------------
   if (fullscreenImg) {
-    return (
+    return (  
       <div
         className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 transition-opacity duration-300"
         tabIndex={-1}
@@ -172,7 +172,7 @@ export default function EventDetail() {
   /**
    * Devuelve la fuente (src) correcta para mostrar una imagen.
    * Maneja Base64, URLs externas y rutas relativas del backend.
-   */
+   
   const getImageSrc = (img) => {
     if (!img) return ""; // si no hay imagen, devolvemos vacío
     if (img.startsWith("data:image/")) return img; // ya es Base64 con prefijo → no hacer nada
@@ -180,7 +180,7 @@ export default function EventDetail() {
     if (img.startsWith("/uploads/")) return `${config.apiBaseUrl}${img}`; // es ruta relativa del backend
     return `data:image/png;base64,${img}`; // es Base64 crudo → agregamos el prefijo necesario
   };
-
+*/
    // Formateo de fechas
   const formatDate = (fechaStr) => {
     if (!fechaStr) return "Por definir";
@@ -331,7 +331,7 @@ export default function EventDetail() {
                   {rec.imagen ? (
                     <>
                       <img
-                        src={rec.imagen}
+                        src={getImageSrc(rec.imagen)}
                         alt={rec.nombre}
                         className="w-full h-50 object-cover aspect-square rounded-t-lg"
                       />
